@@ -73,8 +73,13 @@ func (b *Builder) UpdateName(fileName, productName, desc string) {
 	}
 }
 
+// MakeSysoPath todo
+func MakeSysoPath(outdir, arch string) string {
+	return utilities.StrCat(outdir, string(os.PathSeparator), "windows_", arch, ".syso")
+}
+
 // WriteSyso todo
-func (b *Builder) WriteSyso(outdir, arch string) error {
+func (b *Builder) WriteSyso(fileout, arch string) error {
 	if len(b.vi.FixedFileInfo.FileFlagsMask) == 0 {
 		b.vi.FixedFileInfo.FileFlagsMask = "3f"
 	}
@@ -98,7 +103,6 @@ func (b *Builder) WriteSyso(outdir, arch string) error {
 	}
 	b.vi.Build()
 	b.vi.Walk()
-	fileout := utilities.StrCat(outdir, "/windows_", arch, ".syso")
 	if err := b.vi.WriteSyso(fileout, arch); err != nil {
 		return utilities.ErrorCat("Error writing syso: ", err.Error())
 	}
