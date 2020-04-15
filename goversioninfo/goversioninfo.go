@@ -40,8 +40,8 @@ type VersionInfo struct {
 
 // Translation with langid and charsetid.
 type Translation struct {
-	LangID    `json:"LangID"`
-	CharsetID `json:"CharsetID"`
+	LangID    LangID    `json:"LangID,omitempty"`
+	CharsetID CharsetID `json:"CharsetID,omitempty"`
 }
 
 // FileVersion with 3 parts.

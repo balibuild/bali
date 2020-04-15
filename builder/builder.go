@@ -44,8 +44,8 @@ func (b *Builder) AddManifest(src string) error {
 	return nil
 }
 
-// Version todo
-func (b *Builder) Version(filever, prover string) {
+// FillVersion todo
+func (b *Builder) FillVersion(filever, prover string) {
 	if len(b.vi.StringFileInfo.FileVersion) == 0 && len(filever) != 0 {
 		b.vi.StringFileInfo.FileVersion = filever
 	}
@@ -60,18 +60,42 @@ func (b *Builder) Version(filever, prover string) {
 	}
 }
 
-// Name todo
-func (b *Builder) Name(fileName, productName string) {
+// UpdateName todo
+func (b *Builder) UpdateName(fileName, productName, desc string) {
 	if len(b.vi.StringFileInfo.ProductName) == 0 && len(productName) != 0 {
 		b.vi.StringFileInfo.ProductName = productName
 	}
 	if len(b.vi.StringFileInfo.InternalName) == 0 && len(fileName) != 0 {
 		b.vi.StringFileInfo.InternalName = fileName
 	}
+	if len(b.vi.StringFileInfo.FileDescription) == 0 && len(desc) != 0 {
+		b.vi.StringFileInfo.FileDescription = desc
+	}
 }
 
 // WriteSyso todo
 func (b *Builder) WriteSyso(outdir, arch string) error {
+	if len(b.vi.FixedFileInfo.FileFlagsMask) == 0 {
+		b.vi.FixedFileInfo.FileFlagsMask = "3f"
+	}
+	if len(b.vi.FixedFileInfo.FileFlags) == 0 {
+		b.vi.FixedFileInfo.FileFlagsMask = "00"
+	}
+	if len(b.vi.FixedFileInfo.FileOS) == 0 {
+		b.vi.FixedFileInfo.FileOS = "0x40004"
+	}
+	if len(b.vi.FixedFileInfo.FileType) == 0 {
+		b.vi.FixedFileInfo.FileType = "01"
+	}
+	if len(b.vi.FixedFileInfo.FileSubType) == 0 {
+		b.vi.FixedFileInfo.FileSubType = "00"
+	}
+	if b.vi.VarFileInfo.Translation.LangID == 0 {
+		b.vi.VarFileInfo.Translation.LangID = goversioninfo.LngUSEnglish
+	}
+	if b.vi.VarFileInfo.Translation.CharsetID == 0 {
+		b.vi.VarFileInfo.Translation.CharsetID = goversioninfo.CsUnicode
+	}
 	b.vi.Build()
 	b.vi.Walk()
 	fileout := utilities.StrCat(outdir, "/windows_", arch, ".syso")
