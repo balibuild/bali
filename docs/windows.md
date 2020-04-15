@@ -1,4 +1,4 @@
-# Bali On Windows
+# Bali for Windows
 
 ## Windows Enhanced Build
 
