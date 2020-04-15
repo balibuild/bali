@@ -1,6 +1,6 @@
 {
-    "name": "bali",
-    "description": "Bali - Golang Minimalist build and packaging tool",
+    "name": "balistub",
+    "description": "Bali PE stub",
     "destination": "bin",
     "version": "1.0.0",
     "goflags": [
@@ -8,6 +8,5 @@
         "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'"
     ],
     "versioninfo": "res/versioninfo.json",
-    "icon": "res/bali.ico",
-    "manifest": "res/bali.manifest"
+    "manifest": "res/balistub.manifest"
 }

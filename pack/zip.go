@@ -38,10 +38,11 @@ func (zp *ZipPacker) Insert(src, nameInArchive string) error {
 		return utilities.ErrorCat(src, ": getting header: ", err.Error())
 	}
 	if st.IsDir() {
-		header.Name = utilities.StrCat(nameInArchive, "/")
+		// Windows support '/'
+		header.Name = utilities.StrCat(filepath.ToSlash(nameInArchive), "/")
 		header.Method = zip.Store
 	} else {
-		header.Name = nameInArchive
+		header.Name = filepath.ToSlash(nameInArchive)
 		header.Method = zip.Deflate
 	}
 	writer, err := zp.zw.CreateHeader(header)

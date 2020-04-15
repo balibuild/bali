@@ -21,7 +21,7 @@
 	"StringFileInfo": {
 		"Comments": "",
 		"CompanyName": "Bali Team",
-		"FileDescription": "Bali is a golang cross-compilation and cross-platform build and packaging tool",
+		"FileDescription": "Bali - Golang Minimalist build and packaging tool",
 		"FileVersion": "",
 		"InternalName": "bali.exe",
 		"LegalCopyright": "Copyright \u00A9 2020. Bali contributors",
