@@ -3,7 +3,6 @@ package pecoff
 import (
 	"strconv"
 
-	"github.com/akavel/rsrc/coff"
 	"github.com/balibuild/bali/utilities"
 )
 
@@ -62,15 +61,6 @@ func (vi *VersionInfo) Filling() error {
 	}
 	if err := vi.productVersion.fillString(vi.ProductVersion); err != nil {
 		return utilities.ErrorCat("Fill ProductVersion: ", err.Error())
-	}
-	return nil
-}
-
-// WriteSyso todo
-func (vi *VersionInfo) WriteSyso(cwd string, arch string) error {
-	coff := coff.NewRSRC()
-	if err := coff.Arch(arch); err != nil {
-		return err
 	}
 	return nil
 }
