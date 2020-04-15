@@ -14,6 +14,7 @@ import (
 
 	"github.com/akavel/rsrc/binutil"
 	"github.com/akavel/rsrc/coff"
+	"github.com/balibuild/bali/utilities"
 )
 
 // *****************************************************************************
@@ -27,14 +28,14 @@ func (vi *VersionInfo) ParseJSON(jsonBytes []byte) error {
 
 // VersionInfo data container
 type VersionInfo struct {
-	FixedFileInfo  `json:"FixedFileInfo"`
-	StringFileInfo `json:"StringFileInfo"`
-	VarFileInfo    `json:"VarFileInfo"`
+	FixedFileInfo  FixedFileInfo  `json:"FixedFileInfo,omitempty"`
+	StringFileInfo StringFileInfo `json:"StringFileInfo,omitempty"`
+	VarFileInfo    VarFileInfo    `json:"VarFileInfo,omitempty"`
 	Timestamp      bool
 	Buffer         bytes.Buffer
 	Structure      VSVersionInfo
-	IconPath       string `json:"IconPath"`
-	ManifestPath   string `json:"ManifestPath"`
+	IconPath       string `json:"IconPath,omitempty"`
+	ManifestPath   string `json:"ManifestPath,omitempty"`
 }
 
 // Translation with langid and charsetid.
@@ -45,42 +46,68 @@ type Translation struct {
 
 // FileVersion with 3 parts.
 type FileVersion struct {
-	Major int
-	Minor int
-	Patch int
-	Build int
+	Major int `json:"Major,omitempty"`
+	Minor int `json:"Minor,omitempty"`
+	Patch int `json:"Patch,omitempty"`
+	Build int `json:"Build,omitempty"`
+}
+
+// IsZero todo
+func (f *FileVersion) IsZero() bool {
+	return f.Major == 0 && f.Minor == 0 && f.Patch == 0 && f.Build == 0
+}
+
+// Fillling todo
+func (f *FileVersion) Fillling(sv string) error {
+	svv := utilities.StrSplitSkipEmpty(sv, '.', 4)
+	if len(svv) == 0 {
+		f.Patch = 1
+		return nil
+	}
+	var err error
+	if len(svv) > 3 {
+		f.Build, err = strconv.Atoi(svv[3])
+	}
+	if len(svv) > 2 {
+		f.Patch, err = strconv.Atoi(svv[2])
+	}
+	if len(svv) > 1 {
+		f.Minor, err = strconv.Atoi(svv[2])
+	}
+	f.Major, err = strconv.Atoi(svv[2])
+	return err
 }
 
 // FixedFileInfo contains file characteristics - leave most of them at the defaults.
 type FixedFileInfo struct {
-	FileVersion    `json:"FileVersion"`
-	ProductVersion FileVersion
-	FileFlagsMask  string
-	FileFlags      string
-	FileOS         string
-	FileType       string
-	FileSubType    string
+	FileVersion    FileVersion `json:"FileVersion,omitempty"`
+	ProductVersion FileVersion `json:"ProductVersion,omitempty"`
+	FileFlagsMask  string      `json:"FileFlagsMask,omitempty"`
+	FileFlags      string      `json:"FileFlags,omitempty"`
+	FileOS         string      `json:"FileOS,omitempty"`
+	FileType       string      `json:"FileType,omitempty"`
+	FileSubType    string      `json:"FileSubType,omitempty"`
 }
 
 // VarFileInfo is the translation container.
 type VarFileInfo struct {
-	Translation `json:"Translation"`
+	Translation `json:"Translation,omitempty"`
 }
 
 // StringFileInfo is what you want to change.
 type StringFileInfo struct {
-	Comments         string
-	CompanyName      string
-	FileDescription  string
-	FileVersion      string
-	InternalName     string
-	LegalCopyright   string
-	LegalTrademarks  string
-	OriginalFilename string
-	PrivateBuild     string
-	ProductName      string
-	ProductVersion   string
-	SpecialBuild     string
+	Comments         string `json:"Comments,omitempty"`
+	CompanyName      string `json:"CompanyName,omitempty"`
+	FileDescription  string `json:"FileDescription,omitempty"`
+	FileVersion      string `json:"FileVersion,omitempty"`
+	InternalName     string `json:"InternalName,omitempty"`
+	LegalCopyright   string `json:"LegalCopyright,omitempty"`
+	LegalTrademarks  string `json:"LegalTrademarks,omitempty"`
+	OriginalFilename string `json:"OriginalFilename,omitempty"`
+	PrivateBuild     string `json:"PrivateBuild,omitempty"`
+	ProductName      string `json:"ProductName,omitempty"`
+	ProductVersion   string `json:"ProductVersion,omitempty"`
+	SpecialBuild     string `json:"SpecialBuild,omitempty"`
 }
 
 // *****************************************************************************
@@ -135,16 +162,16 @@ func padBytes(i int) []byte {
 	return make([]byte, i)
 }
 
-func (f FileVersion) getVersionHighString() string {
+func (f *FileVersion) getVersionHighString() string {
 	return fmt.Sprintf("%04x%04x", f.Major, f.Minor)
 }
 
-func (f FileVersion) getVersionLowString() string {
+func (f *FileVersion) getVersionLowString() string {
 	return fmt.Sprintf("%04x%04x", f.Patch, f.Build)
 }
 
 // GetVersionString returns a string representation of the version
-func (f FileVersion) GetVersionString() string {
+func (f *FileVersion) GetVersionString() string {
 	return fmt.Sprintf("%d.%d.%d.%d", f.Major, f.Minor, f.Patch, f.Build)
 }
 
@@ -178,7 +205,7 @@ func (vi *VersionInfo) Walk() {
 }
 
 // WriteSyso creates a resource file from the version info and optionally an icon.
-// arch must be an architecture string accepted by coff.Arch, like "386" or "amd64"
+// arch must be an architecture string accepted by coff.Arch, like "386" or "amd64" waiting support "arm"  and "arm64"
 func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 
 	// Channel for generating IDs
