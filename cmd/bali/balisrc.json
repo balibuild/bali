@@ -1,0 +1,15 @@
+{
+    "name": "bali",
+    "destination": "bin",
+    "version": "1.0.0",
+    "goflags": [
+        "-ldflags",
+        "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'"
+    ],
+    "versioninfo": {
+        "Description": "Bali is a golang cross-compilation and cross-platform build and packaging tool",
+        "LegalCopyright": "Copyright \u00A9 2020. Bali contributors",
+        "ProductName": "Bali"
+    },
+    "manifest": "res/bali.manifest"
+}

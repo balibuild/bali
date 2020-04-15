@@ -1,0 +1,7 @@
+{
+    "name": "bali",
+    "version": "1.0.0",
+    "dirs": [
+        "cmd/bali"
+    ]
+}
