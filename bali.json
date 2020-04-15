@@ -1,6 +1,13 @@
 {
     "name": "bali",
     "version": "1.0.0",
+    "files": [
+        {
+            "path": "LICENSE",
+            "destination": "share",
+            "rename": "LICENSE.bali"
+        }
+    ],
     "dirs": [
         "cmd/bali"
     ]

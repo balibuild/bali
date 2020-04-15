@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/balibuild/bali/utilities"
 )
@@ -37,13 +38,13 @@ usage: %s <option> args ...
   -v|--version     Show version number and quit
   -V|--verbose     Make the operation more talkative
   -F|--force       Turn on force mode. eg: Overwrite configuration file
-  -c|--cwd         Build dir. (Position 0, default cwd)
+  -w|--workdir     Specify bali running directory. (Position 0, default $PWD)
   -a|--arch        Build arch: amd64 386 arm arm64
   -t|--target      Build target: windows linux darwin ...
-  -o|--out         Build output dir. default '$CWD/build'
-  -z|--zip         Create archive file after successful build
-  -p|--pack        After successful build, create installation package (UNIX STGZ. Windows others)
-  -d|--dist        STGZ/TarGz package distribution directory
+  -o|--out         Specify build output directory. default '$PWD/build'
+  -d|--dest        Specify the path to save the package
+  -z|--zip         Create archive file (UNIX: .tar.gz, Windows: .zip)
+  -p|--pack        Create installation package (UNIX: STGZ, Windows: none)
 
 `, os.Args[0])
 }
@@ -56,20 +57,95 @@ func DbgPrint(format string, a ...interface{}) {
 	}
 }
 
-type baliOptions struct {
-}
-
 // Invoke argv Receiver
-func (bo *baliOptions) Invoke(val int, oa, raw string) error {
-
+func (be *BaliExecutor) Invoke(val int, oa, raw string) error {
+	switch val {
+	case 'h':
+		usage()
+		os.Exit(0)
+	case 'v':
+		version()
+		os.Exit(0)
+	case 'c':
+		cwd, err := filepath.Abs(oa)
+		if err != nil {
+			return err
+		}
+		be.workdir = cwd
+	case 'a':
+		be.arch = oa
+	case 't': // target
+		be.target = oa
+	case 'V':
+		IsDebugMode = true
+	case 'f': // --force
+		IsForceMode = true
+	case 'o': // --out
+		out, err := filepath.Abs(oa)
+		if err != nil {
+			return err
+		}
+		be.out = out
+	case 'd':
+		dest, err := filepath.Abs(oa)
+		if err != nil {
+			return err
+		}
+		be.destination = dest
+	case 'z': // --zip
+		be.makezip = true
+	case 'p': // --pack
+		be.makepack = true
+	default:
+	}
 	return nil
 }
 
-func (bo *baliOptions) parse() error {
-
+func (be *BaliExecutor) parse() error {
+	var ae utilities.ArgvParser
+	ae.Add("help", utilities.NOARG, 'h')
+	ae.Add("version", utilities.NOARG, 'v')
+	ae.Add("verbose", utilities.NOARG, 'V')
+	ae.Add("force", utilities.NOARG, 'f')
+	ae.Add("workdir", utilities.REQUIRED, 'w')
+	ae.Add("arch", utilities.REQUIRED, 'a')
+	ae.Add("target", utilities.REQUIRED, 't')
+	ae.Add("out", utilities.REQUIRED, 'o')
+	ae.Add("dest", utilities.REQUIRED, 'd')
+	ae.Add("zip", utilities.NOARG, 'z')
+	ae.Add("pack", utilities.NOARG, 'p')
+	if err := ae.Execute(os.Args, be); err != nil {
+		return err
+	}
+	if len(be.workdir) == 0 {
+		if len(ae.Unresolved()) > 0 {
+			cwd, err := filepath.Abs(ae.Unresolved()[0])
+			if err != nil {
+				return err
+			}
+			be.workdir = cwd
+		} else {
+			cwd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+			be.workdir = cwd
+		}
+	}
+	// set build out dir
+	if len(be.out) == 0 {
+		be.out = filepath.Join(be.workdir, "build")
+	}
+	if len(be.destination) == 0 {
+		be.destination = be.workdir
+	}
 	return nil
 }
 
 func main() {
-
+	var be BaliExecutor
+	if err := be.parse(); err != nil {
+		fmt.Fprintf(os.Stderr, "bali: parse args: \x1b[31m%v\x1b[0m\n", err)
+		os.Exit(1)
+	}
 }
