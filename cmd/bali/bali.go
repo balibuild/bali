@@ -17,6 +17,9 @@ type Executable struct {
 	Version     string   `json:"version,omitempty"`
 	Links       []string `json:"links,omitempty"` // create symlink
 	GoFlags     []string `json:"goflags,omitempty"`
+	VersionInfo string   `json:"versioninfo,omitempty"`
+	IconPath    string   `json:"icon,omitempty"`
+	Manifest    string   `json:"manifest,omitempty"`
 }
 
 // File todo

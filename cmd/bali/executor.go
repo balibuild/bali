@@ -25,8 +25,9 @@ type Executor struct {
 	makepack    bool
 	norename    bool
 	cleanup     bool
-	environ     []string
+	environ     []string // initialize environment
 	binaries    []string
+	linkmap     map[string]string
 	bm          Project
 }
 
@@ -129,5 +130,57 @@ func (be *Executor) Initialize() error {
 	}
 	be.environ = append(be.environ, utilities.StrCat("GOOS=", be.target))
 	be.environ = append(be.environ, utilities.StrCat("GOARCH=", be.arch))
+	return nil
+}
+
+// UpdateNow todo
+func (be *Executor) UpdateNow(version string) {
+	_ = be.de.Append("BUILD_VERSION", version)
+	t := time.Now()
+	_ = be.de.Append("BUILD_TIME", t.Format(time.RFC3339))
+}
+
+// ExpandEnv todo
+func (be *Executor) ExpandEnv(s string) string {
+	return be.de.ExpandEnv(s)
+}
+
+// BinaryName todo
+func (be *Executor) BinaryName(dir, name string) string {
+	var suffix string
+	if be.target == "windows" {
+		suffix = ".exe"
+	}
+	if len(name) == 0 {
+		return utilities.StrCat(filepath.Base(dir), suffix)
+	}
+	return utilities.StrCat(name, suffix)
+}
+
+// PathInArchive todo
+func (be *Executor) PathInArchive(destination string) string {
+	if be.makepack {
+		return destination
+	}
+	return filepath.Join(utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version), destination)
+}
+
+// Build todo
+func (be *Executor) Build() error {
+	if err := be.bm.FileConfigure(be.workdir, be.out); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Compress todo
+func (be *Executor) Compress() error {
+
+	return nil
+}
+
+// Pack todo
+func (be *Executor) Pack() error {
+
 	return nil
 }
