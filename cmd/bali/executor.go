@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/balibuild/bali/pack"
 	"github.com/balibuild/bali/utilities"
 )
 
@@ -130,6 +132,7 @@ func (be *Executor) Initialize() error {
 	}
 	be.environ = append(be.environ, utilities.StrCat("GOOS=", be.target))
 	be.environ = append(be.environ, utilities.StrCat("GOARCH=", be.arch))
+	be.linkmap = make(map[string]string)
 	return nil
 }
 
@@ -170,17 +173,90 @@ func (be *Executor) Build() error {
 	if err := be.bm.FileConfigure(be.workdir, be.out); err != nil {
 		return err
 	}
+	for _, d := range be.bm.Dirs {
+		wd := filepath.Join(be.workdir, d)
+		if err := be.Compile(wd); err != nil {
+			fmt.Fprintf(os.Stderr, "bali compile: \x1b[31m%s\x1b[0m\n", err)
+			return err
+		}
+	}
 	return nil
 }
 
 // Compress todo
 func (be *Executor) Compress() error {
+	if !utilities.PathDirExists(be.destination) {
+		if err := os.MkdirAll(be.destination, 0755); err != nil {
+			return err
+		}
+	}
+	var outfile string
+	var err error
+	var fd *os.File
+	var pk pack.Packer
+	if be.target == "windows" {
+		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
+		fd, err = os.Create(outfile)
+		if err != nil {
+			return err
+		}
+		pk = pack.NewZipPacker(fd)
+	} else {
+		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
+		fd, err = os.Create(outfile)
+		if err != nil {
+			return err
+		}
+		pk = pack.NewTargzPacker(fd)
+	}
+	defer fd.Close()
+	defer pk.Close()
+	for _, b := range be.binaries {
+		rel, err := filepath.Rel(be.out, b)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(os.Stderr, "compress target \x1b[32m%s\x1b[0m\n", rel)
+		if err := pk.AddFileEx(b, be.PathInArchive(rel), true); err != nil {
+			return err
+		}
+	}
+	for name, lnkName := range be.linkmap {
+		nameInArchive := be.PathInArchive(name)
+		fmt.Fprintf(os.Stderr, "compress link \x1b[32m%s\x1b[0m %s\n", nameInArchive, lnkName)
+		if err := pk.AddTargetLink(nameInArchive, lnkName); err != nil {
+			return err
+		}
+	}
+	for _, f := range be.bm.Files {
+		file := filepath.Join(be.workdir, f.Path)
+		rel := filepath.Join(f.Destination, f.Base())
+		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", f.Path)
+		if err := pk.AddFile(file, be.PathInArchive(rel)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// PackWin todo
+func (be *Executor) PackWin() error {
+	fmt.Fprintf(os.Stderr, "Windows installation package is not yet supported\n")
+	return nil
+}
+
+// PackUNIX todo
+func (be *Executor) PackUNIX() error {
 
 	return nil
 }
 
 // Pack todo
 func (be *Executor) Pack() error {
-
-	return nil
+	if !utilities.PathDirExists(be.destination) {
+		if err := os.MkdirAll(be.destination, 0755); err != nil {
+			return err
+		}
+	}
+	return be.PackUNIX()
 }

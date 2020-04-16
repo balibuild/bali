@@ -13,4 +13,12 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Fprintf(os.Stderr, "%s\n", rel)
+	if len(os.Args) > 1 {
+		source, err := os.Readlink(os.Args[1])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "readlink error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "readlink: [%s]\n", source)
+	}
 }

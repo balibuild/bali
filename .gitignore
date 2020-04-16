@@ -13,5 +13,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+/build/
+*.tar.gz
+/*.sh
 cmd/bali/bali
 cmd/bali/balistub

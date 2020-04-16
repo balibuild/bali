@@ -34,16 +34,16 @@ func (zp *ZipPacker) Close() error {
 }
 
 // AddTargetLink create zip symlink
-func (zp *ZipPacker) AddTargetLink(relativeName, linkName string) error {
+func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
 	var hdr zip.FileHeader
 	hdr.SetModTime(time.Now())
 	hdr.SetMode(0777) // symlink
-	hdr.Name = filepath.ToSlash(linkName)
+	hdr.Name = filepath.ToSlash(nameInArchive)
 	writer, err := zp.zw.CreateHeader(&hdr)
 	if err != nil {
 		return utilities.ErrorCat(linkName, ": making header:", err.Error())
 	}
-	if _, err := writer.Write([]byte(filepath.ToSlash(relativeName))); err != nil {
+	if _, err := writer.Write([]byte(filepath.ToSlash(linkName))); err != nil {
 		return utilities.ErrorCat(linkName, " writing symlink target: ", err.Error())
 	}
 	return nil

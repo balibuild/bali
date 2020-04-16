@@ -41,15 +41,15 @@ func (pk *TargzPacker) Close() error {
 }
 
 // AddTargetLink todo
-func (pk *TargzPacker) AddTargetLink(relativeName, linkName string) error {
+func (pk *TargzPacker) AddTargetLink(nameInArchive, linkName string) error {
 	hdr := &tar.Header{
-		Name:     filepath.ToSlash(linkName),
+		Name:     filepath.ToSlash(nameInArchive),
 		ModTime:  time.Now(),
 		Mode:     0755,
 		Typeflag: tar.TypeSymlink,
-		Linkname: filepath.ToSlash(relativeName)}
+		Linkname: filepath.ToSlash(linkName)}
 	if err := pk.tw.WriteHeader(hdr); err != nil {
-		return utilities.ErrorCat(linkName, ": write header:", err.Error())
+		return utilities.ErrorCat(nameInArchive, ": write header:", err.Error())
 	}
 	return nil
 }

@@ -169,4 +169,15 @@ func main() {
 		fmt.Fprintf(os.Stderr, "bali: initialize: \x1b[31m%v\x1b[0m\n", err)
 		os.Exit(1)
 	}
+	if err := be.Build(); err != nil {
+		fmt.Fprintf(os.Stderr, "bali: build: \x1b[31m%v\x1b[0m\n", err)
+		os.Exit(1)
+	}
+	if be.makezip {
+		if err := be.Compress(); err != nil {
+			fmt.Fprintf(os.Stderr, "bali: compress: \x1b[31m%v\x1b[0m\n", err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "bali create archive \x1b[32m%s\x1b[0m success\n", be.bm.Name)
+	}
 }

@@ -41,10 +41,14 @@ func (exe *Executable) MakeLinks(destfile string, be *Executor) error {
 			continue
 		}
 		lo := filepath.Join(be.out, cl)
+		if utilities.PathExists(lo) {
+			_ = os.RemoveAll(lo)
+		}
 		if err := os.Symlink(destfile, lo); err != nil {
 			return err
 		}
-		rel, err := filepath.Rel(lo, destfile)
+		DbgPrint("create symlink %s", lo)
+		rel, err := filepath.Rel(filepath.Dir(lo), destfile)
 		if err != nil {
 			return err
 		}
