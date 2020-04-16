@@ -72,9 +72,9 @@ func (f *FileVersion) Fillling(sv string) error {
 		f.Patch, err = strconv.Atoi(svv[2])
 	}
 	if len(svv) > 1 {
-		f.Minor, err = strconv.Atoi(svv[2])
+		f.Minor, err = strconv.Atoi(svv[1])
 	}
-	f.Major, err = strconv.Atoi(svv[2])
+	f.Major, err = strconv.Atoi(svv[0])
 	return err
 }
 

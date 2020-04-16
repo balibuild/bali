@@ -19,12 +19,12 @@ func (exe *Executable) MakeResources(wd, syso, binaryName string, be *Executor) 
 		}
 	}
 	if len(exe.IconPath) != 0 {
-		if err := b.AddIcon(exe.IconPath); err != nil {
+		if err := b.AddIcon(filepath.Join(wd, exe.IconPath)); err != nil {
 			return utilities.ErrorCat("load icon: ", err.Error())
 		}
 	}
 	if len(exe.Manifest) != 0 {
-		if err := b.AddManifest(exe.Manifest); err != nil {
+		if err := b.AddManifest(filepath.Join(wd, exe.Manifest)); err != nil {
 			return utilities.ErrorCat("load manifest: ", err.Error())
 		}
 	}
