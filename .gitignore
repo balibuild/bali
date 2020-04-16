@@ -15,6 +15,7 @@
 # vendor/
 /build/
 *.tar.gz
+*.zip
 /*.sh
 cmd/bali/bali
 cmd/bali/balistub
