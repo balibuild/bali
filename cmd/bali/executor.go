@@ -206,7 +206,7 @@ func (be *Executor) Compress() error {
 	var fd *os.File
 	var pk pack.Packer
 	if be.target == "windows" {
-		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
+		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip"))
 		fd, err = os.Create(outfile)
 		if err != nil {
 			return err
