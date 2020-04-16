@@ -60,7 +60,7 @@ func DbgPrint(format string, a ...interface{}) {
 }
 
 // Invoke argv Receiver
-func (be *BaliExecutor) Invoke(val int, oa, raw string) error {
+func (be *Executor) Invoke(val int, oa, raw string) error {
 	switch val {
 	case 'h':
 		usage()
@@ -108,7 +108,7 @@ func (be *BaliExecutor) Invoke(val int, oa, raw string) error {
 }
 
 // ParseArgv parse argv
-func (be *BaliExecutor) ParseArgv() error {
+func (be *Executor) ParseArgv() error {
 	var ae utilities.ArgvParser
 	ae.Add("help", utilities.NOARG, 'h')
 	ae.Add("version", utilities.NOARG, 'v')
@@ -152,7 +152,7 @@ func (be *BaliExecutor) ParseArgv() error {
 }
 
 func main() {
-	var be BaliExecutor
+	var be Executor
 	if err := be.ParseArgv(); err != nil {
 		fmt.Fprintf(os.Stderr, "bali: parse args: \x1b[31m%v\x1b[0m\n", err)
 		os.Exit(1)

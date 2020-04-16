@@ -11,10 +11,10 @@ import (
 	"github.com/balibuild/bali/utilities"
 )
 
-// BaliExecutor
+// Executor
 
-// BaliExecutor todo
-type BaliExecutor struct {
+// Executor todo
+type Executor struct {
 	de          *utilities.Derivator
 	target      string // os
 	arch        string
@@ -74,7 +74,7 @@ func resolveDistSupport(target, arch string) bool {
 }
 
 // TargetName todo
-func (be *BaliExecutor) TargetName(name string) string {
+func (be *Executor) TargetName(name string) string {
 	if be.norename {
 		return name
 	}
@@ -82,7 +82,7 @@ func (be *BaliExecutor) TargetName(name string) string {
 }
 
 // FileName todo
-func (be *BaliExecutor) FileName(file *File) string {
+func (be *Executor) FileName(file *File) string {
 	if be.norename || file.NoRename {
 		return file.Base()
 	}
@@ -90,7 +90,7 @@ func (be *BaliExecutor) FileName(file *File) string {
 }
 
 // Initialize todo
-func (be *BaliExecutor) Initialize() error {
+func (be *Executor) Initialize() error {
 	bali := filepath.Join(be.workdir, "bali.json")
 	if err := LoadMetadata(bali, &be.bm); err != nil {
 		return err
