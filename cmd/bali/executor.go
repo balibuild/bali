@@ -31,6 +31,7 @@ type Executor struct {
 	binaries    []string
 	linkmap     map[string]string
 	bm          Project
+	suffix      string
 }
 
 func resolveBuildID(cwd string) string {
@@ -76,22 +77,6 @@ func resolveDistSupport(target, arch string) bool {
 	return false
 }
 
-// TargetName todo
-func (be *Executor) TargetName(name string) string {
-	if be.norename {
-		return name
-	}
-	return utilities.StrCat(name, ".new")
-}
-
-// FileName todo
-func (be *Executor) FileName(file *File) string {
-	if be.norename || file.NoRename {
-		return file.Base()
-	}
-	return utilities.StrCat(file.Base(), ".template")
-}
-
 // Initialize todo
 func (be *Executor) Initialize() error {
 	bali := filepath.Join(be.workdir, "bali.json")
@@ -133,6 +118,9 @@ func (be *Executor) Initialize() error {
 	be.environ = append(be.environ, utilities.StrCat("GOOS=", be.target))
 	be.environ = append(be.environ, utilities.StrCat("GOARCH=", be.arch))
 	be.linkmap = make(map[string]string)
+	if be.target == "windows" {
+		be.suffix = ".exe"
+	}
 	return nil
 }
 
@@ -148,16 +136,39 @@ func (be *Executor) ExpandEnv(s string) string {
 	return be.de.ExpandEnv(s)
 }
 
+// TargetName todo
+func (be *Executor) TargetName(name string) string {
+	if be.norename {
+		return name
+	}
+	return utilities.StrCat(name, ".new")
+}
+
+// FileName todo
+func (be *Executor) FileName(file *File) string {
+	if be.norename || file.NoRename {
+		return file.Base()
+	}
+	return utilities.StrCat(file.Base(), ".template")
+}
+
+// AddSuffix todo
+func (be *Executor) AddSuffix(name string) string {
+	if len(be.suffix) == 0 {
+		return name
+	}
+	if strings.HasSuffix(name, be.suffix) {
+		return name
+	}
+	return utilities.StrCat(name, be.suffix)
+}
+
 // BinaryName todo
 func (be *Executor) BinaryName(dir, name string) string {
-	var suffix string
-	if be.target == "windows" {
-		suffix = ".exe"
-	}
 	if len(name) == 0 {
-		return utilities.StrCat(filepath.Base(dir), suffix)
+		return utilities.StrCat(filepath.Base(dir), be.suffix)
 	}
-	return utilities.StrCat(name, suffix)
+	return utilities.StrCat(name, be.suffix)
 }
 
 // PathInArchive todo

@@ -40,7 +40,7 @@ func (exe *Executable) MakeLinks(destfile string, be *Executor) error {
 		if len(cl) == 0 || cl == "." {
 			continue
 		}
-		lo := filepath.Join(be.out, cl)
+		lo := filepath.Join(be.out, be.AddSuffix(cl))
 		if utilities.PathExists(lo) {
 			_ = os.RemoveAll(lo)
 		}
