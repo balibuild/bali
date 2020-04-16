@@ -5,7 +5,8 @@
         {
             "path": "LICENSE",
             "destination": "share",
-            "newname": "LICENSE.bali"
+            "newname": "LICENSE.bali",
+            "norename": true
         }
     ],
     "dirs": [

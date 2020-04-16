@@ -258,7 +258,88 @@ func (be *Executor) PackWin() error {
 
 // PackUNIX todo
 func (be *Executor) PackUNIX() error {
+	outfilename := utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
+	outfile := filepath.Join(be.destination, outfilename)
+	fd, err := pack.OpenFile(outfile)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+	pk := pack.NewTargzPacker(fd)
+	defer pk.Close()
+	var rw pack.RespondWriter
+	// bali post install script
+	if len(be.bm.Respond) != 0 {
+		if !utilities.PathExists(be.bm.Respond) {
+			return utilities.ErrorCat("respond file ", be.bm.Respond, " not found")
+		}
+		if err := pk.AddFileEx(be.bm.Respond, "bali_post_install", true); err != nil {
+			return err
+		}
+	} else if !be.norename {
+		if err := rw.Initialize(); err != nil {
+			return err
+		}
+		if err := rw.WriteBase(); err != nil {
+			return err
+		}
+	}
 
+	for _, s := range be.binaries {
+		rel, err := filepath.Rel(be.out, s)
+		if err != nil {
+			_ = rw.Close()
+			return err
+		}
+		fmt.Fprintf(os.Stderr, "compress target \x1b[32m%s\x1b[0m\n", rel)
+		nameInArchive := be.PathInArchive(rel)
+		if !be.norename {
+			nameInArchive = utilities.StrCat(nameInArchive, ".new")
+		}
+		if err := pk.AddFileEx(s, nameInArchive, true); err != nil {
+			_ = rw.Close()
+			return err
+		}
+		DbgPrint("Add target %s", rel)
+		_ = rw.AddTarget(nameInArchive)
+	}
+	for name, lnkName := range be.linkmap {
+		nameInArchive := be.PathInArchive(name)
+		fmt.Fprintf(os.Stderr, "compress link \x1b[32m%s --> %s\x1b[0m\n", nameInArchive, lnkName)
+		if err := pk.AddTargetLink(nameInArchive, lnkName); err != nil {
+			_ = rw.Close()
+			return err
+		}
+	}
+	for _, f := range be.bm.Files {
+		file := filepath.Join(be.workdir, f.Path)
+		rel := filepath.Join(f.Destination, f.Base())
+		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", rel)
+		if be.norename || f.NoRename {
+			if err := pk.AddFile(file, be.PathInArchive(rel)); err != nil {
+				_ = rw.Close()
+				return err
+			}
+			DbgPrint("Add profile %s (no rename)", f.Path)
+		} else {
+			nameInArchive := utilities.StrCat(be.PathInArchive(rel), ".template")
+			if err := pk.AddFile(file, nameInArchive); err != nil {
+				_ = rw.Close()
+				return err
+			}
+			DbgPrint("Add profile %s", f.Path)
+			_ = rw.AddProfile(nameInArchive)
+		}
+	}
+	_ = rw.Close()
+	if len(rw.Path) != 0 {
+		DbgPrint("Add post install script %s", rw.Path)
+		if err := pk.AddFileEx(rw.Path, pack.RespondName, true); err != nil {
+			return err
+		}
+	}
+	fmt.Fprintf(os.Stderr, "create \x1b[32m%s\x1b[0m done\n", outfile)
+	fmt.Fprintf(os.Stderr, "Your can run '\x1b[32m./%s --prefix=/path/to/%s\x1b[0m' to install %s\n", outfilename, be.bm.Name, be.bm.Name)
 	return nil
 }
 

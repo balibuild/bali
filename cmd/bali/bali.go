@@ -67,6 +67,7 @@ type Project struct {
 	Version string   `json:"version,omitempty"`
 	Files   []File   `json:"files,omitempty"`
 	Dirs    []string `json:"dirs,omitempty"`
+	Respond string   `json:"respond,omitempty"`
 }
 
 // FileConfigure todo
