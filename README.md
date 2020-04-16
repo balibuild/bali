@@ -1,5 +1,7 @@
 # Bali - Golang Minimalist build and packaging tool
 
+[简体中文](./README.zh-CN.md)
+
 Bali is a golang cross-compilation and cross-platform minimalist build and packaging tool
 
 
