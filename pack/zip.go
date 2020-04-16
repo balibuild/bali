@@ -5,8 +5,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/balibuild/bali/utilities"
+)
+
+// Zip
+const (
+	ZipISVTX = 0x200
 )
 
 // ZipPacker todo
@@ -27,8 +33,24 @@ func (zp *ZipPacker) Close() error {
 	return zp.zw.Close()
 }
 
-// Insert file to zip packer
-func (zp *ZipPacker) Insert(src, nameInArchive string) error {
+// AddTargetLink create zip symlink
+func (zp *ZipPacker) AddTargetLink(relativeName, linkName string) error {
+	var hdr zip.FileHeader
+	hdr.SetModTime(time.Now())
+	hdr.SetMode(0777) // symlink
+	hdr.Name = filepath.ToSlash(linkName)
+	writer, err := zp.zw.CreateHeader(&hdr)
+	if err != nil {
+		return utilities.ErrorCat(linkName, ": making header:", err.Error())
+	}
+	if _, err := writer.Write([]byte(filepath.ToSlash(relativeName))); err != nil {
+		return utilities.ErrorCat(linkName, " writing symlink target: ", err.Error())
+	}
+	return nil
+}
+
+// AddFileEx todo
+func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error {
 	st, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -36,6 +58,9 @@ func (zp *ZipPacker) Insert(src, nameInArchive string) error {
 	header, err := zip.FileInfoHeader(st)
 	if err != nil {
 		return utilities.ErrorCat(src, ": getting header: ", err.Error())
+	}
+	if exerights {
+		header.SetMode(header.Mode() | 0755)
 	}
 	if st.IsDir() {
 		// Windows support '/'
@@ -71,4 +96,9 @@ func (zp *ZipPacker) Insert(src, nameInArchive string) error {
 		return utilities.ErrorCat(src, ": copying contents: ", err.Error())
 	}
 	return nil
+}
+
+// AddFile file to zip packer
+func (zp *ZipPacker) AddFile(src, nameInArchive string) error {
+	return zp.AddFileEx(src, nameInArchive, false)
 }

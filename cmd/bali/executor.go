@@ -23,9 +23,11 @@ type BaliExecutor struct {
 	destination string
 	makezip     bool
 	makepack    bool
+	norename    bool
+	cleanup     bool
 	environ     []string
-	bm          BaliMetadata
 	binaries    []string
+	bm          Project
 }
 
 func resolveBuildID(cwd string) string {
@@ -69,6 +71,22 @@ func resolveDistSupport(target, arch string) bool {
 		}
 	}
 	return false
+}
+
+// TargetName todo
+func (be *BaliExecutor) TargetName(name string) string {
+	if be.norename {
+		return name
+	}
+	return utilities.StrCat(name, ".new")
+}
+
+// FileName todo
+func (be *BaliExecutor) FileName(file *File) string {
+	if be.norename || file.NoRename {
+		return file.Base()
+	}
+	return utilities.StrCat(file.Base(), ".template")
 }
 
 // Initialize todo

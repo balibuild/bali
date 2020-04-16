@@ -45,6 +45,8 @@ usage: %s <option> args ...
   -d|--dest        Specify the path to save the package
   -z|--zip         Create archive file (UNIX: .tar.gz, Windows: .zip)
   -p|--pack        Create installation package (UNIX: STGZ, Windows: none)
+  --cleanup        Cleanup build directory
+  --no-rename      Disable file renaming (STGZ installation package, default: OFF)
 
 `, os.Args[0])
 }
@@ -96,12 +98,17 @@ func (be *BaliExecutor) Invoke(val int, oa, raw string) error {
 		be.makezip = true
 	case 'p': // --pack
 		be.makepack = true
+	case 1001:
+		be.cleanup = true
+	case 1002:
+		be.norename = true
 	default:
 	}
 	return nil
 }
 
-func (be *BaliExecutor) parse() error {
+// ParseArgv parse argv
+func (be *BaliExecutor) ParseArgv() error {
 	var ae utilities.ArgvParser
 	ae.Add("help", utilities.NOARG, 'h')
 	ae.Add("version", utilities.NOARG, 'v')
@@ -114,6 +121,8 @@ func (be *BaliExecutor) parse() error {
 	ae.Add("dest", utilities.REQUIRED, 'd')
 	ae.Add("zip", utilities.NOARG, 'z')
 	ae.Add("pack", utilities.NOARG, 'p')
+	ae.Add("cleanup", utilities.NOARG, 1001)
+	ae.Add("no-rename", utilities.NOARG, 1002)
 	if err := ae.Execute(os.Args, be); err != nil {
 		return err
 	}
@@ -144,8 +153,20 @@ func (be *BaliExecutor) parse() error {
 
 func main() {
 	var be BaliExecutor
-	if err := be.parse(); err != nil {
+	if err := be.ParseArgv(); err != nil {
 		fmt.Fprintf(os.Stderr, "bali: parse args: \x1b[31m%v\x1b[0m\n", err)
+		os.Exit(1)
+	}
+	if be.cleanup {
+		if err := os.RemoveAll(be.out); err != nil {
+			fmt.Fprintf(os.Stderr, "bali: cleanup %s: \x1b[31m%v\x1b[0m\n", be.out, err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "\x1b[32mbali: cleanup %s success\x1b[0m\n", be.out)
+		os.Exit(0)
+	}
+	if err := be.Initialize(); err != nil {
+		fmt.Fprintf(os.Stderr, "bali: initialize: \x1b[31m%v\x1b[0m\n", err)
 		os.Exit(1)
 	}
 }

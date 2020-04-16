@@ -9,37 +9,39 @@ import (
 	"github.com/balibuild/bali/utilities"
 )
 
-// BaliSrcMetadata todo
-type BaliSrcMetadata struct {
+// Executable todo
+type Executable struct {
 	Name        string   `json:"name"`
 	Destination string   `json:"destination,omitempty"`
 	Description string   `json:"description,omitempty"`
 	Version     string   `json:"version,omitempty"`
+	Links       []string `json:"links,omitempty"` // create symlink
 	GoFlags     []string `json:"goflags,omitempty"`
 }
 
-// BaliFile todo
-type BaliFile struct {
+// File todo
+type File struct {
 	Path        string `json:"path"`
 	Destination string `json:"destination"`
-	Rename      string `json:"rename,omitempty"`
+	NewName     string `json:"newname,omitempty"`
+	NoRename    bool   `json:"norename,omitempty"`
 }
 
 // Base get BaliFile base
-func (file *BaliFile) Base() string {
-	if len(file.Rename) != 0 {
-		return file.Rename
+func (file *File) Base() string {
+	if len(file.NewName) != 0 {
+		return file.NewName
 	}
 	return filepath.Base(file.Path)
 }
 
 // Configure configure to out dir
-func (file *BaliFile) Configure(workdir, outdir string) error {
+func (file *File) Configure(workdir, outdir string) error {
 	fileoutdir := filepath.Join(outdir, file.Destination)
 	_ = os.MkdirAll(fileoutdir, 0775)
 	var outfile string
-	if len(file.Rename) != 0 {
-		outfile = filepath.Join(fileoutdir, file.Rename)
+	if len(file.NewName) != 0 {
+		outfile = filepath.Join(fileoutdir, file.NewName)
 	} else {
 		name := filepath.Base(file.Path)
 		outfile = filepath.Join(fileoutdir, name)
@@ -56,16 +58,16 @@ func (file *BaliFile) Configure(workdir, outdir string) error {
 	return utilities.CopyFile(srcfile, outfile)
 }
 
-// BaliMetadata  todo
-type BaliMetadata struct {
-	Name    string     `json:"name"`
-	Version string     `json:"version,omitempty"`
-	Files   []BaliFile `json:"files,omitempty"`
-	Dirs    []string   `json:"dirs,omitempty"`
+// Project  todo
+type Project struct {
+	Name    string   `json:"name"`
+	Version string   `json:"version,omitempty"`
+	Files   []File   `json:"files,omitempty"`
+	Dirs    []string `json:"dirs,omitempty"`
 }
 
 // FileConfigure todo
-func (bm *BaliMetadata) FileConfigure(workdir, outdir string) error {
+func (bm *Project) FileConfigure(workdir, outdir string) error {
 	for _, file := range bm.Files {
 		if err := file.Configure(workdir, outdir); err != nil {
 			return err

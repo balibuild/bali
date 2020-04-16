@@ -6,8 +6,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/balibuild/bali/utilities"
+)
+
+// ISVTX todo
+const (
+	TarISVTX = 01000
 )
 
 // TargzPacker todo
@@ -34,8 +40,22 @@ func (pk *TargzPacker) Close() error {
 	return nil
 }
 
-// Insert todo
-func (pk *TargzPacker) Insert(src, nameInArchive string) error {
+// AddTargetLink todo
+func (pk *TargzPacker) AddTargetLink(relativeName, linkName string) error {
+	hdr := &tar.Header{
+		Name:     filepath.ToSlash(linkName),
+		ModTime:  time.Now(),
+		Mode:     0755,
+		Typeflag: tar.TypeSymlink,
+		Linkname: filepath.ToSlash(relativeName)}
+	if err := pk.tw.WriteHeader(hdr); err != nil {
+		return utilities.ErrorCat(linkName, ": write header:", err.Error())
+	}
+	return nil
+}
+
+// AddFileEx todo
+func (pk *TargzPacker) AddFileEx(src, nameInArchive string, exerights bool) error {
 	st, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -49,6 +69,9 @@ func (pk *TargzPacker) Insert(src, nameInArchive string) error {
 	hdr, err := tar.FileInfoHeader(st, linkTarget)
 	if err != nil {
 		return utilities.ErrorCat(src, ": marking header: ", err.Error())
+	}
+	if exerights {
+		hdr.Mode = hdr.Mode | 0755
 	}
 	hdr.Name = filepath.ToSlash(nameInArchive)
 	if err = pk.tw.WriteHeader(hdr); err != nil {
@@ -69,4 +92,9 @@ func (pk *TargzPacker) Insert(src, nameInArchive string) error {
 		return utilities.ErrorCat(src, ": copying contents: ", err.Error())
 	}
 	return nil
+}
+
+// AddFile todo
+func (pk *TargzPacker) AddFile(src, nameInArchive string) error {
+	return pk.AddFileEx(src, nameInArchive, false)
 }
