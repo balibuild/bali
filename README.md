@@ -106,6 +106,16 @@ Project file `bali.json`:
 }
 ```
 
+Built-in environment variables:
+
++ `BUILD_VERSION` is filled by the `version` field of balisrc.json
++ `BUILD_TIME` is filled by the build time formatted according to `RFC3339`
++ `BUILD_COMMIT` is filled by the commit id of the repository (when it is a git repository)
++ `BUILD_GOVERSION` is filled by `go version` output (removed `go version` prefix)
++ `BUILD_BRANCH` is filled with the branch name of the repository (when it is a git repository)
+
+Other environment variables can be used in goflags.
+
 Program build file `balisrc.json`:
 
 ```js

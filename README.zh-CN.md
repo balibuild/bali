@@ -129,6 +129,16 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
 }
 ```
 
+内置环境变量：
+
++   `BUILD_VERSION` 由 balisrc.json 的 `version` 字段填充
++   `BUILD_TIME` 由构建时间按照 `RFC3339` 格式化后填充
++   `BUILD_COMMIT` 由存储库（为 git 存储库时） 的 commit id 填充
++   `BUILD_GOVERSION` 由 `go version` 输出（删除了 `go version` 前缀）填充
++   `BUILD_BRANCH` 由存储库（为 git 存储库时） 的分支名填充
+
+可以在 goflags 中使用其他环境变量。
+
 `versioninfo.json:`
 
 ```json
