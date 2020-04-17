@@ -96,8 +96,8 @@ func (be *Executor) Compile(wd string) error {
 	cmd.Dir = wd
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
-	fmt.Fprintf(os.Stderr, "go compile \x1b[32m%s\x1b[0m version: \x1b[32m%s\x1b[0m\n", exe.Name, exe.Version)
-	fmt.Fprintf(os.Stderr, "\x1b[34m%s\x1b[0m\n", cmd.String())
+	fmt.Fprintf(os.Stderr, "go compile \x1b[01;32m%s\x1b[0m version: \x1b[32m%s\x1b[0m\n", exe.Name, exe.Version)
+	fmt.Fprintf(os.Stderr, "\x1b[01;34m%s\x1b[0m\n", cmd.String())
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "compile %s error \x1b[31m%s\x1b[0m\n", exe.Name, err)
 		return err
