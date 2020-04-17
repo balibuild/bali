@@ -24,7 +24,7 @@ var (
 )
 
 func version() {
-	fmt.Fprint(os.Stdout, "Bali - Golang Minimalist build and packaging tool\nversion:       ", VERSION, "\n",
+	fmt.Fprint(os.Stdout, "Bali - Minimalist Golang build and packaging tool\nversion:       ", VERSION, "\n",
 		"build branch:  ", BUILDBRANCH, "\n",
 		"build commit:  ", BUILDCOMMIT, "\n",
 		"build time:    ", BUILDTIME, "\n",
@@ -32,7 +32,7 @@ func version() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stdout, `Bali - Golang Minimalist build and packaging tool
+	fmt.Fprintf(os.Stdout, `Bali - Minimalist Golang build and packaging tool
 usage: %s <option> args ...
   -h|--help        Show usage text and quit
   -v|--version     Show version number and quit

@@ -1,4 +1,4 @@
-# Bali - Golang Minimalist build and packaging tool
+# Bali -  Minimalist Golang build and packaging tool
 
 [简体中文](./README.zh-CN.md)
 

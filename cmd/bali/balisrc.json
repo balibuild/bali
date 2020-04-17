@@ -1,6 +1,6 @@
 {
     "name": "bali",
-    "description": "Bali - Golang Minimalist build and packaging tool",
+    "description": "Bali - Minimalist Golang build and packaging tool",
     "destination": "bin",
     "version": "1.0.0",
     "links": [

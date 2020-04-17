@@ -5,7 +5,7 @@
 baligo 的命令行帮助信息如下：
 
 ```shell
-Bali - Golang Minimalist build and packaging tool
+Bali -  Minimalist Golang build and packaging tool
 usage: ./build/bin/bali <option> args ...
   -h|--help        Show usage text and quit
   -v|--version     Show version number and quit
@@ -102,7 +102,7 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
     // 二进制文件名称，不存在时使用目录名
     "name": "bali",
     // 描述信息，默认填充到 PE 文件版本信息的 FileDescription
-    "description": "Bali - Golang Minimalist build and packaging tool",
+    "description": "Bali -  Minimalist Golang build and packaging tool",
     // 安装目录
     "destination": "bin",
     // 版本信息，在 goflags 中，可以推导 $BUILD_VERSION
