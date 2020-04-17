@@ -234,7 +234,7 @@ func (be *Executor) Compress() error {
 	}
 	for name, lnkName := range be.linkmap {
 		nameInArchive := be.PathInArchive(name)
-		fmt.Fprintf(os.Stderr, "compress link \x1b[32m%s\x1b[0m %s\n", nameInArchive, lnkName)
+		fmt.Fprintf(os.Stderr, "compress link \x1b[32m%s --> %s\x1b[0m\n", nameInArchive, lnkName)
 		if err := pk.AddTargetLink(nameInArchive, lnkName); err != nil {
 			return err
 		}
