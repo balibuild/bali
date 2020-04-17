@@ -114,3 +114,8 @@ Bali 项目文件有两种，包括项目根目录下的项目文件 `bali.json`
     "manifest": "res/bali.manifest"
 }
 ```
+
+
+## 感谢
+
+Bali 自动添加版本信息到 PE 文件的功能离不开开源项目的贡献，在这里非常感谢 [akavel/rsrc](https://github.com/akavel/rsrc) 和 [josephspurrier/goversioninfo](https://github.com/josephspurrier/goversioninfo) 两个项目的开发者和维护者。
