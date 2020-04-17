@@ -73,7 +73,7 @@ bali /path/to/project -p -d /tmp/output
 
 ## Bali build file format
 
-Bali chose JSON as the file format. The advantage of using JSON is that Golang has built-in support for parsing, and it can be formatted using an editor. There are two types of Bali build files. One is the project file `bali.json`, which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use` bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.json` is located, you can also run` bali` in that directory; another build file is the `balisrc.json` file under the specific program source code directory,` balisrc.json` There should be a `main` package in the directory where bali resolves `balisrc.json` by parsing `dirs` of `bali.json`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
+Bali chose JSON as the file format. The advantage of using JSON is that Golang has built-in support for parsing, and it can be formatted using an editor. There are two types of Bali build files. One is the project file `bali.json`, which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use `bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.json` is located, you can also run `bali` in that directory; another build file is the `balisrc.json` file under the specific program source code directory, `balisrc.json` There should be a `main` package in the directory where bali resolves `balisrc.json` by parsing `dirs` of `bali.json`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
 
 Project file `bali.json`:
 
