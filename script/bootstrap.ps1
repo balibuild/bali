@@ -11,14 +11,14 @@ if ($PSEdition -eq "Desktop" -or $IsWindows) {
     $BailBin += ".exe"
 }
 
-$ps = Start-Process -FilePath "go" -WorkingDirectory $SrcDir -ArgumentList "build" -PassThru -Wait
+$ps = Start-Process -FilePath "go" -WorkingDirectory $SrcDir -ArgumentList "build" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
 
 Copy-Item -Force -Path $BaliFile -Destination $BailBin
 
-$ps = Start-Process -FilePath $BailBin -WorkingDirectory $TopLevel -ArgumentList "-z" -PassThru -Wait
+$ps = Start-Process -FilePath $BailBin -WorkingDirectory $TopLevel -ArgumentList "-z" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
