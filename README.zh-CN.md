@@ -1,8 +1,19 @@
 # Bali - 极简的 Golang 构建打包工具
 
-在开发基于 Golang 的项目时，虽然使用 go build 便可以简单的完成构建，但在打包等操作时，还是遇到了一些麻烦，因此，我实现了一个基于 PowerShell Core 开发的跨平台工具 bali，用来简化这一过程，最早在 2017 年，bali 诞生，而今已经到了 2020 年，我对项目构建打包也有了新的认识，因此为了改进基于 PowerShell 编写的 bali，因此在这个项目中使用 Golang 重写了 bali.
+Bali 是一个使用 Golang 开发的*极简 Golang 构建打包工具*，[Bali(old)](https://github.com/fcharlie/bali) 最初使用 PowerShell 编写，用于解决项目构建过程中的打包和配置设置等问题。[Bali(old)](https://github.com/fcharlie/bali) 在构建时能够将，时间，git 的 commit 等信息填充到构建的二进制文件中，在追溯应用程序缺陷时有一定的用处。但基于 PowerShell 开发的 Bali 并没有直接支持创建 `STGZ` 安装包，`STGZ` 安装包本质上将 `Shell Script` 头与 `tar.gz` 合并在一起，然后分发，用户在安装时，由 `Shell Script` 调用解压缩命令解压完成安装，在 Shell 脚本中，还可以设置好 `post_install` 之类的脚本在解压后执行相关操作。`STGZ` 小巧而又强大，在近两年的开发过程中，我开发的 Linux 平台项目大多都实现了创建 STGZ 安装包的功能。实际上 Bali 完全可以实现这一功能，考虑到 Golang 内置了 `archive/tar` `archive/zip` `compress/gzip` 实际上如果使用 Golang 重新实现 Bali 要获得更大的受益。这便是 [Baligo](https://github.com/fcharlie/baligo)(Gitee: [Baligo](https://gitee.com/ipvb/baligo))。但我仍然觉得 Baligo 还有所欠缺，比如 Windows 平台不支持嵌入图标，版本信息，清单文件，因此这才有了新的 **Bali** 诞生。
 
-baligo 的命令行帮助信息如下：
+
+## 功能
+
+Bali 有一些功能是我觉得有些用处的：
+
++   构建参数支持环境变量推导
++   打包，创建压缩包，target 为 Windows 时创建 zip, target 为其他时，创建 tar.gz。
++   Windows 平台支持嵌入版本信息，图标，和应用程序清单。
++   UNIX 平台支持 STGZ 打包
+
+
+bali 的命令行帮助信息如下：
 
 ```shell
 Bali -  Minimalist Golang build and packaging tool
@@ -22,13 +33,6 @@ usage: ./build/bin/bali <option> args ...
   --no-rename      Disable file renaming (STGZ installation package, default: OFF)
 
 ```
-
-## 特性
-
-+   构建参数支持环境变量推导
-+   打包，Windows zip, UNIX tar.gz
-+   Windows 平台支持嵌入版本信息，图标，和应用程序清单。
-+   UNIX 平台支持 STGZ 打包
 
 ## 使用方法
 
@@ -72,7 +76,7 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
     "name": "bali",
     // 用于打包的版本
     "version": "1.0.0",
-    // 主要用于提示 bali 安装配置文件。
+    // bali 配置文件等
     "files": [
         {
             "path": "config/bali.json",
@@ -88,7 +92,7 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
             "norename": true
         }
     ],
-    // 相对目录
+    // 程序相对目录
     "dirs": [
         "cmd/bali"
     ]
@@ -125,6 +129,74 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
 }
 ```
 
+`versioninfo.json:`
+
+```json
+{
+	"FixedFileInfo": {
+		"FileVersion": {
+			"Major": 0,
+			"Minor": 0,
+			"Patch": 0,
+			"Build": 0
+		},
+		"ProductVersion": {
+			"Major": 0,
+			"Minor": 0,
+			"Patch": 0,
+			"Build": 0
+		},
+		"FileFlagsMask": "3f",
+		"FileFlags ": "00",
+		"FileOS": "40004",
+		"FileType": "01",
+		"FileSubType": "00"
+	},
+	"StringFileInfo": {
+		"Comments": "",
+		"CompanyName": "Bali Team",
+		"FileDescription": "Bali - Minimalist Golang build and packaging tool",
+		"FileVersion": "",
+		"InternalName": "bali.exe",
+		"LegalCopyright": "Copyright \u00A9 2020. Bali contributors",
+		"LegalTrademarks": "",
+		"OriginalFilename": "bali.exe",
+		"PrivateBuild": "",
+		"ProductName": "Bali",
+		"ProductVersion": "1.0",
+		"SpecialBuild": ""
+	},
+	"VarFileInfo": {
+		"Translation": {
+			"LangID": "0409",
+			"CharsetID": "04B0"
+		}
+	}
+}
+```
+
+Bali 整合了 [`goversioninfo`](https://github.com/josephspurrier/goversioninfo)，在目标为 Windows 时，能够将版本信息嵌入到可执行程序中，`versioninfo` 字段与 `goversioninfo` 项目类似，但更宽松，一些特定的值，比如版本，描述会使用 `bali.json/balisrc.json` 的值填充过去，`icon`/`manifest` 则会覆盖 `versioninfo.json`。
+
+添加引用程序清单的好处不言而喻，比如 Windows 的 UAC 提权，Windows 10 长路经支持（即路径支持 >260 字符），Windows Vista 风格控件，TaskDialog，DPI 设置等都需要修改应用程序清单。
+
+## 自举
+
+通常在安装配置好 Golang 环境后，你可以按照下面的命令完成 Bali 的自举：
+
+UNIX:
+
+```shell
+./script/bootstrap.sh
+```
+
+Windows:
+
+```ps1
+# 使用 powershell 运行
+pwsh ./script/bootstrap.ps1
+# 或者在 cmd 中运行
+script/bootstrap.bat
+```
 
 ## 感谢
 
