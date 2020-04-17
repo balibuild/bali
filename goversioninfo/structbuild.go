@@ -326,5 +326,5 @@ func (v *VersionInfo) Build() {
 	// Calculate the total size
 	vi.WLength += 6 + uint16(soFar) + vi.WValueLength + vi.Children.WLength + vi.Children2.WLength
 
-	v.Structure = vi
+	v.structure = vi
 }

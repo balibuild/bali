@@ -62,14 +62,14 @@ bali /path/to/project -p -d /tmp/output
 
 ## Bali 项目文件
 
-Bali 项目文件有两种，包括项目根目录下的 `bali.json` 和项目特定程序下的 `balisrc.json` 文件，其示例如下：
+Bali 项目文件有两种，包括项目根目录下的项目文件 `bali.json` 和项目特定程序下的程序构建文件 `balisrc.json` 文件，其示例如下：
 
 `bali.json`:
 
 ```js
 {
   // name 用于项目打包命名
-    "name": "baligo",
+    "name": "bali",
     // 用于打包的版本
     "version": "1.0.0",
     // 主要用于提示 bali 安装配置文件。
@@ -89,18 +89,28 @@ Bali 项目文件有两种，包括项目根目录下的 `bali.json` 和项目�
 
 ```js
 {
-  // 二进制名称
+    // 二进制文件名称，不存在时使用目录名
     "name": "bali",
-    // 二进制安装目录
+    // 描述信息，默认填充到 PE 文件版本信息的 FileDescription
+    "description": "Bali - Golang Minimalist build and packaging tool",
+    // 安装目录
     "destination": "bin",
-    // 二进制版本信息，会被解析到 goflags 中
+    // 版本信息，在 goflags 中，可以推导 $BUILD_VERSION
     "version": "1.0.0",
-    // Goflags，每一条都会使用环境变量展开，BUILD_VERSION 对应 version, BUILD_TIME 则是本地时间的 RFC3339 格式
-    // BUILD_GOVERSION 则是 go version 去除前缀
-    // BUILD_COMMIT 项目的 git commit 信息，非 go 存储库时使用 None 替代。
+    // 二进制的符号链接，比如在 GCC/Clang 编译后，程序为 GCC-9 然后会创建 GCC  的符号链接。
+    "links": [
+        "bin/baligo"
+    ],
+    // Go 编译器的参数，这些参数会使用 ExpandEnv 展开
     "goflags": [
         "-ldflags",
-        "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'"
-    ]
+        "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'"
+    ],
+    // 构建 Windows 目标，PE 文件的版本信息
+    "versioninfo": "res/versioninfo.json",
+    // 构建 Windows 目标，PE 文件的图标
+    "icon": "res/bali.ico",
+    // 构建 Windows 目标，PE 文件的应用程序清单
+    "manifest": "res/bali.manifest"
 }
 ```

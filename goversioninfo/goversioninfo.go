@@ -31,11 +31,11 @@ type VersionInfo struct {
 	FixedFileInfo  FixedFileInfo  `json:"FixedFileInfo,omitempty"`
 	StringFileInfo StringFileInfo `json:"StringFileInfo,omitempty"`
 	VarFileInfo    VarFileInfo    `json:"VarFileInfo,omitempty"`
-	Timestamp      bool
-	Buffer         bytes.Buffer
-	Structure      VSVersionInfo
+	Timestamp      bool           `json:"Timestamp,omitempty"`
+	structure      VSVersionInfo
 	IconPath       string `json:"IconPath,omitempty"`
 	ManifestPath   string `json:"ManifestPath,omitempty"`
+	buffer         bytes.Buffer
 }
 
 // Translation with langid and charsetid.
@@ -194,14 +194,14 @@ func (vi *VersionInfo) Walk() {
 	w := binutil.Writer{W: &b}
 
 	// Write to the buffer
-	binutil.Walk(vi.Structure, func(v reflect.Value, path string) error {
+	binutil.Walk(vi.structure, func(v reflect.Value, path string) error {
 		if binutil.Plain(v.Kind()) {
 			w.WriteLE(v.Interface())
 		}
 		return nil
 	})
 
-	vi.Buffer = b
+	vi.buffer = b
 }
 
 // WriteSyso creates a resource file from the version info and optionally an icon.
@@ -226,7 +226,7 @@ func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 	}
 
 	// ID 16 is for Version Information
-	coff.AddResource(16, 1, SizedReader{bytes.NewBuffer(vi.Buffer.Bytes())})
+	coff.AddResource(16, 1, SizedReader{bytes.NewBuffer(vi.buffer.Bytes())})
 
 	// If manifest is enabled
 	if vi.ManifestPath != "" {
@@ -256,7 +256,7 @@ func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 
 // WriteHex creates a hex file for debugging version info
 func (vi *VersionInfo) WriteHex(filename string) error {
-	return ioutil.WriteFile(filename, vi.Buffer.Bytes(), 0655)
+	return ioutil.WriteFile(filename, vi.buffer.Bytes(), 0655)
 }
 
 func writeCoff(coff *coff.Coff, fnameout string) error {
