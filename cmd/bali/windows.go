@@ -10,8 +10,9 @@ import (
 
 // bali init on windows
 
+// const
 const (
-	cENABLEVIRTUALTERMINALPROCESSING = 0x4
+	EnableVirtualTerminalProcessingMode = 0x4
 )
 
 var (
@@ -20,11 +21,11 @@ var (
 	procSetConsoleMode = kernel32.NewProc("SetConsoleMode")
 )
 
-// enableColorsStdout
 func init() {
 	var mode uint32
-	h := os.Stdout.Fd()
+	// becasue we print message to stderr
+	h := os.Stderr.Fd()
 	if r, _, _ := procGetConsoleMode.Call(h, uintptr(unsafe.Pointer(&mode))); r != 0 {
-		procSetConsoleMode.Call(h, uintptr(mode|cENABLEVIRTUALTERMINALPROCESSING))
+		procSetConsoleMode.Call(h, uintptr(mode|EnableVirtualTerminalProcessingMode))
 	}
 }
