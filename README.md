@@ -1,5 +1,8 @@
 # Bali -  Minimalist Golang build and packaging tool
 
+[![Master Branch Status](https://github.com/balibuild/bali/workflows/CI/badge.svg)](https://github.com/balibuild/bali/actions)
+
+
 [简体中文](./README.zh-CN.md)
 
 Bali is a *minimal Golang build and packaging tool* developed using Golang. [Bali(old)](https://github.com/fcharlie/bali) was originally written in PowerShell and used to solve packaging and configuration issues during the project build process.

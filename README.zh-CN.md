@@ -1,5 +1,7 @@
 # Bali - 极简的 Golang 构建打包工具
 
+[![Master Branch Status](https://github.com/balibuild/bali/workflows/CI/badge.svg)](https://github.com/balibuild/bali/actions)
+
 Bali 是一个使用 Golang 开发的*极简 Golang 构建打包工具*，[Bali(old)](https://github.com/fcharlie/bali) 最初使用 PowerShell 编写，用于解决项目构建过程中的打包和配置设置等问题。[Bali(old)](https://github.com/fcharlie/bali) 在构建时能够将，时间，git 的 commit 等信息填充到构建的二进制文件中，在追溯应用程序缺陷时有一定的用处。但基于 PowerShell 开发的 Bali 并没有直接支持创建 `STGZ` 安装包，`STGZ` 安装包本质上将 `Shell Script` 头与 `tar.gz` 合并在一起，然后分发，用户在安装时，由 `Shell Script` 调用解压缩命令解压完成安装，在 Shell 脚本中，还可以设置好 `post_install` 之类的脚本在解压后执行相关操作。`STGZ` 小巧而又强大，在近两年的开发过程中，我开发的 Linux 平台项目大多都实现了创建 STGZ 安装包的功能。实际上 Bali 完全可以实现这一功能，考虑到 Golang 内置了 `archive/tar` `archive/zip` `compress/gzip` 实际上如果使用 Golang 重新实现 Bali 要获得更大的受益。这便是 [Baligo](https://github.com/fcharlie/baligo)(Gitee: [Baligo](https://gitee.com/ipvb/baligo))。但我仍然觉得 Baligo 还有所欠缺，比如 Windows 平台不支持嵌入图标，版本信息，清单文件，因此这才有了新的 **Bali** 诞生。
 
 
