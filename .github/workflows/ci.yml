@@ -1,0 +1,42 @@
+name: CI
+on: 
+  push:
+    paths-ignore:
+      # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+      - "docs/**"
+      - '**.md'
+      - '**.txt'
+      - 'LICENSE'
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - '**.md'
+      - '**.txt'
+      - 'LICENSE'
+jobs:
+  build:
+    strategy:
+      matrix:
+        go-version: 1.14.x
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - platform: ubuntu-latest
+            bootstrap_script: ./script/bootstrap.sh
+            bali_args: ./bali -p
+          - platform: macos-latest
+            bootstrap_script: ./script/bootstrap.sh
+            bali_args: ./bali -p
+          - platform: windows-latest
+            bootstrap_script: script/bootstrap.bat
+            bali_args: ./bali.exe -z
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Setup go
+        uses: actions/setup-go@v1
+      - name: Bootstrap Bali
+        run: ${{ matrix.bootstrap_script }}
+      - name: Build Bali
+        run: ${{ matrix.bali_args }}
