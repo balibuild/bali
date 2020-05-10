@@ -17,7 +17,6 @@ jobs:
   build:
     strategy:
       matrix:
-        go-version: 1.14.x
         platform: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - platform: ubuntu-latest
@@ -35,7 +34,9 @@ jobs:
         with:
           fetch-depth: 1
       - name: Setup go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.14.x'
       - name: Bootstrap Bali
         run: ${{ matrix.bootstrap_script }}
       - name: Build Bali
