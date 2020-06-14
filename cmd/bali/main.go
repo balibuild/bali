@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"github.com/balibuild/bali/pack"
 	"github.com/balibuild/bali/utilities"
 )
 
@@ -96,6 +98,16 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 		be.destination = dest
 	case 'z': // --zip
 		be.makezip = true
+	case 'A':
+		oa = strings.ToLower(oa)
+		switch oa {
+		case "bzip2":
+			be.zipmethod = pack.BZIP2
+		case "zstd":
+			be.zipmethod = pack.ZSTD
+		case "lzma":
+			be.zipmethod = pack.LZMA
+		}
 	case 'p': // --pack
 		be.makepack = true
 	case 1001:
@@ -120,6 +132,7 @@ func (be *Executor) ParseArgv() error {
 	ae.Add("out", utilities.REQUIRED, 'o')
 	ae.Add("dest", utilities.REQUIRED, 'd')
 	ae.Add("zip", utilities.NOARG, 'z')
+	ae.Add("method", utilities.REQUIRED, 'A')
 	ae.Add("pack", utilities.NOARG, 'p')
 	ae.Add("cleanup", utilities.NOARG, 1001)
 	ae.Add("no-rename", utilities.NOARG, 1002)

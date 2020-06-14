@@ -1,0 +1,33 @@
+{
+    "name": "bali",
+    "version": "1.0.0",
+    "asset": [
+        {
+            "platform": "windows.x64",
+            "url": "https://github.com/baulk/baulk/releases/download/1.0.0-rc.9/Baulk-1.0.0-win-x64.zip",
+            "extract": "bin/ssh-askpass-baulk.exe",
+            "destination": "bin",
+            "newname": "ssh-askpass.exe",
+            "norename": true
+        },
+        {
+            "platform": "windows.arm64",
+            "url": "https://github.com/baulk/baulk/releases/download/1.0.0-rc.9/Baulk-1.0.0-win-arm64.zip",
+            "extract": "bin/ssh-askpass-baulk.exe",
+            "destination": "bin",
+            "newname": "ssh-askpass.exe",
+            "norename": true
+        },
+        {
+            "platform": "windows.x86",
+            "url": "https://github.com/baulk/baulk/releases/download/1.0.0-rc.9/Baulk-1.0.0-win-x86.zip",
+            "extract": "bin/ssh-askpass-baulk.exe",
+            "destination": "bin",
+            "newname": "ssh-askpass.exe",
+            "norename": true
+        }
+    ],
+    "dirs": [
+        "."
+    ]
+}

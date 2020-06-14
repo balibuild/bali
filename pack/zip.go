@@ -8,6 +8,9 @@ import (
 	"time"
 
 	"github.com/balibuild/bali/utilities"
+	"github.com/dsnet/compress/bzip2"
+	"github.com/klauspost/compress/zstd"
+	"github.com/ulikunitz/xz/lzma"
 )
 
 // Zip
@@ -15,14 +18,47 @@ const (
 	ZipISVTX = 0x200
 )
 
+// Compression methods.
+const (
+	Store   uint16 = 0  // no compression
+	Deflate uint16 = 8  // DEFLATE compressed
+	BZIP2   uint16 = 12 // bzip2
+	LZMA    uint16 = 14 //LZMA
+	ZSTD    uint16 = 20 //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+)
+
 // ZipPacker todo
 type ZipPacker struct {
-	zw *zip.Writer
+	zw         *zip.Writer
+	FileMethod uint16 // zip filemethod
 }
 
 // NewZipPacker todo
 func NewZipPacker(w io.Writer) *ZipPacker {
-	return &ZipPacker{zw: zip.NewWriter(w)}
+	return &ZipPacker{zw: zip.NewWriter(w), FileMethod: Deflate}
+}
+
+// NewZipPackerEx todo
+func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
+	zp := NewZipPacker(w)
+	switch method {
+	case BZIP2:
+		zp.zw.RegisterCompressor(BZIP2, func(out io.Writer) (io.WriteCloser, error) {
+			return bzip2.NewWriter(out, nil)
+		})
+		zp.FileMethod = BZIP2
+	case ZSTD:
+		zp.zw.RegisterCompressor(ZSTD, func(out io.Writer) (io.WriteCloser, error) {
+			return zstd.NewWriter(out)
+		})
+		zp.FileMethod = ZSTD
+	case LZMA:
+		zp.zw.RegisterCompressor(LZMA, func(out io.Writer) (io.WriteCloser, error) {
+			return lzma.NewWriter(out)
+		})
+		zp.FileMethod = LZMA
+	}
+	return zp
 }
 
 // Close todo
@@ -68,7 +104,7 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 		header.Method = zip.Store
 	} else {
 		header.Name = filepath.ToSlash(nameInArchive)
-		header.Method = zip.Deflate
+		header.Method = zp.FileMethod
 	}
 	writer, err := zp.zw.CreateHeader(header)
 	if err != nil {

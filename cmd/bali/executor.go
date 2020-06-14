@@ -24,6 +24,7 @@ type Executor struct {
 	workdir     string
 	destination string
 	makezip     bool
+	zipmethod   uint16
 	makepack    bool
 	norename    bool
 	cleanup     bool
@@ -211,7 +212,11 @@ func (be *Executor) Compress() error {
 		if err != nil {
 			return err
 		}
-		pk = pack.NewZipPacker(fd)
+		if be.zipmethod != 0 {
+			pk = pack.NewZipPackerEx(fd, be.zipmethod)
+		} else {
+			pk = pack.NewZipPacker(fd)
+		}
 	} else {
 		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
 		fd, err = os.Create(outfile)
