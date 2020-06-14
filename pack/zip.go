@@ -49,7 +49,7 @@ func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 		zp.FileMethod = BZIP2
 	case ZSTD:
 		zp.zw.RegisterCompressor(ZSTD, func(out io.Writer) (io.WriteCloser, error) {
-			return zstd.NewWriter(out)
+			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstd.SpeedFastest))
 		})
 		zp.FileMethod = ZSTD
 	case LZMA:
