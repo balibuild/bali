@@ -24,7 +24,7 @@ const (
 	Deflate uint16 = 8  // DEFLATE compressed
 	BZIP2   uint16 = 12 // bzip2
 	LZMA    uint16 = 14 //LZMA
-	ZSTD    uint16 = 20 //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+	ZSTD    uint16 = 93 //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
 )
 
 // ZipPacker todo
