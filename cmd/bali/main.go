@@ -47,6 +47,7 @@ usage: %s <option> args ...
   -d|--dest        Specify the path to save the package
   -z|--zip         Create archive file (UNIX: .tar.gz, Windows: .zip)
   -p|--pack        Create installation package (UNIX: STGZ, Windows: none)
+  -A|--method      Zip compress method: zstd xz bzip2
   --cleanup        Cleanup build directory
   --no-rename      Disable file renaming (STGZ installation package, default: OFF)
 
@@ -107,6 +108,8 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 			be.zipmethod = pack.ZSTD
 		case "lzma":
 			be.zipmethod = pack.LZMA
+		case "xz":
+			be.zipmethod = pack.XZ
 		}
 	case 'p': // --pack
 		be.makepack = true

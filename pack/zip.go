@@ -10,6 +10,7 @@ import (
 	"github.com/balibuild/bali/utilities"
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zstd"
+	"github.com/ulikunitz/xz"
 	"github.com/ulikunitz/xz/lzma"
 )
 
@@ -25,6 +26,7 @@ const (
 	BZIP2   uint16 = 12 // bzip2
 	LZMA    uint16 = 14 //LZMA
 	ZSTD    uint16 = 93 //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+	XZ      uint16 = 95
 )
 
 // ZipPacker todo
@@ -55,6 +57,11 @@ func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 	case LZMA:
 		zp.zw.RegisterCompressor(LZMA, func(out io.Writer) (io.WriteCloser, error) {
 			return lzma.NewWriter(out)
+		})
+		zp.FileMethod = LZMA
+	case XZ:
+		zp.zw.RegisterCompressor(XZ, func(out io.Writer) (io.WriteCloser, error) {
+			return xz.NewWriter(out)
 		})
 		zp.FileMethod = LZMA
 	}
