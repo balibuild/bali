@@ -47,7 +47,7 @@ usage: %s <option> args ...
   -d|--dest        Specify the path to save the package
   -z|--zip         Create archive file (UNIX: .tar.gz, Windows: .zip)
   -p|--pack        Create installation package (UNIX: STGZ, Windows: none)
-  -A|--method      Zip compress method: zstd xz bzip2
+  -A|--method      Zip compress method: zstd xz bzip2 deflate(default)
   --cleanup        Cleanup build directory
   --no-rename      Disable file renaming (STGZ installation package, default: OFF)
 
@@ -102,6 +102,8 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 	case 'A':
 		oa = strings.ToLower(oa)
 		switch oa {
+		case "deflate":
+			be.zipmethod = pack.Deflate
 		case "bzip2":
 			be.zipmethod = pack.BZIP2
 		case "zstd":
