@@ -73,7 +73,7 @@ func (zp *ZipPacker) Close() error {
 func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
 	var hdr zip.FileHeader
 	hdr.SetModTime(time.Now())
-	hdr.SetMode(0777) // symlink
+	hdr.SetMode(0755 | os.ModeSymlink) // symlink
 	hdr.Name = filepath.ToSlash(nameInArchive)
 	writer, err := zp.zw.CreateHeader(&hdr)
 	if err != nil {
