@@ -187,7 +187,7 @@ func (t Translation) getTranslation() string {
 // IO Methods
 // *****************************************************************************
 
-// Walk writes the data buffer with hexidecimal data from the structs
+// Walk writes the data buffer with hexadecimal data from the structs
 func (vi *VersionInfo) Walk() {
 	// Create a buffer
 	var b bytes.Buffer
@@ -217,16 +217,16 @@ func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 	}()
 
 	// Create a new RSRC section
-	coff := coff.NewRSRC()
+	rsrc := coff.NewRSRC()
 
-	// Set the architechture
-	err := coff.Arch(arch)
+	// Set the architecture
+	err := rsrc.Arch(arch)
 	if err != nil {
 		return err
 	}
 
 	// ID 16 is for Version Information
-	coff.AddResource(16, 1, SizedReader{bytes.NewBuffer(vi.buffer.Bytes())})
+	rsrc.AddResource(16, 1, SizedReader{bytes.NewBuffer(vi.buffer.Bytes())})
 
 	// If manifest is enabled
 	if vi.ManifestPath != "" {
@@ -238,20 +238,20 @@ func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 		defer manifest.Close()
 
 		id := <-newID
-		coff.AddResource(rtManifest, id, manifest)
+		rsrc.AddResource(rtManifest, id, manifest)
 	}
 
 	// If icon is enabled
 	if vi.IconPath != "" {
-		if err := addIcon(coff, vi.IconPath, newID); err != nil {
+		if err := addIcon(rsrc, vi.IconPath, newID); err != nil {
 			return err
 		}
 	}
 
-	coff.Freeze()
+	rsrc.Freeze()
 
 	// Write to file
-	return writeCoff(coff, filename)
+	return writeCoff(rsrc, filename)
 }
 
 // WriteHex creates a hex file for debugging version info
