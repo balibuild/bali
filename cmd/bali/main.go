@@ -108,8 +108,6 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 			be.zipmethod = pack.BZIP2
 		case "zstd":
 			be.zipmethod = pack.ZSTD
-		case "lzma":
-			be.zipmethod = pack.LZMA
 		case "xz":
 			be.zipmethod = pack.XZ
 		}

@@ -11,7 +11,6 @@ import (
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
-	"github.com/ulikunitz/xz/lzma"
 )
 
 // Zip
@@ -54,16 +53,11 @@ func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstd.SpeedFastest))
 		})
 		zp.FileMethod = ZSTD
-	case LZMA:
-		zp.zw.RegisterCompressor(LZMA, func(out io.Writer) (io.WriteCloser, error) {
-			return lzma.NewWriter(out)
-		})
-		zp.FileMethod = LZMA
 	case XZ:
 		zp.zw.RegisterCompressor(XZ, func(out io.Writer) (io.WriteCloser, error) {
 			return xz.NewWriter(out)
 		})
-		zp.FileMethod = LZMA
+		zp.FileMethod = XZ
 	}
 	return zp
 }
