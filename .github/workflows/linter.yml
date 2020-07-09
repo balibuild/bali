@@ -1,0 +1,28 @@
+name: CI
+on: 
+  push:
+    paths-ignore:
+      # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+      - "docs/**"
+      - '**.md'
+      - '**.txt'
+      - 'LICENSE'
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - '**.md'
+      - '**.txt'
+      - 'LICENSE'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Super-Linter
+        uses: github/super-linter@v3.3.0
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_GO: true
+          DEFAULT_BRANCH: master
