@@ -1,7 +1,6 @@
 package pack
 
 import (
-	"archive/zip"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/balibuild/bali/base"
 	"github.com/dsnet/compress/bzip2"
+	"github.com/klauspost/compress/zip"
 	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
 )

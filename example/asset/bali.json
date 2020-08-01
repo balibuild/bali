@@ -24,7 +24,8 @@
             "extract": "bin/ssh-askpass-baulk.exe",
             "destination": "bin",
             "newname": "ssh-askpass.exe",
-            "norename": true
+            "norename": true,
+            "executable": true
         }
     ],
     "dirs": [
