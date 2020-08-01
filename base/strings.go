@@ -1,11 +1,11 @@
-package utilities
+package base
 
 import (
 	"errors"
 	"strings"
 )
 
-// string utilities
+// string base
 
 // StrSplitSkipEmpty skip empty string suggestcap is suggest cap
 func StrSplitSkipEmpty(s string, sep byte, suggestcap int) []string {

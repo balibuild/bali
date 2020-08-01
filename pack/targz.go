@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/balibuild/bali/utilities"
+	"github.com/balibuild/bali/base"
 )
 
 // ISVTX todo
@@ -49,7 +49,7 @@ func (pk *TargzPacker) AddTargetLink(nameInArchive, linkName string) error {
 		Typeflag: tar.TypeSymlink,
 		Linkname: filepath.ToSlash(linkName)}
 	if err := pk.tw.WriteHeader(hdr); err != nil {
-		return utilities.ErrorCat(nameInArchive, ": write header:", err.Error())
+		return base.ErrorCat(nameInArchive, ": write header:", err.Error())
 	}
 	return nil
 }
@@ -63,19 +63,19 @@ func (pk *TargzPacker) AddFileEx(src, nameInArchive string, exerights bool) erro
 	var linkTarget string
 	if isSymlink(st) {
 		if linkTarget, err = os.Readlink(src); err != nil {
-			return utilities.ErrorCat(src, ": readlink: ", err.Error())
+			return base.ErrorCat(src, ": readlink: ", err.Error())
 		}
 	}
 	hdr, err := tar.FileInfoHeader(st, linkTarget)
 	if err != nil {
-		return utilities.ErrorCat(src, ": marking header: ", err.Error())
+		return base.ErrorCat(src, ": marking header: ", err.Error())
 	}
 	if exerights {
 		hdr.Mode = hdr.Mode | 0755
 	}
 	hdr.Name = filepath.ToSlash(nameInArchive)
 	if err = pk.tw.WriteHeader(hdr); err != nil {
-		return utilities.ErrorCat(nameInArchive, ": write header:", err.Error())
+		return base.ErrorCat(nameInArchive, ": write header:", err.Error())
 	}
 	if st.IsDir() {
 		return nil
@@ -85,11 +85,11 @@ func (pk *TargzPacker) AddFileEx(src, nameInArchive string, exerights bool) erro
 	}
 	fd, err := os.Open(src)
 	if err != nil {
-		return utilities.ErrorCat(src, ": opening: ", err.Error())
+		return base.ErrorCat(src, ": opening: ", err.Error())
 	}
 	defer fd.Close()
 	if _, err := io.Copy(pk.tw, fd); err != nil {
-		return utilities.ErrorCat(src, ": copying contents: ", err.Error())
+		return base.ErrorCat(src, ": copying contents: ", err.Error())
 	}
 	return nil
 }

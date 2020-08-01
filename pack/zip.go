@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/balibuild/bali/utilities"
+	"github.com/balibuild/bali/base"
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
@@ -78,10 +78,10 @@ func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
 	hdr.Name = filepath.ToSlash(nameInArchive)
 	writer, err := zp.zw.CreateHeader(&hdr)
 	if err != nil {
-		return utilities.ErrorCat(linkName, ": making header:", err.Error())
+		return base.ErrorCat(linkName, ": making header:", err.Error())
 	}
 	if _, err := writer.Write([]byte(filepath.ToSlash(linkName))); err != nil {
-		return utilities.ErrorCat(linkName, " writing symlink target: ", err.Error())
+		return base.ErrorCat(linkName, " writing symlink target: ", err.Error())
 	}
 	return nil
 }
@@ -94,14 +94,14 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 	}
 	header, err := zip.FileInfoHeader(st)
 	if err != nil {
-		return utilities.ErrorCat(src, ": getting header: ", err.Error())
+		return base.ErrorCat(src, ": getting header: ", err.Error())
 	}
 	if exerights {
 		header.SetMode(header.Mode() | 0755)
 	}
 	if st.IsDir() {
 		// Windows support '/'
-		header.Name = utilities.StrCat(filepath.ToSlash(nameInArchive), "/")
+		header.Name = base.StrCat(filepath.ToSlash(nameInArchive), "/")
 		header.Method = zip.Store
 	} else {
 		header.Name = filepath.ToSlash(nameInArchive)
@@ -109,7 +109,7 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 	}
 	writer, err := zp.zw.CreateHeader(header)
 	if err != nil {
-		return utilities.ErrorCat(nameInArchive, ": making header:", err.Error())
+		return base.ErrorCat(nameInArchive, ": making header:", err.Error())
 	}
 	if st.IsDir() {
 		return nil
@@ -117,20 +117,20 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 	if isSymlink(st) {
 		linkTarget, err := os.Readlink(src)
 		if err != nil {
-			return utilities.ErrorCat(src, ": readlink: ", err.Error())
+			return base.ErrorCat(src, ": readlink: ", err.Error())
 		}
 		if _, err := writer.Write([]byte(filepath.ToSlash(linkTarget))); err != nil {
-			return utilities.ErrorCat(src, " writing symlink target: ", err.Error())
+			return base.ErrorCat(src, " writing symlink target: ", err.Error())
 		}
 		return nil
 	}
 	fd, err := os.Open(src)
 	if err != nil {
-		return utilities.ErrorCat(src, ": opening: ", err.Error())
+		return base.ErrorCat(src, ": opening: ", err.Error())
 	}
 	defer fd.Close()
 	if _, err := io.Copy(writer, fd); err != nil {
-		return utilities.ErrorCat(src, ": copying contents: ", err.Error())
+		return base.ErrorCat(src, ": copying contents: ", err.Error())
 	}
 	return nil
 }

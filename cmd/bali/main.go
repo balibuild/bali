@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/balibuild/bali/base"
 	"github.com/balibuild/bali/pack"
-	"github.com/balibuild/bali/utilities"
 )
 
 // global mode
@@ -58,7 +58,7 @@ usage: %s <option> args ...
 func DbgPrint(format string, a ...interface{}) {
 	if IsDebugMode {
 		ss := fmt.Sprintf(format, a...)
-		_, _ = os.Stderr.WriteString(utilities.StrCat("\x1b[33m* ", ss, "\x1b[0m\n"))
+		_, _ = os.Stderr.WriteString(base.StrCat("\x1b[33m* ", ss, "\x1b[0m\n"))
 	}
 }
 
@@ -124,27 +124,27 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 
 // ParseArgv parse argv
 func (be *Executor) ParseArgv() error {
-	var ae utilities.ArgvParser
-	ae.Add("help", utilities.NOARG, 'h')
-	ae.Add("version", utilities.NOARG, 'v')
-	ae.Add("verbose", utilities.NOARG, 'V')
-	ae.Add("force", utilities.NOARG, 'f')
-	ae.Add("workdir", utilities.REQUIRED, 'w')
-	ae.Add("arch", utilities.REQUIRED, 'a')
-	ae.Add("target", utilities.REQUIRED, 't')
-	ae.Add("out", utilities.REQUIRED, 'o')
-	ae.Add("dest", utilities.REQUIRED, 'd')
-	ae.Add("zip", utilities.NOARG, 'z')
-	ae.Add("method", utilities.REQUIRED, 'A')
-	ae.Add("pack", utilities.NOARG, 'p')
-	ae.Add("cleanup", utilities.NOARG, 1001)
-	ae.Add("no-rename", utilities.NOARG, 1002)
-	if err := ae.Execute(os.Args, be); err != nil {
+	var pa base.ParseArgs
+	pa.Add("help", base.NOARG, 'h')
+	pa.Add("version", base.NOARG, 'v')
+	pa.Add("verbose", base.NOARG, 'V')
+	pa.Add("force", base.NOARG, 'f')
+	pa.Add("workdir", base.REQUIRED, 'w')
+	pa.Add("arch", base.REQUIRED, 'a')
+	pa.Add("target", base.REQUIRED, 't')
+	pa.Add("out", base.REQUIRED, 'o')
+	pa.Add("dest", base.REQUIRED, 'd')
+	pa.Add("zip", base.NOARG, 'z')
+	pa.Add("method", base.REQUIRED, 'A')
+	pa.Add("pack", base.NOARG, 'p')
+	pa.Add("cleanup", base.NOARG, 1001)
+	pa.Add("no-rename", base.NOARG, 1002)
+	if err := pa.Execute(os.Args, be); err != nil {
 		return err
 	}
 	if len(be.workdir) == 0 {
-		if len(ae.Unresolved()) > 0 {
-			cwd, err := filepath.Abs(ae.Unresolved()[0])
+		if len(pa.Unresolved()) > 0 {
+			cwd, err := filepath.Abs(pa.Unresolved()[0])
 			if err != nil {
 				return err
 			}

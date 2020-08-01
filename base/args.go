@@ -1,4 +1,4 @@
-package utilities
+package base
 
 // Thanks baulk
 
@@ -31,8 +31,8 @@ type option struct {
 	val  int
 }
 
-// ArgvParser todo
-type ArgvParser struct {
+// ParseArgs todo
+type ParseArgs struct {
 	opts       []option
 	ua         []string
 	index      int
@@ -40,16 +40,16 @@ type ArgvParser struct {
 }
 
 // Add option
-func (ae *ArgvParser) Add(name string, ha, val int) {
-	ae.opts = append(ae.opts, option{name: name, ha: ha, val: val})
+func (pa *ParseArgs) Add(name string, ha, val int) {
+	pa.opts = append(pa.opts, option{name: name, ha: ha, val: val})
 }
 
 // Unresolved todo
-func (ae *ArgvParser) Unresolved() []string {
-	return ae.ua
+func (pa *ParseArgs) Unresolved() []string {
+	return pa.ua
 }
 
-func (ae *ArgvParser) parseInternalLong(a string, argv []string, ac Receiver) error {
+func (pa *ParseArgs) parseInternalLong(a string, argv []string, ac Receiver) error {
 	ha := OPTIONAL
 	ch := -1
 	var oa string
@@ -61,7 +61,7 @@ func (ae *ArgvParser) parseInternalLong(a string, argv []string, ac Receiver) er
 		oa = a[i+1:]
 		a = a[0:i]
 	}
-	for _, o := range ae.opts {
+	for _, o := range pa.opts {
 		if o.name == a {
 			ch = o.val
 			ha = o.ha
@@ -75,11 +75,11 @@ func (ae *ArgvParser) parseInternalLong(a string, argv []string, ac Receiver) er
 		return ErrorCat("option '--", a, "' unexpected parameter: ", oa)
 	}
 	if len(oa) == 0 && ha == REQUIRED {
-		if ae.index+1 >= len(argv) {
+		if pa.index+1 >= len(argv) {
 			return ErrorCat("option '--", a, "' missing parameter")
 		}
-		oa = argv[ae.index+1]
-		ae.index++
+		oa = argv[pa.index+1]
+		pa.index++
 	}
 	if err := ac.Invoke(ch, oa, a); err != nil {
 		return err
@@ -87,14 +87,14 @@ func (ae *ArgvParser) parseInternalLong(a string, argv []string, ac Receiver) er
 	return nil
 }
 
-func (ae *ArgvParser) parseInternalShort(a string, argv []string, ac Receiver) error {
+func (pa *ParseArgs) parseInternalShort(a string, argv []string, ac Receiver) error {
 	ha := OPTIONAL
 	ch := -1
 	if a[0] == '=' {
 		return ErrorCat("unexpected argument '-", a, "'")
 	}
 	c := int(a[0])
-	for _, o := range ae.opts {
+	for _, o := range pa.opts {
 		if o.val == c {
 			ch = c
 			ha = o.ha
@@ -116,11 +116,11 @@ func (ae *ArgvParser) parseInternalShort(a string, argv []string, ac Receiver) e
 		return ErrorCat("option '-", a[0:1], "' unexpected parameter: ", oa)
 	}
 	if len(oa) == 0 && ha == REQUIRED {
-		if ae.index+1 >= len(argv) {
+		if pa.index+1 >= len(argv) {
 			return ErrorCat("option '-", a[0:1], "' missing parameter")
 		}
-		oa = argv[ae.index+1]
-		ae.index++
+		oa = argv[pa.index+1]
+		pa.index++
 	}
 	if err := ac.Invoke(ch, oa, a); err != nil {
 		return err
@@ -128,33 +128,33 @@ func (ae *ArgvParser) parseInternalShort(a string, argv []string, ac Receiver) e
 	return nil
 }
 
-func (ae *ArgvParser) parseInternal(a string, argv []string, ac Receiver) error {
+func (pa *ParseArgs) parseInternal(a string, argv []string, ac Receiver) error {
 	if len(a) == 1 {
 		return ErrUnExpectedArg
 	}
 	if a[1] == '-' {
-		return ae.parseInternalLong(a[2:], argv, ac)
+		return pa.parseInternalLong(a[2:], argv, ac)
 	}
-	return ae.parseInternalShort(a[1:], argv, ac)
+	return pa.parseInternalShort(a[1:], argv, ac)
 }
 
 // Execute todo
-func (ae *ArgvParser) Execute(argv []string, ac Receiver) error {
+func (pa *ParseArgs) Execute(argv []string, ac Receiver) error {
 	if len(argv) == 0 {
 		return ErrNilArgv
 	}
-	ae.index = 1
-	for ; ae.index < len(argv); ae.index++ {
-		a := argv[ae.index]
+	pa.index = 1
+	for ; pa.index < len(argv); pa.index++ {
+		a := argv[pa.index]
 		if len(a) == 0 || a[0] != '-' {
-			if ae.SubcmdMode {
-				ae.ua = append(ae.ua, argv[ae.index:]...)
+			if pa.SubcmdMode {
+				pa.ua = append(pa.ua, argv[pa.index:]...)
 				return nil
 			}
-			ae.ua = append(ae.ua, a)
+			pa.ua = append(pa.ua, a)
 			continue
 		}
-		if err := ae.parseInternal(a, argv, ac); err != nil {
+		if err := pa.parseInternal(a, argv, ac); err != nil {
 			return err
 		}
 	}

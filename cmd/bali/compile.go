@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/balibuild/bali/base"
 	"github.com/balibuild/bali/builder"
-	"github.com/balibuild/bali/utilities"
 )
 
 // MakeResources todo
@@ -15,17 +15,17 @@ func (exe *Executable) MakeResources(wd, syso, binaryName string, be *Executor) 
 	var b builder.Builder
 	if len(exe.VersionInfo) != 0 {
 		if err := b.ParseJSON(filepath.Join(wd, exe.VersionInfo)); err != nil {
-			return utilities.ErrorCat("pasre versioninfo file: ", err.Error())
+			return base.ErrorCat("pasre versioninfo file: ", err.Error())
 		}
 	}
 	if len(exe.IconPath) != 0 {
 		if err := b.AddIcon(filepath.Join(wd, exe.IconPath)); err != nil {
-			return utilities.ErrorCat("load icon: ", err.Error())
+			return base.ErrorCat("load icon: ", err.Error())
 		}
 	}
 	if len(exe.Manifest) != 0 {
 		if err := b.AddManifest(filepath.Join(wd, exe.Manifest)); err != nil {
-			return utilities.ErrorCat("load manifest: ", err.Error())
+			return base.ErrorCat("load manifest: ", err.Error())
 		}
 	}
 	b.FillVersion(exe.Version, be.bm.Version)
@@ -41,7 +41,7 @@ func (exe *Executable) MakeLinks(destfile string, be *Executor) error {
 			continue
 		}
 		lo := filepath.Join(be.out, be.AddSuffix(cl))
-		if utilities.PathExists(lo) {
+		if base.PathExists(lo) {
 			_ = os.RemoveAll(lo)
 		}
 		if err := os.Symlink(destfile, lo); err != nil {
@@ -60,7 +60,7 @@ func (exe *Executable) MakeLinks(destfile string, be *Executor) error {
 // Compile todo
 func (be *Executor) Compile(wd string) error {
 	balisrc := filepath.Join(wd, "balisrc.json")
-	if !utilities.PathExists(balisrc) {
+	if !base.PathExists(balisrc) {
 		fmt.Fprintf(os.Stderr, "%s not exists\n", balisrc)
 		return os.ErrNotExist
 	}
@@ -75,7 +75,7 @@ func (be *Executor) Compile(wd string) error {
 		exe.Name = filepath.Base(exe.Name)
 	}
 	if exe.Name == "." {
-		return utilities.ErrorCat("bad name: ", exe.Name)
+		return base.ErrorCat("bad name: ", exe.Name)
 	}
 	// Update version
 	be.UpdateNow(exe.Version)

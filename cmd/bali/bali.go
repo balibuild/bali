@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/balibuild/bali/utilities"
+	"github.com/balibuild/bali/base"
 )
 
 // Executable todo
@@ -50,7 +50,7 @@ func (file *File) Configure(workdir, outdir string) error {
 		outfile = filepath.Join(fileoutdir, name)
 	}
 	srcfile := filepath.Join(workdir, file.Path)
-	if utilities.PathExists(outfile) && !IsForceMode {
+	if base.PathExists(outfile) && !IsForceMode {
 		if !IsForceMode {
 			return nil
 		}
@@ -58,7 +58,7 @@ func (file *File) Configure(workdir, outdir string) error {
 	} else {
 		fmt.Fprintf(os.Stderr, "install \x1b[32m%s\x1b[0m\n", outfile)
 	}
-	return utilities.CopyFile(srcfile, outfile)
+	return base.CopyFile(srcfile, outfile)
 }
 
 // Project  todo

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/balibuild/bali/base"
 	"github.com/balibuild/bali/goversioninfo"
-	"github.com/balibuild/bali/utilities"
 )
 
 // Builder build syso file
@@ -28,8 +28,8 @@ func (b *Builder) ParseJSON(file string) error {
 
 // AddIcon add icon to resources
 func (b *Builder) AddIcon(src string) error {
-	if !utilities.PathExists(src) {
-		return utilities.ErrorCat("icon: ", src, " not found")
+	if !base.PathExists(src) {
+		return base.ErrorCat("icon: ", src, " not found")
 	}
 	b.vi.IconPath = src
 	return nil
@@ -37,8 +37,8 @@ func (b *Builder) AddIcon(src string) error {
 
 // AddManifest todo
 func (b *Builder) AddManifest(src string) error {
-	if !utilities.PathExists(src) {
-		return utilities.ErrorCat("manifest: ", src, " not found")
+	if !base.PathExists(src) {
+		return base.ErrorCat("manifest: ", src, " not found")
 	}
 	b.vi.ManifestPath = src
 	return nil
@@ -75,7 +75,7 @@ func (b *Builder) UpdateName(fileName, productName, desc string) {
 
 // MakeSysoPath todo
 func MakeSysoPath(outdir, arch string) string {
-	return utilities.StrCat(outdir, string(os.PathSeparator), "windows_", arch, ".syso")
+	return base.StrCat(outdir, string(os.PathSeparator), "windows_", arch, ".syso")
 }
 
 // WriteSyso todo
@@ -104,7 +104,7 @@ func (b *Builder) WriteSyso(fileout, arch string) error {
 	b.vi.Build()
 	b.vi.Walk()
 	if err := b.vi.WriteSyso(fileout, arch); err != nil {
-		return utilities.ErrorCat("Error writing syso: ", err.Error())
+		return base.ErrorCat("Error writing syso: ", err.Error())
 	}
 	return nil
 }

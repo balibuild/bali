@@ -14,7 +14,7 @@ import (
 
 	"github.com/akavel/rsrc/binutil"
 	"github.com/akavel/rsrc/coff"
-	"github.com/balibuild/bali/utilities"
+	"github.com/balibuild/bali/base"
 )
 
 // *****************************************************************************
@@ -59,7 +59,7 @@ func (f *FileVersion) IsZero() bool {
 
 // Fillling todo
 func (f *FileVersion) Fillling(sv string) error {
-	svv := utilities.StrSplitSkipEmpty(sv, '.', 4)
+	svv := base.StrSplitSkipEmpty(sv, '.', 4)
 	if len(svv) == 0 {
 		f.Patch = 1
 		return nil

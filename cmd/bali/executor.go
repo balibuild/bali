@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/balibuild/bali/base"
 	"github.com/balibuild/bali/pack"
-	"github.com/balibuild/bali/utilities"
 )
 
 // Executor
 
 // Executor todo
 type Executor struct {
-	de          *utilities.Derivator
+	de          *base.Derivator
 	target      string // os
 	arch        string
 	out         string
@@ -70,7 +70,7 @@ func resolveGoVersion() string {
 func resolveDistSupport(target, arch string) bool {
 	cmd := exec.Command("go", "tool", "dist", "list")
 	if out, err := cmd.CombinedOutput(); err == nil {
-		str := utilities.StrCat(target, "/", arch)
+		str := base.StrCat(target, "/", arch)
 		if strings.Contains(string(out), str) {
 			return true
 		}
@@ -87,7 +87,7 @@ func (be *Executor) Initialize() error {
 	if len(be.bm.Version) == 0 {
 		be.bm.Version = "0.0.1"
 	}
-	be.de = utilities.NewDerivator()
+	be.de = base.NewDerivator()
 	// Respect environmental variable settings
 	if len(be.target) == 0 {
 		if be.target = os.Getenv("GOOS"); len(be.target) == 0 {
@@ -100,7 +100,7 @@ func (be *Executor) Initialize() error {
 		}
 	}
 	if !resolveDistSupport(be.target, be.arch) {
-		return utilities.ErrorCat("unsupported GOOS/GOARCH pair ", be.target, "/", be.arch)
+		return base.ErrorCat("unsupported GOOS/GOARCH pair ", be.target, "/", be.arch)
 	}
 	_ = be.de.Append("BUILD_COMMIT", resolveBuildID(be.workdir))
 	_ = be.de.Append("BUILD_BRANCH", resolveBranch(be.workdir))
@@ -116,8 +116,8 @@ func (be *Executor) Initialize() error {
 			be.environ = append(be.environ, e)
 		}
 	}
-	be.environ = append(be.environ, utilities.StrCat("GOOS=", be.target))
-	be.environ = append(be.environ, utilities.StrCat("GOARCH=", be.arch))
+	be.environ = append(be.environ, base.StrCat("GOOS=", be.target))
+	be.environ = append(be.environ, base.StrCat("GOARCH=", be.arch))
 	be.linkmap = make(map[string]string)
 	if be.target == "windows" {
 		be.suffix = ".exe"
@@ -142,7 +142,7 @@ func (be *Executor) TargetName(name string) string {
 	if be.norename {
 		return name
 	}
-	return utilities.StrCat(name, ".new")
+	return base.StrCat(name, ".new")
 }
 
 // FileName todo
@@ -150,7 +150,7 @@ func (be *Executor) FileName(file *File) string {
 	if be.norename || file.NoRename {
 		return file.Base()
 	}
-	return utilities.StrCat(file.Base(), ".template")
+	return base.StrCat(file.Base(), ".template")
 }
 
 // AddSuffix todo
@@ -161,15 +161,15 @@ func (be *Executor) AddSuffix(name string) string {
 	if strings.HasSuffix(name, be.suffix) {
 		return name
 	}
-	return utilities.StrCat(name, be.suffix)
+	return base.StrCat(name, be.suffix)
 }
 
 // BinaryName todo
 func (be *Executor) BinaryName(dir, name string) string {
 	if len(name) == 0 {
-		return utilities.StrCat(filepath.Base(dir), be.suffix)
+		return base.StrCat(filepath.Base(dir), be.suffix)
 	}
-	return utilities.StrCat(name, be.suffix)
+	return base.StrCat(name, be.suffix)
 }
 
 // PathInArchive todo
@@ -177,7 +177,7 @@ func (be *Executor) PathInArchive(destination string) string {
 	if be.makepack {
 		return destination
 	}
-	return filepath.Join(utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version), destination)
+	return filepath.Join(base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version), destination)
 }
 
 // Build todo
@@ -197,7 +197,7 @@ func (be *Executor) Build() error {
 
 // Compress todo
 func (be *Executor) Compress() error {
-	if !utilities.PathDirExists(be.destination) {
+	if !base.PathDirExists(be.destination) {
 		if err := os.MkdirAll(be.destination, 0755); err != nil {
 			return err
 		}
@@ -207,7 +207,7 @@ func (be *Executor) Compress() error {
 	var fd *os.File
 	var pk pack.Packer
 	if be.target == "windows" {
-		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip"))
+		outfile = filepath.Join(be.destination, base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip"))
 		fd, err = os.Create(outfile)
 		if err != nil {
 			return err
@@ -218,7 +218,7 @@ func (be *Executor) Compress() error {
 			pk = pack.NewZipPacker(fd)
 		}
 	} else {
-		outfile = filepath.Join(be.destination, utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
+		outfile = filepath.Join(be.destination, base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
 		fd, err = os.Create(outfile)
 		if err != nil {
 			return err
@@ -263,7 +263,7 @@ func (be *Executor) PackWin() error {
 
 // PackUNIX todo
 func (be *Executor) PackUNIX() error {
-	outfilename := utilities.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
+	outfilename := base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
 	outfile := filepath.Join(be.destination, outfilename)
 	fd, err := pack.OpenFile(outfile)
 	if err != nil {
@@ -275,8 +275,8 @@ func (be *Executor) PackUNIX() error {
 	var rw pack.RespondWriter
 	// bali post install script
 	if len(be.bm.Respond) != 0 {
-		if !utilities.PathExists(be.bm.Respond) {
-			return utilities.ErrorCat("respond file ", be.bm.Respond, " not found")
+		if !base.PathExists(be.bm.Respond) {
+			return base.ErrorCat("respond file ", be.bm.Respond, " not found")
 		}
 		if err := pk.AddFileEx(be.bm.Respond, "bali_post_install", true); err != nil {
 			return err
@@ -299,7 +299,7 @@ func (be *Executor) PackUNIX() error {
 		fmt.Fprintf(os.Stderr, "compress target \x1b[32m%s\x1b[0m\n", rel)
 		nameInArchive := be.PathInArchive(rel)
 		if !be.norename {
-			nameInArchive = utilities.StrCat(nameInArchive, ".new")
+			nameInArchive = base.StrCat(nameInArchive, ".new")
 		}
 		if err := pk.AddFileEx(s, nameInArchive, true); err != nil {
 			_ = rw.Close()
@@ -327,7 +327,7 @@ func (be *Executor) PackUNIX() error {
 			}
 			DbgPrint("Add profile %s (no rename)", f.Path)
 		} else {
-			nameInArchive := utilities.StrCat(be.PathInArchive(rel), ".template")
+			nameInArchive := base.StrCat(be.PathInArchive(rel), ".template")
 			if err := pk.AddFile(file, nameInArchive); err != nil {
 				_ = rw.Close()
 				return err
@@ -350,7 +350,7 @@ func (be *Executor) PackUNIX() error {
 
 // Pack todo
 func (be *Executor) Pack() error {
-	if !utilities.PathDirExists(be.destination) {
+	if !base.PathDirExists(be.destination) {
 		if err := os.MkdirAll(be.destination, 0755); err != nil {
 			return err
 		}
