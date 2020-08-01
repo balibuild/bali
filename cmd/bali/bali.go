@@ -28,6 +28,7 @@ type File struct {
 	Destination string `json:"destination"`
 	NewName     string `json:"newname,omitempty"`
 	NoRename    bool   `json:"norename,omitempty"`
+	Executable  bool   `json:"executable,omitempty"`
 }
 
 // Base get BaliFile base

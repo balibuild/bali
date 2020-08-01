@@ -248,7 +248,7 @@ func (be *Executor) Compress() error {
 		file := filepath.Join(be.workdir, f.Path)
 		rel := filepath.Join(f.Destination, f.Base())
 		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", f.Path)
-		if err := pk.AddFile(file, be.PathInArchive(rel)); err != nil {
+		if err := pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
 			return err
 		}
 	}
@@ -321,14 +321,14 @@ func (be *Executor) PackUNIX() error {
 		rel := filepath.Join(f.Destination, f.Base())
 		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", rel)
 		if be.norename || f.NoRename {
-			if err := pk.AddFile(file, be.PathInArchive(rel)); err != nil {
+			if err := pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
 				_ = rw.Close()
 				return err
 			}
 			DbgPrint("Add profile %s (no rename)", f.Path)
 		} else {
 			nameInArchive := base.StrCat(be.PathInArchive(rel), ".template")
-			if err := pk.AddFile(file, nameInArchive); err != nil {
+			if err := pk.AddFileEx(file, nameInArchive, f.Executable); err != nil {
 				_ = rw.Close()
 				return err
 			}
