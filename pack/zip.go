@@ -88,33 +88,36 @@ func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
 
 // AddFileEx todo
 func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error {
-	st, err := os.Stat(src)
+	fi, err := os.Stat(src)
 	if err != nil {
 		return err
 	}
-	header, err := zip.FileInfoHeader(st)
+	if fi.IsDir() {
+		header, err := zip.FileInfoHeader(fi)
+		if err != nil {
+			return base.ErrorCat(src, ": getting header: ", err.Error())
+		}
+		header.Name = base.StrCat(filepath.ToSlash(nameInArchive), "/")
+		header.Method = zip.Store
+		if _, err = zp.zw.CreateHeader(header); err != nil {
+			return base.ErrorCat(nameInArchive, ": making header:", err.Error())
+		}
+		return nil
+	}
+	header, err := zip.FileInfoHeader(fi)
 	if err != nil {
 		return base.ErrorCat(src, ": getting header: ", err.Error())
 	}
 	if exerights {
 		header.SetMode(header.Mode() | 0755)
 	}
-	if st.IsDir() {
-		// Windows support '/'
-		header.Name = base.StrCat(filepath.ToSlash(nameInArchive), "/")
-		header.Method = zip.Store
-	} else {
-		header.Name = filepath.ToSlash(nameInArchive)
-		header.Method = zp.FileMethod
-	}
+	header.Name = filepath.ToSlash(nameInArchive)
+	header.Method = zp.FileMethod
 	writer, err := zp.zw.CreateHeader(header)
 	if err != nil {
 		return base.ErrorCat(nameInArchive, ": making header:", err.Error())
 	}
-	if st.IsDir() {
-		return nil
-	}
-	if isSymlink(st) {
+	if isSymlink(fi) {
 		linkTarget, err := os.Readlink(src)
 		if err != nil {
 			return base.ErrorCat(src, ": readlink: ", err.Error())

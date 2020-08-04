@@ -56,17 +56,17 @@ func (pk *TargzPacker) AddTargetLink(nameInArchive, linkName string) error {
 
 // AddFileEx todo
 func (pk *TargzPacker) AddFileEx(src, nameInArchive string, exerights bool) error {
-	st, err := os.Stat(src)
+	fi, err := os.Stat(src)
 	if err != nil {
 		return err
 	}
 	var linkTarget string
-	if isSymlink(st) {
+	if isSymlink(fi) {
 		if linkTarget, err = os.Readlink(src); err != nil {
 			return base.ErrorCat(src, ": readlink: ", err.Error())
 		}
 	}
-	hdr, err := tar.FileInfoHeader(st, linkTarget)
+	hdr, err := tar.FileInfoHeader(fi, linkTarget)
 	if err != nil {
 		return base.ErrorCat(src, ": marking header: ", err.Error())
 	}
@@ -77,7 +77,7 @@ func (pk *TargzPacker) AddFileEx(src, nameInArchive string, exerights bool) erro
 	if err = pk.tw.WriteHeader(hdr); err != nil {
 		return base.ErrorCat(nameInArchive, ": write header:", err.Error())
 	}
-	if st.IsDir() {
+	if fi.IsDir() {
 		return nil
 	}
 	if hdr.Typeflag != tar.TypeReg {
