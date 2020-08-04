@@ -57,16 +57,34 @@ func (exe *Executable) MakeLinks(destfile string, be *Executor) error {
 	return nil
 }
 
+func (be *Executor) loadExecutable(wd string) (*Executable, error) {
+	balisrc := filepath.Join(wd, "balisrc.toml")
+	if base.PathExists(balisrc) {
+		DbgPrint("%s support toml metadata", wd)
+		var exe Executable
+		if err := LoadTomlMetadata(balisrc, &exe); err != nil {
+			return nil, err
+		}
+		return &exe, nil
+	}
+	balisrc = filepath.Join(wd, "balisrc.json")
+	if base.PathExists(balisrc) {
+		DbgPrint("%s support json metadata", wd)
+		var exe Executable
+		if err := LoadJSONMetadata(balisrc, &exe); err != nil {
+			return nil, err
+		}
+		return &exe, nil
+	}
+	fmt.Fprintf(os.Stderr, "%s not found any balisrc.toml/balisrc.json\n", wd)
+	return nil, os.ErrNotExist
+}
+
 // Compile todo
 func (be *Executor) Compile(wd string) error {
-	balisrc := filepath.Join(wd, "balisrc.json")
-	if !base.PathExists(balisrc) {
-		fmt.Fprintf(os.Stderr, "%s not exists\n", balisrc)
-		return os.ErrNotExist
-	}
-	var exe Executable
-	if err := LoadMetadata(balisrc, &exe); err != nil {
-		fmt.Fprintf(os.Stderr, "load %s error %s\n", balisrc, err)
+	exe, err := be.loadExecutable(wd)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "load balisrc from %s error %s\n", wd, err)
 		return err
 	}
 	if len(exe.Name) == 0 {
