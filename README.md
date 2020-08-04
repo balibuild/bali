@@ -76,7 +76,7 @@ bali /path/to/project -p -d /tmp/output
 
 ## Bali build file format
 
-Bali chose JSON as the file format. The advantage of using JSON is that Golang has built-in support for parsing, and it can be formatted using an editor. There are two types of Bali build files. One is the project file `bali.json`, which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use `bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.json` is located, you can also run `bali` in that directory; another build file is the `balisrc.json` file under the specific program source code directory, `balisrc.json` There should be a `main` package in the directory where bali resolves `balisrc.json` by parsing `dirs` of `bali.json`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
+You can choose to write project files in json or toml format.. There are two types of Bali build files. One is the project file `bali.json`(`bali.toml`), which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use `bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.json` is located, you can also run `bali` in that directory; another build file is the `balisrc.json`(`balisrc.toml`) file under the specific program source code directory, `balisrc.json` There should be a `main` package in the directory where bali resolves `balisrc.json` by parsing `dirs` of `bali.json`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
 
 Project file `bali.json`:
 
@@ -107,6 +107,24 @@ Project file `bali.json`:
         "cmd/bali"
     ]
 }
+```
+
+Project file `bali.toml`:
+
+```toml
+# https://toml.io/en/
+name = "bali"
+version = "1.2.0"
+dirs = [
+    "cmd/bali", # dirs
+]
+
+[[files]]
+path = "LICENSE"
+destination = "share"
+newname = "LICENSE.bali"
+norename = true
+
 ```
 
 Built-in environment variables:
@@ -147,6 +165,24 @@ Program build file `balisrc.json`:
     // Build Windows target, application list of PE files
     "manifest": "res/bali.manifest"
 }
+```
+
+Program build file `balisrc.toml`:
+
+```toml
+name = "bali"
+description = "Bali - Minimalist Golang build and packaging tool"
+destination = "bin"
+version = "1.2.0"
+versioninfo = "res/versioninfo.json"
+icon = "res/bali.ico"
+manifest = "res/bali.manifest"
+links = ["bin/baligo"]
+goflags = [
+    "-ldflags",
+    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'",
+]
+
 ```
 
 `versioninfo.json:`

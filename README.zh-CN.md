@@ -68,7 +68,7 @@ bali /path/to/project -p -d /tmp/output
 
 ## Bali 构建文件格式
 
-Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内置支持解析，并且可以使用编辑器的格式化。Bali 构建文件有两种，一种是项目文件 `bali.json`，通常在项目根目录下，用于也可以在其他目录创建此文件，运行构建时，通过 `bali -w` 或者 `bali /path/to/buildroot` 指定 `bali.json` 所在目录，也可以在那个目录下运行 `bali`；另一种构建文件是特定程序源码目录下的 `balisrc.json` 文件，`balisrc.json` 所在目录应当存在 `main` 包，bali 通过解析 `bali.json` 的 `dirs` 解析 `balisrc.json`，与 `cmake` 的 `add_subdirectory` 指令类似。二者示例如下：
+Bali 同时支持 TOML 或者 JSON 格式的项目文件，JSON 使用内置解析不支持注释，TOML 支持注释。Bali 构建文件有两种，一种是项目文件 `bali.json`(`bali.toml`)，通常在项目根目录下，用于也可以在其他目录创建此文件，运行构建时，通过 `bali -w` 或者 `bali /path/to/buildroot` 指定 `bali.json` 所在目录，也可以在那个目录下运行 `bali`；另一种构建文件是特定程序源码目录下的 `balisrc.json`(`balisrc.toml`) 文件，`balisrc.json` 所在目录应当存在 `main` 包，bali 通过解析 `bali.json` 的 `dirs` 解析 `balisrc.json`，与 `cmake` 的 `add_subdirectory` 指令类似。二者示例如下：
 
 项目文件 `bali.json`:
 
@@ -101,6 +101,24 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
 }
 ```
 
+项目文件 `bali.toml`:
+
+```toml
+# https://toml.io/en/
+name = "bali"
+version = "1.2.0"
+dirs = [
+    "cmd/bali", # dirs
+]
+
+[[files]]
+path = "LICENSE"
+destination = "share"
+newname = "LICENSE.bali"
+norename = true
+
+```
+
 程序构建文件 `balisrc.json`:
 
 ```js
@@ -131,9 +149,27 @@ Bali 选择了 JSON 作为文件格式，使用 JSON 的好处在于 Golang 内�
 }
 ```
 
+程序构建文件 `balisrc.toml`:
+
+```toml
+name = "bali"
+description = "Bali - Minimalist Golang build and packaging tool"
+destination = "bin"
+version = "1.2.0"
+versioninfo = "res/versioninfo.json"
+icon = "res/bali.ico"
+manifest = "res/bali.manifest"
+links = ["bin/baligo"]
+goflags = [
+    "-ldflags",
+    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'",
+]
+
+```
+
 内置环境变量：
 
-+   `BUILD_VERSION` 由 balisrc.json 的 `version` 字段填充
++   `BUILD_VERSION` 由 balisrc.json/balisrc.toml 的 `version` 字段填充
 +   `BUILD_TIME` 由构建时间按照 `RFC3339` 格式化后填充
 +   `BUILD_COMMIT` 由存储库（为 git 存储库时） 的 commit id 填充
 +   `BUILD_GOVERSION` 由 `go version` 输出（删除了 `go version` 前缀）填充

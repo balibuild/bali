@@ -26,6 +26,6 @@ func init() {
 	// becasue we print message to stderr
 	h := os.Stderr.Fd()
 	if r, _, _ := procGetConsoleMode.Call(h, uintptr(unsafe.Pointer(&mode))); r != 0 {
-		procSetConsoleMode.Call(h, uintptr(mode|EnableVirtualTerminalProcessingMode))
+		_, _, _ = procSetConsoleMode.Call(h, uintptr(mode|EnableVirtualTerminalProcessingMode))
 	}
 }
