@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -219,42 +222,51 @@ func (be *Executor) Compress() error {
 	var outfile string
 	var err error
 	var fd *os.File
+	var mw io.Writer
 	var pk pack.Packer
+	h := sha256.New()
+	var outname string
 	if be.target == "windows" {
-		outfile = filepath.Join(be.destination, base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip"))
-		fd, err = os.Create(outfile)
-		if err != nil {
+		outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip")
+		outfile = filepath.Join(be.destination, outname)
+		if fd, err = os.Create(outfile); err != nil {
 			return err
 		}
-		if be.zipmethod != 0 {
-			pk = pack.NewZipPackerEx(fd, be.zipmethod)
-		} else {
-			pk = pack.NewZipPacker(fd)
-		}
+		mw = io.MultiWriter(fd, h)
+		pk = pack.NewZipPackerEx(mw, be.zipmethod)
 	} else {
-		outfile = filepath.Join(be.destination, base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz"))
-		fd, err = os.Create(outfile)
-		if err != nil {
+		outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz")
+		outfile = filepath.Join(be.destination, outname)
+		if fd, err = os.Create(outfile); err != nil {
 			return err
 		}
-		pk = pack.NewTargzPacker(fd)
+		mw = io.MultiWriter(fd, h)
+		pk = pack.NewTargzPacker(mw)
 	}
+	// Please keep order
+	defer func() {
+		if err == nil && h != nil {
+			fmt.Fprintf(os.Stderr, "\x1b[34m%s  %s\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), outname)
+			fmt.Fprintf(os.Stderr, "bali create archive \x1b[32m%s\x1b[0m success\n", outname)
+		}
+	}()
 	defer fd.Close()
 	defer pk.Close()
+
 	for _, b := range be.binaries {
-		rel, err := filepath.Rel(be.out, b)
-		if err != nil {
+		var rel string
+		if rel, err = filepath.Rel(be.out, b); err != nil {
 			return err
 		}
 		fmt.Fprintf(os.Stderr, "compress target \x1b[32m%s\x1b[0m\n", rel)
-		if err := pk.AddFileEx(b, be.PathInArchive(rel), true); err != nil {
+		if err = pk.AddFileEx(b, be.PathInArchive(rel), true); err != nil {
 			return err
 		}
 	}
 	for name, lnkName := range be.linkmap {
 		nameInArchive := be.PathInArchive(name)
 		fmt.Fprintf(os.Stderr, "compress link \x1b[32m%s --> %s\x1b[0m\n", nameInArchive, lnkName)
-		if err := pk.AddTargetLink(nameInArchive, lnkName); err != nil {
+		if err = pk.AddTargetLink(nameInArchive, lnkName); err != nil {
 			return err
 		}
 	}
@@ -262,7 +274,7 @@ func (be *Executor) Compress() error {
 		file := filepath.Join(be.workdir, f.Path)
 		rel := filepath.Join(f.Destination, f.Base())
 		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", f.Path)
-		if err := pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
+		if err = pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
 			return err
 		}
 	}
@@ -279,12 +291,21 @@ func (be *Executor) PackWin() error {
 func (be *Executor) PackUNIX() error {
 	outfilename := base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
 	outfile := filepath.Join(be.destination, outfilename)
-	fd, err := pack.OpenFile(outfile)
+	hashfd, err := pack.OpenHashableFile(outfile)
 	if err != nil {
 		return err
 	}
-	defer fd.Close()
-	pk := pack.NewTargzPacker(fd)
+	// Keep order
+	defer func() {
+		if err == nil {
+			hashfd.Hashsum(outfilename)
+			fmt.Fprintf(os.Stderr, "create \x1b[32m%s\x1b[0m done\n", outfile)
+			fmt.Fprintf(os.Stderr, "Your can run '\x1b[32m./%s --prefix=/path/to/%s\x1b[0m' to install %s\n", outfilename, be.bm.Name, be.bm.Name)
+			fmt.Fprintf(os.Stderr, "bali create package \x1b[32m%s\x1b[0m success\n", outfilename)
+		}
+	}()
+	defer hashfd.Close()
+	pk := pack.NewTargzPacker(hashfd)
 	defer pk.Close()
 	var rw pack.RespondWriter
 	// bali post install script
@@ -292,21 +313,21 @@ func (be *Executor) PackUNIX() error {
 		if !base.PathExists(be.bm.Respond) {
 			return base.ErrorCat("respond file ", be.bm.Respond, " not found")
 		}
-		if err := pk.AddFileEx(be.bm.Respond, "bali_post_install", true); err != nil {
+		if err = pk.AddFileEx(be.bm.Respond, "bali_post_install", true); err != nil {
 			return err
 		}
 	} else if !be.norename {
-		if err := rw.Initialize(); err != nil {
+		if err = rw.Initialize(); err != nil {
 			return err
 		}
-		if err := rw.WriteBase(); err != nil {
+		if err = rw.WriteBase(); err != nil {
 			return err
 		}
 	}
 
 	for _, s := range be.binaries {
-		rel, err := filepath.Rel(be.out, s)
-		if err != nil {
+		var rel string
+		if rel, err = filepath.Rel(be.out, s); err != nil {
 			_ = rw.Close()
 			return err
 		}
@@ -315,7 +336,7 @@ func (be *Executor) PackUNIX() error {
 		if !be.norename {
 			nameInArchive = base.StrCat(nameInArchive, ".new")
 		}
-		if err := pk.AddFileEx(s, nameInArchive, true); err != nil {
+		if err = pk.AddFileEx(s, nameInArchive, true); err != nil {
 			_ = rw.Close()
 			return err
 		}
@@ -325,7 +346,7 @@ func (be *Executor) PackUNIX() error {
 	for name, lnkName := range be.linkmap {
 		nameInArchive := be.PathInArchive(name)
 		fmt.Fprintf(os.Stderr, "compress link \x1b[32m%s --> %s\x1b[0m\n", nameInArchive, lnkName)
-		if err := pk.AddTargetLink(nameInArchive, lnkName); err != nil {
+		if err = pk.AddTargetLink(nameInArchive, lnkName); err != nil {
 			_ = rw.Close()
 			return err
 		}
@@ -335,14 +356,14 @@ func (be *Executor) PackUNIX() error {
 		rel := filepath.Join(f.Destination, f.Base())
 		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", rel)
 		if be.norename || f.NoRename {
-			if err := pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
+			if err = pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
 				_ = rw.Close()
 				return err
 			}
 			DbgPrint("Add profile %s (no rename)", f.Path)
 		} else {
 			nameInArchive := base.StrCat(be.PathInArchive(rel), ".template")
-			if err := pk.AddFileEx(file, nameInArchive, f.Executable); err != nil {
+			if err = pk.AddFileEx(file, nameInArchive, f.Executable); err != nil {
 				_ = rw.Close()
 				return err
 			}
@@ -353,12 +374,10 @@ func (be *Executor) PackUNIX() error {
 	_ = rw.Close()
 	if len(rw.Path) != 0 {
 		DbgPrint("Add post install script %s", rw.Path)
-		if err := pk.AddFileEx(rw.Path, pack.RespondName, true); err != nil {
+		if err = pk.AddFileEx(rw.Path, pack.RespondName, true); err != nil {
 			return err
 		}
 	}
-	fmt.Fprintf(os.Stderr, "create \x1b[32m%s\x1b[0m done\n", outfile)
-	fmt.Fprintf(os.Stderr, "Your can run '\x1b[32m./%s --prefix=/path/to/%s\x1b[0m' to install %s\n", outfilename, be.bm.Name, be.bm.Name)
 	return nil
 }
 

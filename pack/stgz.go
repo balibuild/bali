@@ -1,7 +1,11 @@
 package pack
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"hash"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -111,18 +115,56 @@ bali_apply_config() {
 `
 )
 
-// OpenFile todo
-func OpenFile(name string) (*os.File, error) {
+// HashableFile hash file
+type HashableFile struct {
+	fd *os.File
+	h  hash.Hash
+	mw io.Writer
+}
+
+// WriteString write string
+func (f *HashableFile) WriteString(s string) (int, error) {
+	return f.mw.Write([]byte(s))
+}
+
+// Close close file
+func (f *HashableFile) Close() error {
+	if f == nil || f.fd == nil {
+		return nil
+	}
+	return f.fd.Close()
+}
+
+// Hashsum hash sum
+func (f *HashableFile) Hashsum(name string) {
+	if f == nil {
+		return
+	}
+	if f.h == nil {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "\x1b[34m%s  %s\x1b[0m\n", hex.EncodeToString(f.h.Sum(nil)), name)
+}
+
+// Write a file
+func (f *HashableFile) Write(p []byte) (int, error) {
+	return f.mw.Write(p)
+}
+
+// OpenHashableFile todo
+func OpenHashableFile(name string) (*HashableFile, error) {
 	fd, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return nil, err
 	}
-	if _, err := fd.WriteString(header); err != nil {
-		_ = fd.Close()
+	file := &HashableFile{h: sha256.New(), fd: fd}
+	file.mw = io.MultiWriter(file.fd, file.h)
+	if _, err := file.WriteString(header); err != nil {
+		_ = file.Close()
 		_ = os.Remove(name)
 		return nil, err
 	}
-	return fd, nil
+	return file, nil
 }
 
 // RespondWriter todo

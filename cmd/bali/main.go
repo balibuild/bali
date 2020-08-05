@@ -139,6 +139,7 @@ func (be *Executor) ParseArgv() error {
 	pa.Add("pack", base.NOARG, 'p')
 	pa.Add("cleanup", base.NOARG, 1001)
 	pa.Add("no-rename", base.NOARG, 1002)
+	be.zipmethod = pack.Deflate
 	if err := pa.Execute(os.Args, be); err != nil {
 		return err
 	}
@@ -194,13 +195,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "bali: compress: \x1b[31m%v\x1b[0m\n", err)
 			os.Exit(1)
 		}
-		fmt.Fprintf(os.Stderr, "bali create archive \x1b[32m%s\x1b[0m success\n", be.bm.Name)
 	}
 	if be.makepack {
 		if err := be.Pack(); err != nil {
 			fmt.Fprintf(os.Stderr, "bali: make pack: \x1b[31m%v\x1b[0m\n", err)
 			os.Exit(1)
 		}
-		fmt.Fprintf(os.Stderr, "bali create package \x1b[32m%s\x1b[0m success\n", be.bm.Name)
 	}
 }
