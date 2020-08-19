@@ -87,7 +87,8 @@ func (b *Builder) WriteSyso(fileout, arch string) error {
 		b.vi.FixedFileInfo.FileFlagsMask = "00"
 	}
 	if len(b.vi.FixedFileInfo.FileOS) == 0 {
-		b.vi.FixedFileInfo.FileOS = "0x40004"
+		// HEX
+		b.vi.FixedFileInfo.FileOS = "40004"
 	}
 	if len(b.vi.FixedFileInfo.FileType) == 0 {
 		b.vi.FixedFileInfo.FileType = "01"

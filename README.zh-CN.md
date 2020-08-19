@@ -106,7 +106,7 @@ Bali 同时支持 TOML 或者 JSON 格式的项目文件，JSON 使用内置解�
 ```toml
 # https://toml.io/en/
 name = "bali"
-version = "1.2.1"
+version = "1.2.2"
 dirs = [
     "cmd/bali", # dirs
 ]
@@ -155,7 +155,7 @@ norename = true
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
-version = "1.2.1"
+version = "1.2.2"
 versioninfo = "res/versioninfo.json"
 icon = "res/bali.ico"
 manifest = "res/bali.manifest"
