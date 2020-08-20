@@ -7,5 +7,5 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/klauspost/compress v1.10.11
 	github.com/pelletier/go-toml v1.8.0
-	github.com/ulikunitz/xz v0.5.7
+	github.com/ulikunitz/xz v0.5.8
 )
