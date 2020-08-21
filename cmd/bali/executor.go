@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -49,13 +50,13 @@ func resolveBuildID(cwd string) string {
 	return "None"
 }
 
-func resolveBranch(cwd string) string {
+func resolveReference(cwd string) string {
 	cmd := exec.Command("git", "symbolic-ref", "HEAD")
 	cmd.Dir = cwd
 	if out, err := cmd.CombinedOutput(); err == nil {
-		branch := strings.TrimSpace(strings.TrimPrefix(string(out), "refs/heads/"))
-		DbgPrint("BUILD_BRANCH: '%s'", branch)
-		return branch
+		ref := string(out)
+		DbgPrint("BUILD_REFNAME: '%s'", ref)
+		return ref
 	}
 	return "None"
 }
@@ -119,12 +120,19 @@ func (be *Executor) Initialize() error {
 	if !resolveDistSupport(be.target, be.arch) {
 		return base.ErrorCat("unsupported GOOS/GOARCH pair ", be.target, "/", be.arch)
 	}
+	refname := resolveReference(be.workdir)
+	_ = be.de.Append("BUILD_REFNAME", refname)
 	_ = be.de.Append("BUILD_COMMIT", resolveBuildID(be.workdir))
-	_ = be.de.Append("BUILD_BRANCH", resolveBranch(be.workdir))
+	if strings.HasPrefix(refname, "refs/heads/") {
+		_ = be.de.Append("BUILD_BRANCH", strings.TrimPrefix(refname, "refs/heads/"))
+	} else {
+		_ = be.de.Append("BUILD_BRANCH", "")
+	}
 	_ = be.de.Append("BUILD_GOVERSION", resolveGoVersion())
 	_ = be.de.Append("BUILD_VERSION", "0.0.1")
 	t := time.Now()
 	_ = be.de.Append("BUILD_TIME", t.Format(time.RFC3339))
+	_ = be.de.Append("BUILD_YEAR", strconv.Itoa(t.Year()))
 	osenv := os.Environ()
 	be.environ = make([]string, 0, len(osenv)+3)
 	for _, e := range osenv {
