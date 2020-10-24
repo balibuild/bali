@@ -54,7 +54,7 @@ func resolveReference(cwd string) string {
 	cmd := exec.Command("git", "symbolic-ref", "HEAD")
 	cmd.Dir = cwd
 	if out, err := cmd.CombinedOutput(); err == nil {
-		ref := string(out)
+		ref := strings.TrimSpace(string(out))
 		DbgPrint("BUILD_REFNAME: '%s'", ref)
 		return ref
 	}
