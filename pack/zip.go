@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/andybalholm/brotli"
 	"github.com/balibuild/bali/base"
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zip"
 	"github.com/klauspost/compress/zstd"
-	"github.com/ulikunitz/xz"
 )
 
 // Zip
@@ -20,12 +20,13 @@ const (
 
 // Compression methods.
 const (
-	Store   uint16 = 0  // no compression
-	Deflate uint16 = 8  // DEFLATE compressed
-	BZIP2   uint16 = 12 // bzip2
-	LZMA    uint16 = 14 //LZMA
-	ZSTD    uint16 = 93 //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
-	XZ      uint16 = 95
+	Store   uint16 = 0   // no compression
+	Deflate uint16 = 8   // DEFLATE compressed
+	BZIP2   uint16 = 12  // bzip2
+	LZMA    uint16 = 14  //LZMA
+	ZSTD    uint16 = 93  //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+	XZ      uint16 = 95  //XZ
+	BROTLI  uint16 = 121 // private
 )
 
 // ZipPacker todo
@@ -39,6 +40,19 @@ func NewZipPacker(w io.Writer) *ZipPacker {
 	return &ZipPacker{zw: zip.NewWriter(w), FileMethod: Deflate}
 }
 
+type isolateWriter struct {
+	w     io.Writer
+	count int64
+}
+
+func (iw *isolateWriter) Write(p []byte) (int, error) {
+	if iw.count < 500 {
+		os.Stderr.Write(p)
+	}
+	iw.count += int64(len(p))
+	return iw.w.Write(p)
+}
+
 // NewZipPackerEx todo
 func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 	zp := NewZipPacker(w)
@@ -50,14 +64,15 @@ func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 		zp.FileMethod = BZIP2
 	case ZSTD:
 		zp.zw.RegisterCompressor(ZSTD, func(out io.Writer) (io.WriteCloser, error) {
-			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstd.SpeedFastest))
+			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 		})
 		zp.FileMethod = ZSTD
-	case XZ:
-		zp.zw.RegisterCompressor(XZ, func(out io.Writer) (io.WriteCloser, error) {
-			return xz.NewWriter(out)
+	case BROTLI:
+		zp.zw.RegisterCompressor(BROTLI, func(out io.Writer) (io.WriteCloser, error) {
+			return brotli.NewWriter(out), nil
 		})
-		zp.FileMethod = XZ
+		zp.FileMethod = BROTLI
+	default:
 	}
 	return zp
 }
