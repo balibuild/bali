@@ -12,15 +12,25 @@ import (
 
 // Executable todo
 type Executable struct {
-	Name        string   `json:"name" toml:"name"`
-	Destination string   `json:"destination,omitempty" toml:"destination,omitempty"`
-	Description string   `json:"description,omitempty" toml:"description,omitempty"`
-	Version     string   `json:"version,omitempty" toml:"version,omitempty"`
-	Links       []string `json:"links,omitempty" toml:"links,omitempty"` // create symlink
-	GoFlags     []string `json:"goflags,omitempty" toml:"goflags,omitempty"`
-	VersionInfo string   `json:"versioninfo,omitempty" toml:"versioninfo,omitempty"`
-	IconPath    string   `json:"icon,omitempty" toml:"icon,omitempty"`
-	Manifest    string   `json:"manifest,omitempty" toml:"manifest,omitempty"`
+	Name             string   `json:"name" toml:"name"`
+	Destination      string   `json:"destination,omitempty" toml:"destination,omitempty"`
+	Description      string   `json:"description,omitempty" toml:"description,omitempty"`
+	Version          string   `json:"version,omitempty" toml:"version,omitempty"`
+	Links            []string `json:"links,omitempty" toml:"links,omitempty"` // create symlink
+	GoFlags          []string `json:"goflags,omitempty" toml:"goflags,omitempty"`
+	VersionInfo      string   `json:"versioninfo,omitempty" toml:"versioninfo,omitempty"`
+	IconPath         string   `json:"icon,omitempty" toml:"icon,omitempty"`
+	Manifest         string   `json:"manifest,omitempty" toml:"manifest,omitempty"`
+	BuildConstraints string   `json:"build,omitempty" toml:"build,omitempty"` // Build Constraints
+}
+
+// IsMeetsConstraints todo
+func (e *Executable) IsMeetsConstraints(target, arch string) bool {
+	if len(e.BuildConstraints) == 0 {
+		return true
+	}
+	// TODO support golang style build constraints
+	return true
 }
 
 // File todo
