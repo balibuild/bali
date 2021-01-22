@@ -1,0 +1,11 @@
+name = "bunasfx"
+description = "Bali - Minimalist Golang build and packaging tool"
+destination = "bin"
+version = "1.2.3"
+versioninfo = "res/versioninfo.json"
+icon = "res/bunasfx.ico"
+manifest = "res/bunasfx.manifest"
+goflags = [
+    "-ldflags",
+    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'",
+]

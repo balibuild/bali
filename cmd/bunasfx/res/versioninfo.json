@@ -1,0 +1,41 @@
+{
+	"FixedFileInfo": {
+		"FileVersion": {
+			"Major": 0,
+			"Minor": 0,
+			"Patch": 0,
+			"Build": 0
+		},
+		"ProductVersion": {
+			"Major": 0,
+			"Minor": 0,
+			"Patch": 0,
+			"Build": 0
+		},
+		"FileFlagsMask": "3f",
+		"FileFlags ": "00",
+		"FileOS": "40004",
+		"FileType": "01",
+		"FileSubType": "00"
+	},
+	"StringFileInfo": {
+		"Comments": "",
+		"CompanyName": "Bali Team",
+		"FileDescription": "Bali - Minimalist Golang build and packaging tool",
+		"FileVersion": "",
+		"InternalName": "bunasfx.exe",
+		"LegalCopyright": "Copyright \u00A9 2021. Bali contributors",
+		"LegalTrademarks": "",
+		"OriginalFilename": "bunasfx.exe",
+		"PrivateBuild": "",
+		"ProductName": "Bali",
+		"ProductVersion": "1.2",
+		"SpecialBuild": ""
+	},
+	"VarFileInfo": {
+		"Translation": {
+			"LangID": "0409",
+			"CharsetID": "04B0"
+		}
+	}
+}
