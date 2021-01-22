@@ -7,8 +7,7 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/dsnet/compress v0.0.1 h1:PlZu0n3Tuv04TzpfPbrnI0HW/YwodEXDS+oPKahKF0Q=
 github.com/dsnet/compress v0.0.1/go.mod h1:Aw8dCMJ7RioblQeTqt88akK31OvO8Dhf5JflhBbQEHo=
 github.com/dsnet/golib v0.0.0-20171103203638-1ea166775780/go.mod h1:Lj+Z9rebOhdfkVLjJ8T6VcRQv3SXugXy999NBtR9aFY=
-github.com/fcharlie/buna v0.3.0 h1:eT2RsvR+I6Bq7L+THb+AXqRHltcDRFOcDFyl22rCStk=
-github.com/fcharlie/buna v0.3.0/go.mod h1:LNB1H8Jyz9zMgUfk/FxNiOjq9UoC/iUTruPLJYotAgg=
+github.com/fcharlie/buna v0.4.1 h1:2Mz+m480Z0+dmzI8KH61b0jFbVvA3jxjebQ+RsVdeMw=
 github.com/fcharlie/buna v0.4.1/go.mod h1:LNB1H8Jyz9zMgUfk/FxNiOjq9UoC/iUTruPLJYotAgg=
 github.com/klauspost/compress v1.4.1/go.mod h1:RyIbtBH6LamlWaDj8nUwkbUhJ87Yi3uG0guNDohfE1A=
 github.com/klauspost/compress v1.11.7 h1:0hzRabrMN4tSTvMfnL3SCv1ZGeAP23ynzodBgaHeMeg=
