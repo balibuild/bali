@@ -199,6 +199,7 @@ func (rw *RespondWriter) AddTarget(relname string) error {
 	if rw.fd == nil {
 		return nil
 	}
+	relname = filepath.ToSlash(relname)
 	fmt.Fprintf(rw.fd, "echo -e \"install target \\x1b[32m$TOPLEVEL/%s\\x1b[0m\"\nbali_apply_target \"$TOPLEVEL/%s\"\n", relname, relname)
 	return nil
 }
@@ -208,6 +209,7 @@ func (rw *RespondWriter) AddProfile(relname string) error {
 	if rw.fd == nil {
 		return nil
 	}
+	relname = filepath.ToSlash(relname)
 	fmt.Fprintf(rw.fd, "echo -e \"apply config \\x1b[32m$TOPLEVEL/%s\\x1b[0m\"\nbali_apply_config \"$TOPLEVEL/%s\"\n", relname, relname)
 	return nil
 }

@@ -1,6 +1,6 @@
 # https://toml.io/en/
 name = "bali"
-version = "1.2.4"
+version = "1.2.5"
 dirs = [
     "cmd/bali", # dirs
 ]
