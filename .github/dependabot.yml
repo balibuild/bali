@@ -1,16 +1,15 @@
 version: 2
 updates:
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "08:00"
-    labels:
-      - "dependencies"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "08:00"
-    labels:
-      - "dependencies"
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: github.com/andybalholm/brotli
+    versions:
+    - 1.0.2
+  - dependency-name: github.com/klauspost/compress
+    versions:
+    - 1.11.13
+    - 1.12.1
