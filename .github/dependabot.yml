@@ -5,11 +5,3 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: github.com/andybalholm/brotli
-    versions:
-    - 1.0.2
-  - dependency-name: github.com/klauspost/compress
-    versions:
-    - 1.11.13
-    - 1.12.1
