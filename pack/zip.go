@@ -40,19 +40,6 @@ func NewZipPacker(w io.Writer) *ZipPacker {
 	return &ZipPacker{zw: zip.NewWriter(w), FileMethod: Deflate}
 }
 
-type isolateWriter struct {
-	w     io.Writer
-	count int64
-}
-
-func (iw *isolateWriter) Write(p []byte) (int, error) {
-	if iw.count < 500 {
-		os.Stderr.Write(p)
-	}
-	iw.count += int64(len(p))
-	return iw.w.Write(p)
-}
-
 // NewZipPackerEx todo
 func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 	zp := NewZipPacker(w)
@@ -65,6 +52,7 @@ func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
 	case ZSTD:
 		zp.zw.RegisterCompressor(ZSTD, func(out io.Writer) (io.WriteCloser, error) {
 			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
+			//return zstd.ZipCompressor()(out)
 		})
 		zp.FileMethod = ZSTD
 	case BROTLI:
