@@ -64,7 +64,7 @@ func resolveReference(cwd string) string {
 func resolveGoVersion() string {
 	cmd := exec.Command("go", "version")
 	if out, err := cmd.CombinedOutput(); err == nil {
-		goversion := strings.TrimPrefix(strings.TrimSpace(string(out)), "go version ")
+		goversion := strings.TrimPrefix(strings.TrimSpace(string(out)), "go version go")
 		DbgPrint("Go Version: '%s'", goversion)
 		return goversion
 	}

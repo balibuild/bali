@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/balibuild/bali/base"
@@ -18,12 +19,18 @@ var (
 
 // version info
 var (
-	VERSION     = "1.0"
-	BUILDTIME   string
-	BUILDCOMMIT string
-	BUILDBRANCH string
+	VERSION            = "1.2.6"
+	BUILDTIME   string = "NONE"
+	BUILDCOMMIT string = "NONE"
+	BUILDBRANCH string = "NONE"
 	GOVERSION   string
 )
+
+func init() {
+	if len(GOVERSION) == 0 {
+		GOVERSION = fmt.Sprintf("%s %s/%s", strings.Replace(runtime.Version(), "go", "", 1), runtime.GOOS, runtime.GOARCH)
+	}
+}
 
 func version() {
 	fmt.Fprint(os.Stdout, "Bali - Minimalist Golang build and packaging tool\nversion:       ", VERSION, "\n",
