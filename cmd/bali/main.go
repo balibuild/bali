@@ -19,7 +19,7 @@ var (
 
 // version info
 var (
-	VERSION            = "1.2.6"
+	VERSION            = "1.2.7"
 	BUILDTIME   string = "NONE"
 	BUILDCOMMIT string = "NONE"
 	BUILDBRANCH string = "NONE"
@@ -57,6 +57,7 @@ usage: %s <option> args ...
   -A|--method      Zip compress method: zstd bzip2 brotli deflate(default)
   --cleanup        Cleanup build directory
   --no-rename      Disable file renaming (STGZ installation package, default: OFF)
+  --force-version  Force to specify the version of the current project
 
 `, os.Args[0])
 }
@@ -124,6 +125,8 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 		be.cleanup = true
 	case 1002:
 		be.norename = true
+	case 1003:
+		be.forceVerion = oa
 	default:
 	}
 	return nil
@@ -146,6 +149,7 @@ func (be *Executor) ParseArgv() error {
 	pa.Add("pack", base.NOARG, 'p')
 	pa.Add("cleanup", base.NOARG, 1001)
 	pa.Add("no-rename", base.NOARG, 1002)
+	pa.Add("force-version", base.REQUIRED, 1003)
 	be.zipmethod = pack.Deflate
 	if err := pa.Execute(os.Args, be); err != nil {
 		return err

@@ -37,6 +37,7 @@ type Executor struct {
 	linkmap     map[string]string
 	bm          Project
 	suffix      string
+	forceVerion string
 }
 
 func resolveBuildID(cwd string) string {
@@ -101,6 +102,9 @@ func (be *Executor) initializeProject() error {
 func (be *Executor) Initialize() error {
 	if err := be.initializeProject(); err != nil {
 		return err
+	}
+	if len(be.forceVerion) != 0 {
+		be.bm.Version = be.forceVerion
 	}
 	if len(be.bm.Version) == 0 {
 		be.bm.Version = "0.0.1"

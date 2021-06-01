@@ -95,6 +95,9 @@ func (be *Executor) Compile(wd string) error {
 	if exe.Name == "." {
 		return base.ErrorCat("bad name: ", exe.Name)
 	}
+	if be.forceVerion != "" {
+		exe.Version = be.forceVerion
+	}
 	// Update version
 	be.UpdateNow(exe.Version)
 	binaryName := be.BinaryName(wd, exe.Name)
