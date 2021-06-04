@@ -2,7 +2,7 @@
     "name": "bali",
     "description": "Bali - Minimalist Golang build and packaging tool",
     "destination": "bin",
-    "version": "1.2.7",
+    "version": "1.2.8",
     "links": [
         "bin/baligo"
     ],

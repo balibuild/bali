@@ -19,7 +19,7 @@ var (
 
 // version info
 var (
-	VERSION            = "1.2.7"
+	VERSION            = "1.2.8"
 	BUILDTIME   string = "NONE"
 	BUILDCOMMIT string = "NONE"
 	BUILDBRANCH string = "NONE"
@@ -43,21 +43,22 @@ func version() {
 func usage() {
 	fmt.Fprintf(os.Stdout, `Bali - Minimalist Golang build and packaging tool
 usage: %s <option> args ...
-  -h|--help        Show usage text and quit
-  -v|--version     Show version number and quit
-  -V|--verbose     Make the operation more talkative
-  -F|--force       Turn on force mode. eg: Overwrite configuration file
-  -w|--workdir     Specify bali running directory. (Position 0, default $PWD)
-  -a|--arch        Build arch: amd64 386 arm arm64
-  -t|--target      Build target: windows linux darwin ...
-  -o|--out         Specify build output directory. default '$PWD/build'
-  -d|--dest        Specify the path to save the package
-  -z|--zip         Create archive file (UNIX: .tar.gz, Windows: .zip)
-  -p|--pack        Create installation package (UNIX: STGZ, Windows: none)
-  -A|--method      Zip compress method: zstd bzip2 brotli deflate(default)
-  --cleanup        Cleanup build directory
-  --no-rename      Disable file renaming (STGZ installation package, default: OFF)
-  --force-version  Force to specify the version of the current project
+  -h|--help          Show usage text and quit
+  -v|--version       Show version number and quit
+  -V|--verbose       Make the operation more talkative
+  -F|--force         Turn on force mode. eg: Overwrite configuration file
+  -w|--workdir       Specify bali running directory. (Position 0, default $PWD)
+  -a|--arch          Build arch: amd64 386 arm arm64
+  -t|--target        Build target: windows linux darwin ...
+  -o|--out           Specify build output directory. default '$PWD/build'
+  -d|--dest          Specify the path to save the package
+  -z|--zip           Create archive file (UNIX: .tar.gz, Windows: .zip)
+  -p|--pack          Create installation package (UNIX: STGZ, Windows: none)
+  -A|--method        Zip compress method: zstd bzip2 brotli deflate(default)
+  --cleanup          Cleanup build directory
+  --no-rename        Disable file renaming (STGZ installation package, default: OFF)
+  --force-version    Force to specify the version of the current project
+  --without-version  Package file name without version   
 
 `, os.Args[0])
 }
@@ -127,6 +128,8 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 		be.norename = true
 	case 1003:
 		be.forceVerion = oa
+	case 1004:
+		be.withoutVersion = true
 	default:
 	}
 	return nil
@@ -150,6 +153,7 @@ func (be *Executor) ParseArgv() error {
 	pa.Add("cleanup", base.NOARG, 1001)
 	pa.Add("no-rename", base.NOARG, 1002)
 	pa.Add("force-version", base.REQUIRED, 1003)
+	pa.Add("without-version", base.NOARG, 1004)
 	be.zipmethod = pack.Deflate
 	if err := pa.Execute(os.Args, be); err != nil {
 		return err

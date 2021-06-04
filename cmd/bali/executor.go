@@ -21,23 +21,24 @@ import (
 
 // Executor todo
 type Executor struct {
-	de          *base.Derivator
-	target      string // os
-	arch        string
-	out         string
-	workdir     string
-	destination string
-	makezip     bool
-	zipmethod   uint16
-	makepack    bool
-	norename    bool
-	cleanup     bool
-	environ     []string // initialize environment
-	binaries    []string
-	linkmap     map[string]string
-	bm          Project
-	suffix      string
-	forceVerion string
+	de             *base.Derivator
+	target         string // os
+	arch           string
+	out            string
+	workdir        string
+	destination    string
+	makezip        bool
+	zipmethod      uint16
+	makepack       bool
+	norename       bool
+	cleanup        bool
+	environ        []string // initialize environment
+	binaries       []string
+	linkmap        map[string]string
+	bm             Project
+	suffix         string
+	forceVerion    string
+	withoutVersion bool
 }
 
 func resolveBuildID(cwd string) string {
@@ -206,6 +207,9 @@ func (be *Executor) PathInArchive(destination string) string {
 	if be.makepack {
 		return destination
 	}
+	if be.withoutVersion {
+		return filepath.Join(base.StrCat(be.bm.Name, "-", be.target, "-", be.arch), destination)
+	}
 	return filepath.Join(base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version), destination)
 }
 
@@ -239,7 +243,11 @@ func (be *Executor) Compress() error {
 	h := sha256.New()
 	var outname string
 	if be.target == "windows" {
-		outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip")
+		if be.withoutVersion {
+			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".zip")
+		} else {
+			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip")
+		}
 		outfile = filepath.Join(be.destination, outname)
 		if fd, err = os.Create(outfile); err != nil {
 			return err
@@ -247,7 +255,12 @@ func (be *Executor) Compress() error {
 		mw = io.MultiWriter(fd, h)
 		pk = pack.NewZipPackerEx(mw, be.zipmethod)
 	} else {
-		outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz")
+		if be.withoutVersion {
+			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", ".tar.gz")
+		} else {
+			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz")
+		}
+
 		outfile = filepath.Join(be.destination, outname)
 		if fd, err = os.Create(outfile); err != nil {
 			return err
