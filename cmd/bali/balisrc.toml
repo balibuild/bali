@@ -1,7 +1,7 @@
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
-version = "1.2.8"
+version = "1.2.9"
 versioninfo = "res/versioninfo.json"
 icon = "res/bali.ico"
 manifest = "res/bali.manifest"

@@ -256,7 +256,7 @@ func (be *Executor) Compress() error {
 		pk = pack.NewZipPackerEx(mw, be.zipmethod)
 	} else {
 		if be.withoutVersion {
-			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", ".tar.gz")
+			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".tar.gz")
 		} else {
 			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz")
 		}
