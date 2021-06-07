@@ -253,7 +253,11 @@ func (be *Executor) Compress() error {
 			return err
 		}
 		mw = io.MultiWriter(fd, h)
-		pk = pack.NewZipPackerEx(mw, be.zipmethod)
+		zpk := pack.NewZipPackerEx(mw, be.zipmethod)
+		if len(be.bm.Destination) != 0 {
+			zpk.SetComment(be.bm.Destination)
+		}
+		pk = zpk
 	} else {
 		if be.withoutVersion {
 			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".tar.gz")
@@ -314,7 +318,12 @@ func (be *Executor) PackWin() error {
 
 // PackUNIX todo
 func (be *Executor) PackUNIX() error {
-	outfilename := base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
+	var outfilename string
+	if be.withoutVersion {
+		outfilename = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".sh")
+	} else {
+		outfilename = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
+	}
 	outfile := filepath.Join(be.destination, outfilename)
 	hashfd, err := pack.OpenHashableFile(outfile)
 	if err != nil {

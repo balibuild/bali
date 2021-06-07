@@ -75,11 +75,12 @@ func (file *File) Configure(workdir, outdir string) error {
 
 // Project  todo
 type Project struct {
-	Name    string   `json:"name" toml:"name"`
-	Version string   `json:"version,omitempty" toml:"version,omitempty"`
-	Files   []File   `json:"files,omitempty" toml:"files,omitempty"`
-	Dirs    []string `json:"dirs,omitempty" toml:"dirs,omitempty"`
-	Respond string   `json:"respond,omitempty" toml:"respond,omitempty"`
+	Name        string   `json:"name" toml:"name"`
+	Version     string   `json:"version,omitempty" toml:"version,omitempty"`
+	Destination string   `json:"destination,omitempty" toml:"destination,omitempty"`
+	Files       []File   `json:"files,omitempty" toml:"files,omitempty"`
+	Dirs        []string `json:"dirs,omitempty" toml:"dirs,omitempty"`
+	Respond     string   `json:"respond,omitempty" toml:"respond,omitempty"`
 }
 
 // FileConfigure todo
