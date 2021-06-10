@@ -10,4 +10,5 @@ require (
 	github.com/klauspost/compress v1.13.0
 	github.com/pelletier/go-toml v1.9.2
 	github.com/ulikunitz/xz v0.5.10
+	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139
 )
