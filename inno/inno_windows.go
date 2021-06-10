@@ -42,4 +42,10 @@ func init() {
 		innoExePath = innoExe
 		return
 	}
+	if innoLocation := os.Getenv("BALI_INNO_SETUP_LOCATION"); len(innoLocation) != 0 {
+		innoExe := filepath.Join(innoLocation, "ISCC.exe")
+		if _, err := os.Stat(innoExe); err == nil {
+			innoExePath = innoExe
+		}
+	}
 }
