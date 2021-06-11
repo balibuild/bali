@@ -60,6 +60,13 @@ func resolveReference(cwd string) string {
 		DbgPrint("BUILD_REFNAME: '%s'", ref)
 		return ref
 	}
+	// Github support
+	if refName := os.Getenv("GITHUB_REF"); len(refName) != 0 {
+		return refName
+	}
+	if refName := os.Getenv("GIT_BUILD_REF"); len(refName) != 0 {
+		return refName
+	}
 	return "None"
 }
 
