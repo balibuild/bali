@@ -73,6 +73,10 @@ func (zp *ZipPacker) Close() error {
 	return zp.zw.Close()
 }
 
+func (zp *ZipPacker) SetComment(comment string) error {
+	return zp.zw.SetComment(comment)
+}
+
 // AddTargetLink create zip symlink
 func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
 	var hdr zip.FileHeader
