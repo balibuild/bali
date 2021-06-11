@@ -19,11 +19,12 @@ var (
 
 // version info
 var (
-	VERSION            = "1.2.11"
-	BUILDTIME   string = "NONE"
-	BUILDCOMMIT string = "NONE"
-	BUILDBRANCH string = "NONE"
-	GOVERSION   string
+	VERSION             = "1.2.11"
+	BUILDTIME    string = "NONE"
+	BUILDCOMMIT  string = "NONE"
+	BUILDBRANCH  string = "NONE"
+	BUILDREFNAME string = "NONE"
+	GOVERSION    string
 )
 
 func init() {
@@ -33,11 +34,27 @@ func init() {
 }
 
 func version() {
-	fmt.Fprint(os.Stdout, "Bali - Minimalist Golang build and packaging tool\nversion:       ", VERSION, "\n",
-		"build branch:  ", BUILDBRANCH, "\n",
-		"build commit:  ", BUILDCOMMIT, "\n",
-		"build time:    ", BUILDTIME, "\n",
-		"go version:    ", GOVERSION, "\n")
+	const template = `Bali - Minimalist Golang build and packaging tool
+Version:     %s
+Branch:      %s
+Commit:      %s
+Build Time:  %s
+Go Version:  %s
+
+`
+	const tagTemplate = `Bali - Minimalist Golang build and packaging tool
+Version:     %s
+Release:     %s
+Commit:      %s
+Build Time:  %s
+Go Version:  %s
+
+`
+	if len(BUILDBRANCH) != 0 {
+		fmt.Fprintf(os.Stdout, template, VERSION, BUILDBRANCH, BUILDCOMMIT, BUILDTIME, GOVERSION)
+		return
+	}
+	fmt.Fprintf(os.Stdout, tagTemplate, VERSION, strings.TrimPrefix(BUILDREFNAME, "refs/tags/"), BUILDCOMMIT, BUILDTIME, GOVERSION)
 }
 
 func usage() {

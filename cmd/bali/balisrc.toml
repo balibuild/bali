@@ -7,5 +7,5 @@ icon = "res/bali.ico"
 manifest = "res/bali.manifest"
 goflags = [
     "-ldflags",
-    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'",
+    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT'  -X 'main.BUILDREFNAME=$BUILD_REFNAME' -X 'main.GOVERSION=$BUILD_GOVERSION'",
 ]
