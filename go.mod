@@ -8,6 +8,6 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/fcharlie/buna v0.4.1
 	github.com/klauspost/compress v1.13.0
-	github.com/pelletier/go-toml v1.9.2
+	github.com/pelletier/go-toml v1.9.3
 	github.com/ulikunitz/xz v0.5.10
 )
