@@ -1,9 +1,9 @@
 # https://toml.io/en/
 name = "bali"
-version = "1.2.11"
+version = "1.2.12"
 dirs = [
     "cmd/bali", # dirs
-] 
+]
 destination = "Bali - Minimalist Golang build and packaging tool"
 
 [[files]]

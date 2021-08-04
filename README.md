@@ -76,45 +76,15 @@ bali /path/to/project -p -d /tmp/output
 
 ## Bali build file format
 
-You can choose to write project files in json or toml format.. There are two types of Bali build files. One is the project file `bali.json`(`bali.toml`), which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use `bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.json` is located, you can also run `bali` in that directory; another build file is the `balisrc.json`(`balisrc.toml`) file under the specific program source code directory, `balisrc.json` There should be a `main` package in the directory where bali resolves `balisrc.json` by parsing `dirs` of `bali.json`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
+You can choose to write project files in json or toml format.. There are two types of Bali build files. One is the project file `bali.toml`, which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use `bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.toml` is located, you can also run `bali` in that directory; another build file is the `balisrc.toml` file under the specific program source code directory, `balisrc.toml` There should be a `main` package in the directory where bali resolves `balisrc.toml` by parsing `dirs` of `bali.toml`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
 
-Project file `bali.json`:
-
-```js
-{
-  // Project Name
-    "name": "bali",
-    // Project Version
-    "version": "1.0.0",
-    // install files
-    "files": [
-        {
-            "path": "config/bali.json",
-            "destination": "config"
-        },
-        {
-            "path": "LICENSE",
-            // installation manual
-            "destination": "share",
-            // Rename files during installation/configuration
-            "newname": "LICENSE.bali",
-            // When creating the STGZ installation package, do not change the name, that is, if the corresponding file exists during installation, it will be overwritten, and it will not be overwritten by default.
-            "norename": true
-        }
-    ],
-    // balisrc.json dirs
-    "dirs": [
-        "cmd/bali"
-    ]
-}
-```
 
 Project file `bali.toml`:
 
 ```toml
 # https://toml.io/en/
 name = "bali"
-version = "1.2.11"
+version = "1.2.12"
 dirs = [
     "cmd/bali", # dirs
 ]
@@ -137,43 +107,13 @@ Built-in environment variables:
 
 Other environment variables can be used in goflags.
 
-Program build file `balisrc.json`:
-
-```js
-{
-    // Binary file name, use directory name if it does not exist
-    "name": "bali",
-    // Description information, which is filled into the FileDescription of the PE file version information by default
-    "description": "Bali -  Minimalist Golang build and packaging tool",
-    //  installation manual
-    "destination": "bin",
-    // Version information, in goflags, you can expand $BUILD_VERSION
-    "version": "1.0.0",
-    // Binary symbolic links, like GCC-9
-    "links": [
-        "bin/baligo"
-    ],
-    // Go compiler parameters, which will be expanded using ExpandEnv
-    "goflags": [
-        "-ldflags",
-        "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'"
-    ],
-    // Build Windows target, version information of PE file
-    "versioninfo": "res/versioninfo.json",
-    // Build Windows target, icon for PE file
-    "icon": "res/bali.ico",
-    // Build Windows target, application list of PE files
-    "manifest": "res/bali.manifest"
-}
-```
-
 Program build file `balisrc.toml`:
 
 ```toml
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
-version = "1.2.11"
+version = "1.2.12"
 versioninfo = "res/versioninfo.json"
 icon = "res/bali.ico"
 manifest = "res/bali.manifest"
@@ -231,7 +171,7 @@ goflags = [
 }
 ```
 
-Bali integrates [`goversioninfo`](https://github.com/josephspurrier/goversioninfo). When the target is Windows, it can embed version information into the executable program. The `versioninfo` field is similar to the `goversioninfo` project. But more loosely, some specific values, such as version, description will be filled with the value of `bali.json/balisrc.json`, and `icon`/`manifest` will override `versioninfo.json`.
+Bali integrates [`goversioninfo`](https://github.com/josephspurrier/goversioninfo). When the target is Windows, it can embed version information into the executable program. The `versioninfo` field is similar to the `goversioninfo` project. But more loosely, some specific values, such as version, description will be filled with the value of `bali.toml/balisrc.toml`, and `icon`/`manifest` will override `versioninfo.json`.
 
 The benefits of adding a reference program manifest are self-evident. For example, Windows UAC privilege escalation, Windows 10 long path support (ie path support> 260 characters), Windows Vista style controls, TaskDialog, DPI settings, etc. all need to modify the application manifest.
 

@@ -68,45 +68,14 @@ bali /path/to/project -p -d /tmp/output
 
 ## Bali 构建文件格式
 
-Bali 同时支持 TOML 或者 JSON 格式的项目文件，JSON 使用内置解析不支持注释，TOML 支持注释。Bali 构建文件有两种，一种是项目文件 `bali.json`(`bali.toml`)，通常在项目根目录下，用于也可以在其他目录创建此文件，运行构建时，通过 `bali -w` 或者 `bali /path/to/buildroot` 指定 `bali.json` 所在目录，也可以在那个目录下运行 `bali`；另一种构建文件是特定程序源码目录下的 `balisrc.json`(`balisrc.toml`) 文件，`balisrc.json` 所在目录应当存在 `main` 包，bali 通过解析 `bali.json` 的 `dirs` 解析 `balisrc.json`，与 `cmake` 的 `add_subdirectory` 指令类似。二者示例如下：
-
-项目文件 `bali.json`:
-
-```js
-{
-  // name 用于项目打包命名
-    "name": "bali",
-    // 用于打包的版本
-    "version": "1.0.0",
-    // bali 配置文件等
-    "files": [
-        {
-            "path": "config/bali.json",
-            "destination": "config"
-        },
-        {
-            "path": "LICENSE",
-            // 安装目录
-            "destination": "share",
-            // 安装/配置时重命名文件
-            "newname": "LICENSE.bali",
-            // 创建 STGZ 安装包时，不改名，即安装时如果存在相应文件则会覆盖，默认不会覆盖
-            "norename": true
-        }
-    ],
-    // 程序相对目录
-    "dirs": [
-        "cmd/bali"
-    ]
-}
-```
+Bali 同时支持 TOML 或者 JSON 格式的项目文件，JSON 使用内置解析不支持注释，TOML 支持注释。Bali 构建文件有两种，一种是项目文件 `bali.toml`，通常在项目根目录下，用于也可以在其他目录创建此文件，运行构建时，通过 `bali -w` 或者 `bali /path/to/buildroot` 指定 `bali.toml` 所在目录，也可以在那个目录下运行 `bali`；另一种构建文件是特定程序源码目录下的 `balisrc.toml` 文件，`balisrc.toml` 所在目录应当存在 `main` 包，bali 通过解析 `bali.toml` 的 `dirs` 解析 `balisrc.toml`，与 `cmake` 的 `add_subdirectory` 指令类似。二者示例如下：
 
 项目文件 `bali.toml`:
 
 ```toml
 # https://toml.io/en/
 name = "bali"
-version = "1.2.11"
+version = "1.2.12"
 dirs = [
     "cmd/bali", # dirs
 ]
@@ -119,43 +88,13 @@ norename = true
 
 ```
 
-程序构建文件 `balisrc.json`:
-
-```js
-{
-    // 二进制文件名称，不存在时使用目录名
-    "name": "bali",
-    // 描述信息，默认填充到 PE 文件版本信息的 FileDescription
-    "description": "Bali -  Minimalist Golang build and packaging tool",
-    // 安装目录
-    "destination": "bin",
-    // 版本信息，在 goflags 中，可以推导 $BUILD_VERSION
-    "version": "1.0.0",
-    // 二进制的符号链接，比如在 GCC/Clang 编译后，程序为 GCC-9 然后会创建 GCC  的符号链接。
-    "links": [
-        "bin/baligo"
-    ],
-    // Go 编译器的参数，这些参数会使用 ExpandEnv 展开
-    "goflags": [
-        "-ldflags",
-        "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'"
-    ],
-    // 构建 Windows 目标，PE 文件的版本信息
-    "versioninfo": "res/versioninfo.json",
-    // 构建 Windows 目标，PE 文件的图标
-    "icon": "res/bali.ico",
-    // 构建 Windows 目标，PE 文件的应用程序清单
-    "manifest": "res/bali.manifest"
-}
-```
-
 程序构建文件 `balisrc.toml`:
 
 ```toml
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
-version = "1.2.11"
+version = "1.2.12"
 versioninfo = "res/versioninfo.json"
 icon = "res/bali.ico"
 manifest = "res/bali.manifest"
@@ -169,7 +108,7 @@ goflags = [
 
 内置环境变量：
 
-+   `BUILD_VERSION` 由 balisrc.json/balisrc.toml 的 `version` 字段填充
++   `BUILD_VERSION` 由 balisrc.toml 的 `version` 字段填充
 +   `BUILD_TIME` 由构建时间按照 `RFC3339` 格式化后填充
 +   `BUILD_COMMIT` 由存储库（为 git 存储库时） 的 commit id 填充
 +   `BUILD_GOVERSION` 由 `go version` 输出（删除了 `go version` 前缀）填充
@@ -223,7 +162,7 @@ goflags = [
 }
 ```
 
-Bali 整合了 [`goversioninfo`](https://github.com/josephspurrier/goversioninfo)，在目标为 Windows 时，能够将版本信息嵌入到可执行程序中，`versioninfo` 字段与 `goversioninfo` 项目类似，但更宽松，一些特定的值，比如版本，描述会使用 `bali.json/balisrc.json` 的值填充过去，`icon`/`manifest` 则会覆盖 `versioninfo.json`。
+Bali 整合了 [`goversioninfo`](https://github.com/josephspurrier/goversioninfo)，在目标为 Windows 时，能够将版本信息嵌入到可执行程序中，`versioninfo` 字段与 `goversioninfo` 项目类似，但更宽松，一些特定的值，比如版本，描述会使用 `bali.toml/balisrc.toml` 的值填充过去，`icon`/`manifest` 则会覆盖 `versioninfo.json`。
 
 添加引用程序清单的好处不言而喻，比如 Windows 的 UAC 提权，Windows 10 长路经支持（即路径支持 >260 字符），Windows Vista 风格控件，TaskDialog，DPI 设置等都需要修改应用程序清单。
 
