@@ -59,25 +59,16 @@ func (exe *Executable) MakeLinks(destfile string, be *Executor) error {
 
 func (be *Executor) loadExecutable(wd string) (*Executable, error) {
 	balisrc := filepath.Join(wd, "balisrc.toml")
-	if base.PathExists(balisrc) {
-		DbgPrint("%s support toml metadata", wd)
-		var exe Executable
-		if err := LoadTomlMetadata(balisrc, &exe); err != nil {
-			return nil, err
-		}
-		return &exe, nil
+	if !base.PathExists(balisrc) {
+		fmt.Fprintf(os.Stderr, "%s not found any balisrc.toml\n", wd)
+		return nil, os.ErrNotExist
 	}
-	balisrc = filepath.Join(wd, "balisrc.json")
-	if base.PathExists(balisrc) {
-		DbgPrint("%s support json metadata", wd)
-		var exe Executable
-		if err := LoadJSONMetadata(balisrc, &exe); err != nil {
-			return nil, err
-		}
-		return &exe, nil
+	DbgPrint("%s support toml metadata", wd)
+	var exe Executable
+	if err := LoadTomlMetadata(balisrc, &exe); err != nil {
+		return nil, err
 	}
-	fmt.Fprintf(os.Stderr, "%s not found any balisrc.toml/balisrc.json\n", wd)
-	return nil, os.ErrNotExist
+	return &exe, nil
 }
 
 // Compile todo

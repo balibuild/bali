@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,16 +11,16 @@ import (
 
 // Executable todo
 type Executable struct {
-	Name             string   `json:"name" toml:"name"`
-	Destination      string   `json:"destination,omitempty" toml:"destination,omitempty"`
-	Description      string   `json:"description,omitempty" toml:"description,omitempty"`
-	Version          string   `json:"version,omitempty" toml:"version,omitempty"`
-	Links            []string `json:"links,omitempty" toml:"links,omitempty"` // create symlink
-	GoFlags          []string `json:"goflags,omitempty" toml:"goflags,omitempty"`
-	VersionInfo      string   `json:"versioninfo,omitempty" toml:"versioninfo,omitempty"`
-	IconPath         string   `json:"icon,omitempty" toml:"icon,omitempty"`
-	Manifest         string   `json:"manifest,omitempty" toml:"manifest,omitempty"`
-	BuildConstraints string   `json:"build,omitempty" toml:"build,omitempty"` // Build Constraints
+	Name             string   `toml:"name"`
+	Destination      string   `toml:"destination,omitempty"`
+	Description      string   `toml:"description,omitempty"`
+	Version          string   `toml:"version,omitempty"`
+	Links            []string `toml:"links,omitempty"` // create symlink
+	GoFlags          []string `toml:"goflags,omitempty"`
+	VersionInfo      string   `toml:"versioninfo,omitempty"`
+	IconPath         string   `toml:"icon,omitempty"`
+	Manifest         string   `toml:"manifest,omitempty"`
+	BuildConstraints string   `toml:"build,omitempty"` // Build Constraints
 }
 
 // IsMeetsConstraints todo
@@ -35,11 +34,11 @@ func (e *Executable) IsMeetsConstraints(target, arch string) bool {
 
 // File todo
 type File struct {
-	Path        string `json:"path" toml:"path"`
-	Destination string `json:"destination" toml:"destination"`
-	NewName     string `json:"newname,omitempty" toml:"newname,omitempty"`
-	NoRename    bool   `json:"norename,omitempty" toml:"norename,omitempty"`
-	Executable  bool   `json:"executable,omitempty" toml:"executable,omitempty"`
+	Path        string `toml:"path"`
+	Destination string `toml:"destination"`
+	NewName     string `toml:"newname,omitempty"`
+	NoRename    bool   `toml:"norename,omitempty"`
+	Executable  bool   `toml:"executable,omitempty"`
 }
 
 // Base get BaliFile base
@@ -75,12 +74,12 @@ func (file *File) Configure(workdir, outdir string) error {
 
 // Project  todo
 type Project struct {
-	Name        string   `json:"name" toml:"name"`
-	Version     string   `json:"version,omitempty" toml:"version,omitempty"`
-	Destination string   `json:"destination,omitempty" toml:"destination,omitempty"`
-	Files       []File   `json:"files,omitempty" toml:"files,omitempty"`
-	Dirs        []string `json:"dirs,omitempty" toml:"dirs,omitempty"`
-	Respond     string   `json:"respond,omitempty" toml:"respond,omitempty"`
+	Name        string   `toml:"name"`
+	Version     string   `toml:"version,omitempty"`
+	Destination string   `toml:"destination,omitempty"`
+	Files       []File   `toml:"files,omitempty"`
+	Dirs        []string `toml:"dirs,omitempty"`
+	Respond     string   `toml:"respond,omitempty"`
 }
 
 // FileConfigure todo
@@ -89,19 +88,6 @@ func (bm *Project) FileConfigure(workdir, outdir string) error {
 		if err := file.Configure(workdir, outdir); err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-// LoadJSONMetadata todo
-func LoadJSONMetadata(file string, v interface{}) error {
-	fd, err := os.Open(file)
-	if err != nil {
-		return err
-	}
-	defer fd.Close()
-	if err := json.NewDecoder(fd).Decode(v); err != nil {
-		return err
 	}
 	return nil
 }

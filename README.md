@@ -84,7 +84,7 @@ Project file `bali.toml`:
 ```toml
 # https://toml.io/en/
 name = "bali"
-version = "1.2.12"
+version = "2.0.0"
 dirs = [
     "cmd/bali", # dirs
 ]
@@ -113,7 +113,7 @@ Program build file `balisrc.toml`:
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
-version = "1.2.12"
+version = "2.0.0"
 versioninfo = "res/versioninfo.json"
 icon = "res/bali.ico"
 manifest = "res/bali.manifest"

@@ -93,17 +93,12 @@ func resolveDistSupport(target, arch string) bool {
 
 func (be *Executor) initializeProject() error {
 	balitoml := filepath.Join(be.workdir, "bali.toml")
-	if base.PathExists(balitoml) {
-		DbgPrint("%s support toml metadata", be.workdir)
-		return LoadTomlMetadata(balitoml, &be.bm)
+	if !base.PathExists(balitoml) {
+		fmt.Fprintf(os.Stderr, "%s not found 'bali.toml'\n", be.workdir)
+		return os.ErrNotExist
 	}
-	balijson := filepath.Join(be.workdir, "bali.json")
-	if base.PathExists(balijson) {
-		DbgPrint("%s support json metadata", be.workdir)
-		return LoadJSONMetadata(balijson, &be.bm)
-	}
-	fmt.Fprintf(os.Stderr, "%s not found 'bali.toml(or bali.json)'\n", be.workdir)
-	return os.ErrNotExist
+	DbgPrint("%s support toml metadata", be.workdir)
+	return LoadTomlMetadata(balitoml, &be.bm)
 }
 
 // Initialize todo
