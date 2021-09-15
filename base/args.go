@@ -105,7 +105,7 @@ func (pa *ParseArgs) parseInternalShort(a string, argv []string, ac Receiver) er
 		return ErrorCat("unregistered option '-", a, "'")
 	}
 	var oa string
-	if len(a) > 2 {
+	if len(a) >= 2 {
 		if a[1] == '=' {
 			oa = a[2:]
 		} else {
