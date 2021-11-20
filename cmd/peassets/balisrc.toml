@@ -1,7 +1,7 @@
 name = "peassets"
 description = "peassets - PE executable program depends on aggregation tool"
 destination = "bin"
-version = "2.0.0"
+version = "2.1.0"
 versioninfo = "res/versioninfo.json"
 icon = "res/peassets.ico"
 manifest = "res/peassets.manifest"

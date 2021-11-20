@@ -2,10 +2,13 @@ package main
 
 import (
 	"archive/zip"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fcharlie/buna/debug/pe"
 )
@@ -15,32 +18,38 @@ const (
 )
 
 type Assets struct {
-	filename string
-	location string
-	depends  map[string]string
-	depth    int
+	files   []string
+	depends map[string]string
+	depth   int
 }
 
-func NewAssets(filename string) *Assets {
-	return &Assets{filename: filename, location: filepath.Dir(filename), depends: make(map[string]string)}
+func NewAssets(files []string) *Assets {
+	return &Assets{files: files, depends: make(map[string]string)}
 }
 
 func (a *Assets) Parse() error {
-	return a.parse(a.filename)
+	for _, f := range a.files {
+		location := filepath.Dir(f)
+		if err := a.parse(f, location); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (a *Assets) isunrecorded(dllname string) bool {
+func (a *Assets) unrecorded(dllname string) bool {
 	if _, ok := a.depends[dllname]; ok {
 		return false
 	}
 	return true
 }
 
-func (a *Assets) parse(filename string) error {
+func (a *Assets) parse(filename, location string) error {
 	a.depth++
 	defer func() {
 		a.depth--
 	}()
+	DbgPrint("current parse: %s", filepath.Base(filename))
 	fd, err := pe.Open(filename)
 	if err != nil {
 		return err
@@ -51,36 +60,40 @@ func (a *Assets) parse(filename string) error {
 		return err
 	}
 	for d := range tables.Imports {
-		if !a.isunrecorded(d) {
+		DbgPrint("find imports: %s", d)
+		fixedLib := strings.ToLower(d)
+		if !a.unrecorded(fixedLib) {
 			continue // dll recorded
 		}
-		p := filepath.Join(a.location, d)
+		p := filepath.Join(location, d)
 		if _, err := os.Stat(p); err != nil {
 			continue
 		}
 		if a.depth > MaxDepth {
 			continue
 		}
-		if err := a.parse(p); err != nil {
+		if err := a.parse(p, location); err != nil {
 			return err
 		}
-		a.depends[d] = p
+		a.depends[fixedLib] = p
 	}
 	for d := range tables.Delay {
-		if !a.isunrecorded(d) {
+		DbgPrint("find delay imports: %s", d)
+		fixedLib := strings.ToLower(d)
+		if !a.unrecorded(fixedLib) {
 			continue // dll recorded
 		}
-		p := filepath.Join(a.location, d)
+		p := filepath.Join(location, d)
 		if _, err := os.Stat(p); err != nil {
 			continue
 		}
 		if a.depth > MaxDepth {
 			continue
 		}
-		if err := a.parse(p); err != nil {
+		if err := a.parse(p, location); err != nil {
 			return err
 		}
-		a.depends[d] = p
+		a.depends[fixedLib] = p
 	}
 	return nil
 }
@@ -91,14 +104,27 @@ func (a *Assets) Write(outfile string) error {
 		return err
 	}
 	defer fd.Close()
-	zw := zip.NewWriter(fd)
+	h := sha256.New()
+	w := io.MultiWriter(fd, h)
+	if err := a.compressFiles(w); err != nil {
+		return err
+	}
+	hs := hex.EncodeToString(h.Sum(nil))
+	fmt.Fprintf(os.Stderr, "\x1b[34m%s\x1b[0m: '\x1b[36mSHA256:%s\x1b[0m'", filepath.Base(outfile), hs)
+	return nil
+}
+
+func (a *Assets) compressFiles(w io.Writer) error {
+	zw := zip.NewWriter(w)
 	for _, p := range a.depends {
 		if err := a.compressFile(zw, p); err != nil {
 			return err
 		}
 	}
-	if err := a.compressFile(zw, a.filename); err != nil {
-		return err
+	for _, f := range a.files {
+		if err := a.compressFile(zw, f); err != nil {
+			return err
+		}
 	}
 	return zw.Close()
 }
@@ -108,7 +134,7 @@ func (a *Assets) compressFile(zw *zip.Writer, filename string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "compress %s\n", filename)
+	fmt.Fprintf(os.Stderr, "peassets compress: \x1b[35m%s\x1b[0m\n", filepath.Base(filename))
 	hdr, err := zip.FileInfoHeader(fi)
 	if err != nil {
 		return err
