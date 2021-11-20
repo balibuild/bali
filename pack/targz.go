@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/balibuild/bali/base"
+	"github.com/balibuild/bali/v2/base"
 )
 
 // ISVTX todo

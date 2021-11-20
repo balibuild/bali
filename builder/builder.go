@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/balibuild/bali/base"
-	"github.com/balibuild/bali/goversioninfo"
+	"github.com/balibuild/bali/v2/base"
+	"github.com/balibuild/bali/v2/goversioninfo"
 )
 
 // Builder build syso file

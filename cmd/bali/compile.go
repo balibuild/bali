@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/balibuild/bali/base"
-	"github.com/balibuild/bali/builder"
+	"github.com/balibuild/bali/v2/base"
+	"github.com/balibuild/bali/v2/builder"
 )
 
 // MakeResources todo

@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/balibuild/bali/base"
+	"github.com/balibuild/bali/v2/base"
 )
 
 // global mode

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/andybalholm/brotli"
-	"github.com/balibuild/bali/base"
+	"github.com/balibuild/bali/v2/base"
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zip"
 	"github.com/klauspost/compress/zstd"

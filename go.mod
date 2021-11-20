@@ -1,4 +1,4 @@
-module github.com/balibuild/bali
+module github.com/balibuild/bali/v2
 
 go 1.17
 

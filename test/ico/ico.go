@@ -7,7 +7,7 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/balibuild/bali/makeico"
+	"github.com/balibuild/bali/v2/makeico"
 )
 
 // IconMaker icon maker

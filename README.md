@@ -194,6 +194,19 @@ pwsh ./script/bootstrap.ps1
 script/bootstrap.bat
 ```
 
+
+## Github Actions Use bali
+
+```
+GO111MODULE=on go get github.com/balibuild/bali/v2/cmd/bali
+```
+
+peassets: 
+
+```
+GO111MODULE=on go get github.com/balibuild/bali/v2/cmd/peassets
+```
+
 ## Thanks
 
 Bali's ability to automatically add version information to PE files is inseparable from the contribution of open source projects. Thank you very much [akavel/rsrc](https://github.com/akavel/rsrc) and [josephspurrier/goversioninfo](https://github.com/josephspurrier/goversioninfo) Developer and maintainer of two projects.
