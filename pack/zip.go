@@ -99,28 +99,24 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 	if err != nil {
 		return err
 	}
+	hdr, err := zip.FileInfoHeader(fi)
+	if err != nil {
+		return base.ErrorCat(src, ": getting header: ", err.Error())
+	}
 	if fi.IsDir() {
-		header, err := zip.FileInfoHeader(fi)
-		if err != nil {
-			return base.ErrorCat(src, ": getting header: ", err.Error())
-		}
-		header.Name = base.StrCat(filepath.ToSlash(nameInArchive), "/")
-		header.Method = zip.Store
-		if _, err = zp.zw.CreateHeader(header); err != nil {
+		hdr.Name = base.StrCat(filepath.ToSlash(nameInArchive), "/")
+		hdr.Method = zip.Store
+		if _, err = zp.zw.CreateHeader(hdr); err != nil {
 			return base.ErrorCat(nameInArchive, ": making header:", err.Error())
 		}
 		return nil
 	}
-	header, err := zip.FileInfoHeader(fi)
-	if err != nil {
-		return base.ErrorCat(src, ": getting header: ", err.Error())
-	}
 	if exerights {
-		header.SetMode(header.Mode() | 0755)
+		hdr.SetMode(hdr.Mode() | 0755)
 	}
-	header.Name = filepath.ToSlash(nameInArchive)
-	header.Method = zp.FileMethod
-	writer, err := zp.zw.CreateHeader(header)
+	hdr.Name = filepath.ToSlash(nameInArchive)
+	hdr.Method = zp.FileMethod
+	writer, err := zp.zw.CreateHeader(hdr)
 	if err != nil {
 		return base.ErrorCat(nameInArchive, ": making header:", err.Error())
 	}

@@ -3,6 +3,7 @@ name = "bali"
 version = "2.0.0"
 dirs = [
     "cmd/bali", # dirs
+    "cmd/peassets",
 ]
 destination = "Bali - Minimalist Golang build and packaging tool"
 
