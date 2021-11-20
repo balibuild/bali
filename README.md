@@ -198,13 +198,13 @@ script/bootstrap.bat
 ## Github Actions Use bali
 
 ```
-GO111MODULE=on go get github.com/balibuild/bali/v2/cmd/bali
+go install github.com/balibuild/bali/v2/cmd/bali@latest
 ```
 
 peassets: 
 
 ```
-GO111MODULE=on go get github.com/balibuild/bali/v2/cmd/peassets
+go install github.com/balibuild/bali/v2/cmd/peassets@latest
 ```
 
 ## Thanks
