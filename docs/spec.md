@@ -77,7 +77,7 @@ File object:
 		"FileDescription": "Bali - Minimalist Golang build and packaging tool",
 		"FileVersion": "",
 		"InternalName": "bali.exe",
-		"LegalCopyright": "Copyright \u00A9 2021. Bali contributors",
+		"LegalCopyright": "Copyright \u00A9 2022. Bali contributors",
 		"LegalTrademarks": "",
 		"OriginalFilename": "bali.exe",
 		"PrivateBuild": "",
