@@ -18,7 +18,7 @@ var (
 
 // version info
 var (
-	VERSION             = "2.1.0"
+	VERSION             = "2.1.1"
 	BUILDTIME    string = "NONE"
 	BUILDCOMMIT  string = "NONE"
 	BUILDBRANCH  string = "NONE"
