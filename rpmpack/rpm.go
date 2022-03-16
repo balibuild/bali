@@ -22,6 +22,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"os"
 	"path"
 	"sort"
 	"strconv"
@@ -533,6 +534,33 @@ func (r *RPM) writeFile(f RPMFile) error {
 }
 
 func (r *RPM) writePayload(f RPMFile, links int) error {
+	if len(f.FullName) != 0 {
+		si, err := os.Stat(f.FullName)
+		if err != nil {
+			return err
+		}
+		hdr := &cpio.Header{
+			Name:    f.Name,
+			Mode:    cpio.FileMode(f.Mode),
+			Size:    si.Size(),
+			Links:   links,
+			ModTime: si.ModTime(),
+		}
+		if err := r.cpio.WriteHeader(hdr); err != nil {
+			return errors.Wrap(err, "failed to write payload file header")
+		}
+		fd, err := os.Open(f.FullName)
+		if err != nil {
+			return err
+		}
+		defer fd.Close()
+		if _, err := io.Copy(r.cpio, fd); err != nil {
+			return errors.Wrap(err, "failed to write payload file content")
+		}
+		r.payloadSize += uint(si.Size())
+		return nil
+	}
+
 	hdr := &cpio.Header{
 		Name:  f.Name,
 		Mode:  cpio.FileMode(f.Mode),

@@ -37,11 +37,12 @@ const (
 
 // RPMFile contains a particular file's entry and data.
 type RPMFile struct {
-	Name  string
-	Body  []byte
-	Mode  uint
-	Owner string
-	Group string
-	MTime uint32
-	Type  FileType
+	Name     string
+	Body     []byte
+	Mode     uint
+	Owner    string
+	Group    string
+	MTime    uint32
+	Type     FileType
+	FullName string
 }
