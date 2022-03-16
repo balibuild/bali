@@ -1,0 +1,24 @@
+name = "bali"
+version = "1.0"
+release = "1.2.0"
+arch = "noarch"
+compressor = "gzip"
+summary = ""
+description = ""
+vendor = ""
+packager = ""
+url = ""
+license = "MIT"
+prein = ""
+postin = ""
+preun = ""
+postun = ""
+use_dir_allowlist = false
+dir_allowlist_file = ""
+# provides,
+# obsoletes,
+# suggests,
+# recommends,
+# requires,
+# conflicts 
+#build_time=0
