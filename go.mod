@@ -1,6 +1,6 @@
 module github.com/balibuild/bali/v2
 
-go 1.17
+go 1.18
 
 require (
 	github.com/akavel/rsrc v0.10.2
