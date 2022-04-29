@@ -1,18 +1,18 @@
 name: CI
-on: 
+on:
   push:
     paths-ignore:
       # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
       - "docs/**"
-      - '**.md'
-      - '**.txt'
-      - 'LICENSE'
+      - "**.md"
+      - "**.txt"
+      - "LICENSE"
   pull_request:
     paths-ignore:
       - "docs/**"
-      - '**.md'
-      - '**.txt'
-      - 'LICENSE'
+      - "**.md"
+      - "**.txt"
+      - "LICENSE"
 jobs:
   build:
     strategy:
@@ -39,7 +39,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18.x'
+          go-version: "1.18.x"
       - name: Bootstrap Bali
         run: ${{ matrix.bootstrap_script }}
       - name: Upload release
