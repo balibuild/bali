@@ -66,7 +66,7 @@ File object:
 			"Build": 0
 		},
 		"FileFlagsMask": "3f",
-		"FileFlags ": "00",
+		"FileFlags": "00",
 		"FileOS": "40004",
 		"FileType": "01",
 		"FileSubType": "00"
