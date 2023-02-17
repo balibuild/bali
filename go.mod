@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/akavel/rsrc v0.10.2
-	github.com/andybalholm/brotli v1.0.4
+	github.com/andybalholm/brotli v1.0.5
 	github.com/dsnet/compress v0.0.1
 	github.com/fcharlie/buna v0.5.3
 	github.com/google/go-cmp v0.5.9
