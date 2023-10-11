@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.0.5
 	github.com/dsnet/compress v0.0.1
 	github.com/fcharlie/buna v0.6.0
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/klauspost/compress v1.17.0
 	github.com/klauspost/pgzip v1.2.6
 	github.com/pelletier/go-toml v1.9.5
