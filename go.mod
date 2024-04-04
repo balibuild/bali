@@ -12,5 +12,5 @@ require (
 	github.com/klauspost/pgzip v1.2.6
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
-	github.com/ulikunitz/xz v0.5.11
+	github.com/ulikunitz/xz v0.5.12
 )
