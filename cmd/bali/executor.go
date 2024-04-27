@@ -30,12 +30,12 @@ type Executor struct {
 	makezip        bool
 	zipmethod      uint16
 	makepack       bool
-	norename       bool
+	noNewName      bool
 	cleanup        bool
 	environ        []string // initialize environment
 	binaries       []string
 	linkmap        map[string]string
-	bm             Project
+	project        Project
 	suffix         string
 	forceVerion    string
 	withoutVersion bool
@@ -98,7 +98,7 @@ func (be *Executor) initializeProject() error {
 		return os.ErrNotExist
 	}
 	DbgPrint("%s support toml metadata", be.workdir)
-	return LoadTomlMetadata(balitoml, &be.bm)
+	return LoadMetadata(balitoml, &be.project)
 }
 
 // Initialize todo
@@ -107,10 +107,10 @@ func (be *Executor) Initialize() error {
 		return err
 	}
 	if len(be.forceVerion) != 0 {
-		be.bm.Version = be.forceVerion
+		be.project.Version = be.forceVerion
 	}
-	if len(be.bm.Version) == 0 {
-		be.bm.Version = "0.0.1"
+	if len(be.project.Version) == 0 {
+		be.project.Version = "0.0.1"
 	}
 	be.de = base.NewDerivator()
 	// Respect environmental variable settings
@@ -171,7 +171,7 @@ func (be *Executor) ExpandEnv(s string) string {
 
 // TargetName todo
 func (be *Executor) TargetName(name string) string {
-	if be.norename {
+	if be.noNewName {
 		return name
 	}
 	return base.StrCat(name, ".new")
@@ -179,7 +179,7 @@ func (be *Executor) TargetName(name string) string {
 
 // FileName todo
 func (be *Executor) FileName(file *File) string {
-	if be.norename || file.NoRename {
+	if be.noNewName || file.NoRename {
 		return file.Base()
 	}
 	return base.StrCat(file.Base(), ".template")
@@ -210,17 +210,17 @@ func (be *Executor) PathInArchive(destination string) string {
 		return destination
 	}
 	if be.withoutVersion {
-		return filepath.Join(base.StrCat(be.bm.Name, "-", be.target, "-", be.arch), destination)
+		return filepath.Join(base.StrCat(be.project.Name, "-", be.target, "-", be.arch), destination)
 	}
-	return filepath.Join(base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version), destination)
+	return filepath.Join(base.StrCat(be.project.Name, "-", be.target, "-", be.arch, "-", be.project.Version), destination)
 }
 
 // Build todo
 func (be *Executor) Build() error {
-	if err := be.bm.FileConfigure(be.workdir, be.out); err != nil {
+	if err := be.project.FileConfigure(be.workdir, be.out); err != nil {
 		return err
 	}
-	for _, d := range be.bm.Dirs {
+	for _, d := range be.project.Dirs {
 		wd := filepath.Join(be.workdir, d)
 		if err := be.Compile(wd); err != nil {
 			fmt.Fprintf(os.Stderr, "bali compile: \x1b[31m%s\x1b[0m\n", err)
@@ -246,9 +246,9 @@ func (be *Executor) Compress() error {
 	var outname string
 	if be.target == "windows" {
 		if be.withoutVersion {
-			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".zip")
+			outname = base.StrCat(be.project.Name, "-", be.target, "-", be.arch, ".zip")
 		} else {
-			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".zip")
+			outname = base.StrCat(be.project.Name, "-", be.target, "-", be.arch, "-", be.project.Version, ".zip")
 		}
 		outfile = filepath.Join(be.destination, outname)
 		if fd, err = os.Create(outfile); err != nil {
@@ -256,15 +256,15 @@ func (be *Executor) Compress() error {
 		}
 		mw = io.MultiWriter(fd, h)
 		zpk := pack.NewZipPackerEx(mw, be.zipmethod)
-		if len(be.bm.Destination) != 0 {
-			zpk.SetComment(be.bm.Destination)
+		if len(be.project.Destination) != 0 {
+			zpk.SetComment(be.project.Destination)
 		}
 		pk = zpk
 	} else {
 		if be.withoutVersion {
-			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".tar.gz")
+			outname = base.StrCat(be.project.Name, "-", be.target, "-", be.arch, ".tar.gz")
 		} else {
-			outname = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".tar.gz")
+			outname = base.StrCat(be.project.Name, "-", be.target, "-", be.arch, "-", be.project.Version, ".tar.gz")
 		}
 
 		outfile = filepath.Join(be.destination, outname)
@@ -301,7 +301,7 @@ func (be *Executor) Compress() error {
 			return err
 		}
 	}
-	for _, f := range be.bm.Files {
+	for _, f := range be.project.Files {
 		file := filepath.Join(be.workdir, f.Path)
 		rel := filepath.Join(f.Destination, f.Base())
 		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", f.Path)
@@ -320,39 +320,39 @@ func (be *Executor) PackWin() error {
 
 // PackUNIX todo
 func (be *Executor) PackUNIX() error {
-	var outfilename string
+	var outName string
 	if be.withoutVersion {
-		outfilename = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, ".sh")
+		outName = base.StrCat(be.project.Name, "-", be.target, "-", be.arch, ".sh")
 	} else {
-		outfilename = base.StrCat(be.bm.Name, "-", be.target, "-", be.arch, "-", be.bm.Version, ".sh")
+		outName = base.StrCat(be.project.Name, "-", be.target, "-", be.arch, "-", be.project.Version, ".sh")
 	}
-	outfile := filepath.Join(be.destination, outfilename)
-	hashfd, err := pack.OpenHashableFile(outfile)
+	outfile := filepath.Join(be.destination, outName)
+	fd, err := pack.NewHashFD(outfile)
 	if err != nil {
 		return err
 	}
 	// Keep order
 	defer func() {
 		if err == nil {
-			hashfd.Hashsum(outfilename)
+			fd.Sum(outName)
 			fmt.Fprintf(os.Stderr, "create \x1b[32m%s\x1b[0m done\n", outfile)
-			fmt.Fprintf(os.Stderr, "Your can run '\x1b[32m./%s --prefix=/path/to/%s\x1b[0m' to install %s\n", outfilename, be.bm.Name, be.bm.Name)
-			fmt.Fprintf(os.Stderr, "bali create package \x1b[32m%s\x1b[0m success\n", outfilename)
+			fmt.Fprintf(os.Stderr, "Your can run '\x1b[32m./%s --prefix=/path/to/%s\x1b[0m' to install %s\n", outName, be.project.Name, be.project.Name)
+			fmt.Fprintf(os.Stderr, "bali create package \x1b[32m%s\x1b[0m success\n", outName)
 		}
 	}()
-	defer hashfd.Close()
-	pk := pack.NewTargzPacker(hashfd)
+	defer fd.Close()
+	pk := pack.NewTargzPacker(fd)
 	defer pk.Close()
 	var rw pack.RespondWriter
 	// bali post install script
-	if len(be.bm.Respond) != 0 {
-		if !base.PathExists(be.bm.Respond) {
-			return base.ErrorCat("respond file ", be.bm.Respond, " not found")
+	if len(be.project.Respond) != 0 {
+		if !base.PathExists(be.project.Respond) {
+			return base.ErrorCat("respond file ", be.project.Respond, " not found")
 		}
-		if err = pk.AddFileEx(be.bm.Respond, "bali_post_install", true); err != nil {
+		if err = pk.AddFileEx(be.project.Respond, "bali_post_install", true); err != nil {
 			return err
 		}
-	} else if !be.norename {
+	} else if !be.noNewName {
 		if err = rw.Initialize(); err != nil {
 			return err
 		}
@@ -369,7 +369,7 @@ func (be *Executor) PackUNIX() error {
 		}
 		fmt.Fprintf(os.Stderr, "compress target \x1b[32m%s\x1b[0m\n", rel)
 		nameInArchive := be.PathInArchive(rel)
-		if !be.norename {
+		if !be.noNewName {
 			nameInArchive = base.StrCat(nameInArchive, ".new")
 		}
 		if err = pk.AddFileEx(s, nameInArchive, true); err != nil {
@@ -387,11 +387,11 @@ func (be *Executor) PackUNIX() error {
 			return err
 		}
 	}
-	for _, f := range be.bm.Files {
+	for _, f := range be.project.Files {
 		file := filepath.Join(be.workdir, f.Path)
 		rel := filepath.Join(f.Destination, f.Base())
 		fmt.Fprintf(os.Stderr, "compress profile \x1b[32m%s\x1b[0m\n", rel)
-		if be.norename || f.NoRename {
+		if be.noNewName || f.NoRename {
 			if err = pk.AddFileEx(file, be.PathInArchive(rel), f.Executable); err != nil {
 				_ = rw.Close()
 				return err

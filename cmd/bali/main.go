@@ -19,7 +19,7 @@ var (
 
 // version info
 var (
-	VERSION             = "2.1.1"
+	VERSION             = "2.2.0"
 	BUILDTIME    string = "NONE"
 	BUILDCOMMIT  string = "NONE"
 	BUILDBRANCH  string = "NONE"
@@ -142,7 +142,7 @@ func (be *Executor) Invoke(val int, oa, raw string) error {
 	case 1001:
 		be.cleanup = true
 	case 1002:
-		be.norename = true
+		be.noNewName = true
 	case 1003:
 		be.forceVerion = oa
 	case 1004:

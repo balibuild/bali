@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -66,13 +65,13 @@ func (f *FileVersion) Fillling(sv string) error {
 	}
 	var err error
 	if len(svv) > 3 {
-		f.Build, err = strconv.Atoi(svv[3])
+		f.Build, _ = strconv.Atoi(svv[3])
 	}
 	if len(svv) > 2 {
-		f.Patch, err = strconv.Atoi(svv[2])
+		f.Patch, _ = strconv.Atoi(svv[2])
 	}
 	if len(svv) > 1 {
-		f.Minor, err = strconv.Atoi(svv[1])
+		f.Minor, _ = strconv.Atoi(svv[1])
 	}
 	f.Major, err = strconv.Atoi(svv[0])
 	return err
@@ -256,7 +255,7 @@ func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 
 // WriteHex creates a hex file for debugging version info
 func (vi *VersionInfo) WriteHex(filename string) error {
-	return ioutil.WriteFile(filename, vi.buffer.Bytes(), 0655)
+	return os.WriteFile(filename, vi.buffer.Bytes(), 0655)
 }
 
 func writeCoff(coff *coff.Coff, fnameout string) error {

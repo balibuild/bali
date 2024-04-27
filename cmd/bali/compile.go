@@ -28,8 +28,8 @@ func (exe *Executable) MakeResources(wd, syso, binaryName string, be *Executor) 
 			return base.ErrorCat("load manifest: ", err.Error())
 		}
 	}
-	b.FillVersion(exe.Version, be.bm.Version)
-	b.UpdateName(binaryName, be.bm.Name, exe.Description)
+	b.FillVersion(exe.Version, be.project.Version)
+	b.UpdateName(binaryName, be.project.Name, exe.Description)
 	return b.WriteSyso(syso, be.arch)
 }
 
@@ -65,7 +65,7 @@ func (be *Executor) loadExecutable(wd string) (*Executable, error) {
 	}
 	DbgPrint("%s support toml metadata", wd)
 	var exe Executable
-	if err := LoadTomlMetadata(balisrc, &exe); err != nil {
+	if err := LoadMetadata(balisrc, &exe); err != nil {
 		return nil, err
 	}
 	return &exe, nil

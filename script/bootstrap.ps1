@@ -1,11 +1,11 @@
 #!/usr/bin/env pwsh
 
-Write-Host -ForegroundColor Green "Bootstrap baligo"
+Write-Host -ForegroundColor Green "Bootstrap bali"
 $TopLevel = Split-Path -Path $PSScriptRoot
 $SrcDir = Join-Path $TopLevel -ChildPath "cmd/bali"
 
 $BaliFile = "$SrcDir/bali"
-$BailBin = "$TopLevel/bali.out"
+$BailBin = "$TopLevel/bali.stage0"
 if ($PSEdition -eq "Desktop" -or $IsWindows) {
     $BaliFile += ".exe"
     $BailBin += ".exe"

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/balibuild/bali/v2/base"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 )
 
 // Executable todo
@@ -92,8 +92,8 @@ func (bm *Project) FileConfigure(workdir, outdir string) error {
 	return nil
 }
 
-// LoadTomlMetadata todo
-func LoadTomlMetadata(file string, v interface{}) error {
+// LoadMetadata todo
+func LoadMetadata(file string, v interface{}) error {
 	fd, err := os.Open(file)
 	if err != nil {
 		return err

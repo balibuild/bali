@@ -115,28 +115,28 @@ bali_apply_config() {
 `
 )
 
-// HashableFile hash file
-type HashableFile struct {
-	fd *os.File
-	h  hash.Hash
-	mw io.Writer
+// HashFD hash file
+type HashFD struct {
+	*os.File
+	h hash.Hash
+	w io.Writer
 }
 
 // WriteString write string
-func (f *HashableFile) WriteString(s string) (int, error) {
-	return f.mw.Write([]byte(s))
+func (fd *HashFD) WriteString(s string) (int, error) {
+	return fd.w.Write([]byte(s))
 }
 
 // Close close file
-func (f *HashableFile) Close() error {
-	if f == nil || f.fd == nil {
+func (fd *HashFD) Close() error {
+	if fd == nil || fd.File == nil {
 		return nil
 	}
-	return f.fd.Close()
+	return fd.Close()
 }
 
-// Hashsum hash sum
-func (f *HashableFile) Hashsum(name string) {
+// Sum hash sum
+func (f *HashFD) Sum(name string) {
 	if f == nil {
 		return
 	}
@@ -147,18 +147,18 @@ func (f *HashableFile) Hashsum(name string) {
 }
 
 // Write a file
-func (f *HashableFile) Write(p []byte) (int, error) {
-	return f.mw.Write(p)
+func (f *HashFD) Write(p []byte) (int, error) {
+	return f.w.Write(p)
 }
 
-// OpenHashableFile todo
-func OpenHashableFile(name string) (*HashableFile, error) {
+// NewHashFD new hash fd
+func NewHashFD(name string) (*HashFD, error) {
 	fd, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return nil, err
 	}
-	file := &HashableFile{h: sha256.New(), fd: fd}
-	file.mw = io.MultiWriter(file.fd, file.h)
+	file := &HashFD{h: sha256.New(), File: fd}
+	file.w = io.MultiWriter(file.File, file.h)
 	if _, err := file.WriteString(header); err != nil {
 		_ = file.Close()
 		_ = os.Remove(name)
