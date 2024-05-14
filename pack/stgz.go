@@ -132,7 +132,7 @@ func (fd *HashFD) Close() error {
 	if fd == nil || fd.File == nil {
 		return nil
 	}
-	return fd.Close()
+	return fd.File.Close()
 }
 
 // Sum hash sum
