@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/balibuild/bali/v2/base"
-	"github.com/balibuild/bali/v2/pack"
+	"github.com/balibuild/bali/v3/base"
+	"github.com/balibuild/bali/v3/pack"
 )
 
 // Executor

@@ -13,7 +13,7 @@ import (
 
 	"github.com/akavel/rsrc/binutil"
 	"github.com/akavel/rsrc/coff"
-	"github.com/balibuild/bali/v2/base"
+	"github.com/balibuild/bali/v3/base"
 )
 
 // *****************************************************************************

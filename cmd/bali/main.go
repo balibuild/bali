@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/balibuild/bali/v2/base"
-	"github.com/balibuild/bali/v2/pack"
+	"github.com/balibuild/bali/v3/base"
+	"github.com/balibuild/bali/v3/pack"
 )
 
 // global mode
@@ -19,7 +19,7 @@ var (
 
 // version info
 var (
-	VERSION             = "2.2.0"
+	VERSION             = "3.0.0"
 	BUILDTIME    string = "NONE"
 	BUILDCOMMIT  string = "NONE"
 	BUILDBRANCH  string = "NONE"
