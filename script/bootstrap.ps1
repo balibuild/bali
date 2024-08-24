@@ -2,16 +2,16 @@
 
 Write-Host -ForegroundColor Green "Bootstrap bali"
 $TopLevel = Split-Path -Path $PSScriptRoot
-$SrcDir = Join-Path $TopLevel -ChildPath "cmd/bali"
+$SOURCE_DIR = Join-Path $TopLevel -ChildPath "cmd/bali"
 
-$BALI_EXE = "$SrcDir/bali"
+$BALI_EXE = "$SOURCE_DIR/bali"
 $BALI_EXE_STAGE0 = "$TopLevel/bali.out"
 if ($PSEdition -eq "Desktop" -or $IsWindows) {
     $BALI_EXE += ".exe"
     $BALI_EXE_STAGE0 += ".exe"
 }
 
-$ps = Start-Process -FilePath "go" -WorkingDirectory $SrcDir -ArgumentList "build" -PassThru -Wait -NoNewWindow
+$ps = Start-Process -FilePath "go" -WorkingDirectory $SOURCE_DIR -ArgumentList "build" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }

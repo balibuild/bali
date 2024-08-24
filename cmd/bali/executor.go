@@ -241,7 +241,7 @@ func (be *Executor) Compress() error {
 	var err error
 	var fd *os.File
 	var mw io.Writer
-	var pk pack.Packer
+	var pk pack.Builder
 	h := sha256.New()
 	var outname string
 	if be.target == "windows" {
@@ -255,7 +255,7 @@ func (be *Executor) Compress() error {
 			return err
 		}
 		mw = io.MultiWriter(fd, h)
-		zpk := pack.NewZipPackerEx(mw, be.zipmethod)
+		zpk := pack.NewZipBuilderEx(mw, be.zipmethod)
 		if len(be.project.Destination) != 0 {
 			zpk.SetComment(be.project.Destination)
 		}

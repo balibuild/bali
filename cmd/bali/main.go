@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alecthomas/kong"
 	"github.com/balibuild/bali/v3/base"
 	"github.com/balibuild/bali/v3/pack"
 )
@@ -234,4 +235,45 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
+
+type VersionFlag bool
+
+func (v VersionFlag) Decode(ctx *kong.DecodeContext) error { return nil }
+func (v VersionFlag) IsBool() bool                         { return true }
+func (v VersionFlag) BeforeApply(app *kong.Kong, vars kong.Vars) error {
+	app.Exit(0)
+	return nil
+}
+
+type Globals struct {
+	M       string      `name:"module" short:"M" help:"Explicitly specify a module directory" default:"." type:"path"`
+	B       string      `name:"build" short:"B" help:"Explicitly specify a build directory" default:"build" type:"path"`
+	Verbose bool        `name:"verbose" short:"V" help:"Make the operation more talkative"`
+	Version VersionFlag `name:"version" short:"v" help:"Print version information and quit"`
+}
+
+type App struct {
+	Globals
+	Build  BuildCommand  `cmd:"build" help:"Compile the current module (default)" default:"withargs"`
+	Update UpdateCommand `cmd:"update" help:"Update dependencies as recorded in the go.mod"`
+	Clean  CleanCommand  `cmd:"clean" help:"Remove generated artifacts"`
+}
+
+func Main() {
+	app := App{}
+
+	ctx := kong.Parse(&app,
+		kong.Name("bali"),
+		kong.Description("Bali - Minimalist Golang build and packaging tool"),
+		kong.UsageOnError(),
+		kong.ConfigureHelp(kong.HelpOptions{
+			Compact: true,
+		}),
+		kong.Vars{
+			"target": runtime.GOOS,
+			"arch":   runtime.GOARCH,
+		})
+	err := ctx.Run(&app.Globals)
+	ctx.FatalIfErrorf(err)
 }

@@ -2,8 +2,8 @@ package pack
 
 import "os"
 
-// Packer todo
-type Packer interface {
+// Builder todo
+type Builder interface {
 	Close() error
 	AddFileEx(src, nameInArchive string, exerights bool) error
 	AddFile(src, nameInArchive string) error

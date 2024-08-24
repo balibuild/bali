@@ -23,62 +23,62 @@ const (
 	Store   uint16 = 0   // no compression
 	Deflate uint16 = 8   // DEFLATE compressed
 	BZIP2   uint16 = 12  // bzip2
-	LZMA    uint16 = 14  //LZMA
-	ZSTD    uint16 = 93  //see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
-	XZ      uint16 = 95  //XZ
+	LZMA    uint16 = 14  // LZMA
+	ZSTD    uint16 = 93  // see https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+	XZ      uint16 = 95  // XZ
 	BROTLI  uint16 = 121 // private
 )
 
-// ZipPacker todo
-type ZipPacker struct {
-	zw         *zip.Writer
-	FileMethod uint16 // zip filemethod
+// ZipBuilder todo
+type ZipBuilder struct {
+	zw     *zip.Writer
+	Method uint16 // zip filemethod
 }
 
-// NewZipPacker todo
-func NewZipPacker(w io.Writer) *ZipPacker {
-	return &ZipPacker{zw: zip.NewWriter(w), FileMethod: Deflate}
+// NewZipBuilder todo
+func NewZipBuilder(w io.Writer) *ZipBuilder {
+	return &ZipBuilder{zw: zip.NewWriter(w), Method: Deflate}
 }
 
-// NewZipPackerEx todo
-func NewZipPackerEx(w io.Writer, method uint16) *ZipPacker {
-	zp := NewZipPacker(w)
+// NewZipBuilderEx with compress method
+func NewZipBuilderEx(w io.Writer, method uint16) *ZipBuilder {
+	b := NewZipBuilder(w)
 	switch method {
 	case BZIP2:
-		zp.zw.RegisterCompressor(BZIP2, func(out io.Writer) (io.WriteCloser, error) {
+		b.zw.RegisterCompressor(BZIP2, func(out io.Writer) (io.WriteCloser, error) {
 			return bzip2.NewWriter(out, nil)
 		})
-		zp.FileMethod = BZIP2
+		b.Method = BZIP2
 	case ZSTD:
-		zp.zw.RegisterCompressor(ZSTD, func(out io.Writer) (io.WriteCloser, error) {
+		b.zw.RegisterCompressor(ZSTD, func(out io.Writer) (io.WriteCloser, error) {
 			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 			//return zstd.ZipCompressor()(out)
 		})
-		zp.FileMethod = ZSTD
+		b.Method = ZSTD
 	case BROTLI:
-		zp.zw.RegisterCompressor(BROTLI, func(out io.Writer) (io.WriteCloser, error) {
+		b.zw.RegisterCompressor(BROTLI, func(out io.Writer) (io.WriteCloser, error) {
 			return brotli.NewWriter(out), nil
 		})
-		zp.FileMethod = BROTLI
+		b.Method = BROTLI
 	default:
 	}
-	return zp
+	return b
 }
 
 // Close todo
-func (zp *ZipPacker) Close() error {
-	if zp.zw == nil {
+func (b *ZipBuilder) Close() error {
+	if b.zw == nil {
 		return nil
 	}
-	return zp.zw.Close()
+	return b.zw.Close()
 }
 
-func (zp *ZipPacker) SetComment(comment string) error {
+func (zp *ZipBuilder) SetComment(comment string) error {
 	return zp.zw.SetComment(comment)
 }
 
 // AddTargetLink create zip symlink
-func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
+func (zp *ZipBuilder) AddTargetLink(nameInArchive, linkName string) error {
 	var hdr zip.FileHeader
 	hdr.Modified = time.Now()
 	hdr.SetMode(0755 | os.ModeSymlink) // symlink
@@ -94,7 +94,7 @@ func (zp *ZipPacker) AddTargetLink(nameInArchive, linkName string) error {
 }
 
 // AddFileEx todo
-func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error {
+func (zp *ZipBuilder) AddFileEx(src, nameInArchive string, exerights bool) error {
 	fi, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 		hdr.SetMode(hdr.Mode() | 0755)
 	}
 	hdr.Name = filepath.ToSlash(nameInArchive)
-	hdr.Method = zp.FileMethod
+	hdr.Method = zp.Method
 	writer, err := zp.zw.CreateHeader(hdr)
 	if err != nil {
 		return base.ErrorCat(nameInArchive, ": making header:", err.Error())
@@ -142,6 +142,6 @@ func (zp *ZipPacker) AddFileEx(src, nameInArchive string, exerights bool) error 
 }
 
 // AddFile file to zip packer
-func (zp *ZipPacker) AddFile(src, nameInArchive string) error {
+func (zp *ZipBuilder) AddFile(src, nameInArchive string) error {
 	return zp.AddFileEx(src, nameInArchive, false)
 }
