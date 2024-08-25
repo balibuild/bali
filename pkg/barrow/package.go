@@ -55,6 +55,10 @@ func (b *BarrowCtx) LoadPackage(cwd string) (*Package, error) {
 		return nil, err
 	}
 	p.PackageName = b.Getenv("PACKAGE_NAME")
+	// OS BUILD_VERSION
+	if version, ok := os.LookupEnv("BUILD_VERSION"); ok {
+		p.Version = version
+	}
 	return &p, nil
 }
 
