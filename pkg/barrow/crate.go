@@ -1,6 +1,7 @@
 package barrow
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -29,6 +30,15 @@ func (b *BarrowCtx) LoadCrate(location string) (*Crate, error) {
 		return nil, err
 	}
 	e.cwd = cwd
+	if len(e.Name) == 0 {
+		e.Name = filepath.Base(cwd)
+	}
+	if e.Name == "." {
+		return nil, fmt.Errorf("unable detect crate name. path '%s'", cwd)
+	}
+	if len(e.Version) == 0 {
+		e.Version = b.Getenv("BUILD_VERSION")
+	}
 	return &e, nil
 }
 

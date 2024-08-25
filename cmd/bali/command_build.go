@@ -21,6 +21,7 @@ func (c *BuildCommand) Run(g *Globals) error {
 		Arch:    c.Arch,
 		Release: c.Release,
 		Pack:    c.Pack,
+		Verbose: g.Verbose,
 	}
 	if err := b.Initialize(context.Background()); err != nil {
 		return err

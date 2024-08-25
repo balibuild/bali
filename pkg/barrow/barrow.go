@@ -30,9 +30,10 @@ func (b *BarrowCtx) DbgPrint(format string, a ...any) {
 		return
 	}
 	message := fmt.Sprintf(format, a...)
+	message = strings.TrimRightFunc(message, unicode.IsSpace)
 	lines := strings.Split(message, "\n")
 	for _, line := range lines {
-		fmt.Fprintf(os.Stderr, "\x1b[33m* %s\x1b[0m\n", strings.TrimRightFunc(line, unicode.IsSpace))
+		fmt.Fprintf(os.Stderr, "\x1b[33m* %s\x1b[0m\n", line)
 	}
 }
 
@@ -145,10 +146,10 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 	}
 	b.DbgPrint("load %s version: %s done", p.Name, p.Version)
 	b.extraEnv["BUILD_VERSION"] = p.Version
-
+	// compile crates
 	crates := make([]*Crate, 0, len(p.Crates))
-	for _, c := range p.Crates {
-		crate, err := b.compile(ctx, c)
+	for _, location := range p.Crates {
+		crate, err := b.compile(ctx, location)
 		if err != nil {
 			return err
 		}
@@ -179,7 +180,7 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 		return nil, err
 	}
 	if releaseFn != nil {
-		releaseFn()
+		defer releaseFn() // remove it
 	}
 	b.DbgPrint("crate: %s\n", crate.Name)
 	baseName := crate.baseName(b.Target)
