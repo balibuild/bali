@@ -146,6 +146,13 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 	}
 	b.DbgPrint("load %s version: %s done", p.Name, p.Version)
 	b.extraEnv["BUILD_VERSION"] = p.Version
+
+	for _, item := range p.Include {
+		if err := b.apply(item); err != nil {
+			fmt.Fprintf(os.Stderr, "apply item %s error: %v\n", item.Path, err)
+			return err
+		}
+	}
 	// compile crates
 	crates := make([]*Crate, 0, len(p.Crates))
 	for _, location := range p.Crates {
