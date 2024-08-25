@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/balibuild/bali/v3/base"
-	"github.com/balibuild/bali/v3/goversioninfo"
+	"github.com/balibuild/bali/v3/module/goversioninfo"
 )
 
 // Builder build syso file

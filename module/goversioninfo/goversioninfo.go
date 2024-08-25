@@ -10,10 +10,10 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
-	"github.com/akavel/rsrc/binutil"
-	"github.com/akavel/rsrc/coff"
-	"github.com/balibuild/bali/v3/base"
+	"github.com/balibuild/bali/v3/module/rsrc/binutil"
+	"github.com/balibuild/bali/v3/module/rsrc/coff"
 )
 
 // *****************************************************************************
@@ -58,7 +58,7 @@ func (f *FileVersion) IsZero() bool {
 
 // Fillling todo
 func (f *FileVersion) Fillling(sv string) error {
-	svv := base.StrSplitSkipEmpty(sv, '.', 4)
+	svv := strings.Split(sv, ".")
 	if len(svv) == 0 {
 		f.Patch = 1
 		return nil
