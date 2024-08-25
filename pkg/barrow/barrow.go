@@ -23,6 +23,7 @@ type BarrowCtx struct {
 	Verbose  bool
 	extraEnv map[string]string
 	environ  []string
+	// TODO signature
 }
 
 func (b *BarrowCtx) DbgPrint(format string, a ...any) {
@@ -139,7 +140,8 @@ func (b *BarrowCtx) Initialize(ctx context.Context) error {
 }
 
 func (b *BarrowCtx) Run(ctx context.Context) error {
-	p, err := LoadPackage(b.CWD)
+	b.DbgPrint("target: %s arch: %s", b.Target, b.Arch)
+	p, err := b.LoadPackage(b.CWD)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "parse package metadata error: %v\n", err)
 		return err
@@ -162,16 +164,29 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 		}
 		crates = append(crates, crate)
 	}
-	fmt.Fprintf(os.Stderr, "crates: %d\n", len(crates))
+	if len(b.Pack) == 0 {
+		return nil
+	}
 	switch strings.ToLower(b.Pack) {
 	case "zip":
+		if err := b.zip(ctx, p, crates); err != nil {
+			return err
+		}
 	case "rpm":
+		if err := b.rpm(ctx, p, crates); err != nil {
+			return err
+		}
 	case "sh", "stgz":
+		if err := b.stgz(ctx, p, crates); err != nil {
+			return err
+		}
 	case "tar.gz", "tgz":
-	case "":
-		return nil
+		if err := b.tgz(ctx, p, crates); err != nil {
+			return err
+		}
 	default:
-		return errors.New("bad format")
+		fmt.Fprintf(os.Stderr, "unsupported pack format '%s'\n", b.Pack)
+		return fmt.Errorf("unsupported pack format '%s'", b.Pack)
 	}
 	return nil
 }

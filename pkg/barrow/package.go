@@ -20,13 +20,14 @@ type FileItem struct {
 
 type Package struct {
 	Name        string      `toml:"name"`
+	PackageName string      `toml:"package-name,omitempty"`
 	Summary     string      `toml:"summary,omitempty"`     // Is a short description of the software
 	Description string      `toml:"description,omitempty"` // description is a longer piece of software information than Summary, consisting of one or more paragraphs
 	Version     string      `toml:"version,omitempty"`
 	Authors     []string    `toml:"authors,omitempty"`
 	Vendor      string      `toml:"vendor,omitempty"`
 	URL         string      `toml:"url,omitempty"`
-	Packager    string      `toml:"url,omitempty"` // BALI_RPM_PACKAGER
+	Packager    string      `toml:"packager,omitempty"` // BALI_RPM_PACKAGER
 	Group       string      `toml:"group,omitempty"`
 	License     string      `toml:"license,omitempty"`
 	LicenseFile string      `toml:"license-file,omitempty"`
@@ -47,12 +48,13 @@ func LoadMetadata(file string, v any) error {
 	return nil
 }
 
-func LoadPackage(cwd string) (*Package, error) {
+func (b *BarrowCtx) LoadPackage(cwd string) (*Package, error) {
 	file := filepath.Join(cwd, "bali.toml")
 	var p Package
 	if err := LoadMetadata(file, &p); err != nil {
 		return nil, err
 	}
+	p.PackageName = b.Getenv("PACKAGE_NAME")
 	return &p, nil
 }
 

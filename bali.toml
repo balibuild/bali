@@ -1,11 +1,16 @@
 # https://toml.io/en/
 name = "bali"
+summary = "Bali - Minimalist Golang build and packaging tool"
+description = "Bali - Minimalist Golang build and packaging tool"
+package-name = "bali-name"
 version = "3.0.0"
+license = "MIT"
+prefix = "/usr/local"
 crates = [
     "cmd/bali",     # crates
     "cmd/peassets",
 ]
-description = "Bali - Minimalist Golang build and packaging tool"
+
 
 dirs = [
     "cmd/bali",     # targets
