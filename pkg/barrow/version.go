@@ -128,6 +128,24 @@ const (
 	LngSwissFrench           = LangID(0x100C) // LngSwiss French: 0x100C Swiss French
 )
 
-type Windows struct {
-	Manifest string `toml:"manifest,omitempty"` // path or content
+type StringFileInfo struct {
+	Comments         string `toml:"Comments,omitempty"`
+	CompanyName      string `toml:"CompanyName,omitempty"`
+	FileDescription  string `toml:"FileDescription,omitempty"`
+	FileVersion      string `toml:"FileVersion,omitempty"`
+	InternalName     string `toml:"InternalName,omitempty"`
+	LegalCopyright   string `toml:"LegalCopyright,omitempty"`
+	LegalTrademarks  string `toml:"LegalTrademarks,omitempty"`
+	OriginalFilename string `toml:"OriginalFilename,omitempty"`
+	PrivateBuild     string `toml:"PrivateBuild,omitempty"`
+	ProductName      string `toml:"ProductName,omitempty"`
+	ProductVersion   string `toml:"ProductVersion,omitempty"`
+	SpecialBuild     string `toml:"SpecialBuild,omitempty"`
+}
+
+// Windows
+type WindowsResources struct {
+	Icon           string         `toml:"icon,omitempty"`
+	Manifest       string         `toml:"manifest,omitempty"` // path or content
+	StringFileInfo StringFileInfo `toml:"StringFileInfo,omitempty"`
 }
