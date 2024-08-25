@@ -275,5 +275,7 @@ func main() {
 			"arch":   runtime.GOARCH,
 		})
 	err := ctx.Run(&app.Globals)
-	ctx.FatalIfErrorf(err)
+	if err != nil {
+		os.Exit(1)
+	}
 }

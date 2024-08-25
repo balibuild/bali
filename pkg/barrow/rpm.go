@@ -81,27 +81,24 @@ func (b *BarrowCtx) addCrate(r *rpmpack.RPM, crate *Crate, prefix string) error 
 	return nil
 }
 
-// var (
-// 	archList = map[string]string{
-// 		"arm64":   "aarch64",
-// 		"amd64":   "x86_64",
-// 		"riscv64": "riscv64",
-// 		"loong64": "loong64",
-// 	}
-// )
-
-// func convertArch(arch string) string {
-// 	if a, ok := archList[arch]; ok {
-// 		return a
-// 	}
-// 	return arch
-// }
+var (
+	rpmSupportedCompressor = map[string]bool{
+		"":     true,
+		"gzip": true,
+		"zstd": true,
+		"lzma": true,
+		"xz":   true,
+	}
+)
 
 func (b *BarrowCtx) rpm(ctx context.Context, p *Package, crates []*Crate) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
 	default:
+	}
+	if !rpmSupportedCompressor[b.CompressMethod] {
+		return fmt.Errorf("unsupported compressor '%s'", b.CompressMethod)
 	}
 	packageName := p.PackageName
 	if len(packageName) == 0 {
@@ -121,6 +118,7 @@ func (b *BarrowCtx) rpm(ctx context.Context, p *Package, crates []*Crate) error 
 		Group:       p.Group,
 		Licence:     p.License,
 		BuildHost:   b.Getenv("BUILD_HOST"),
+		Compressor:  b.CompressMethod,
 		BuildTime:   time.Now(),
 	})
 	if err != nil {
@@ -137,13 +135,19 @@ func (b *BarrowCtx) rpm(ctx context.Context, p *Package, crates []*Crate) error 
 		}
 	}
 	var rpmName string
-	switch {
-	case len(r.Release) == 0:
+	if len(r.Release) == 0 {
 		rpmName = fmt.Sprintf("%s-%s.%s.rpm", r.Name, r.Version, r.Arch)
-	default:
+	} else {
 		rpmName = fmt.Sprintf("%s-%s-%s.%s.rpm", r.Name, r.Version, r.Release, r.Arch)
 	}
-	fd, err := os.Create(filepath.Join(b.CWD, rpmName))
+	var rpmPath string
+	if filepath.IsAbs(b.Destination) {
+		rpmPath = filepath.Join(b.Destination, rpmName)
+	} else {
+		rpmPath = filepath.Join(b.CWD, b.Destination, rpmName)
+	}
+	_ = os.MkdirAll(filepath.Dir(rpmPath), 0755)
+	fd, err := os.Create(rpmPath)
 	if err != nil {
 		return err
 	}

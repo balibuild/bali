@@ -20,3 +20,4 @@
 /*.sh
 cmd/bali/bali
 *.rpm
+/dest/
