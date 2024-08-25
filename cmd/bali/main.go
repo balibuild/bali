@@ -201,41 +201,41 @@ func (be *Executor) ParseArgv() error {
 	return nil
 }
 
-func main() {
-	var be Executor
-	if err := be.ParseArgv(); err != nil {
-		fmt.Fprintf(os.Stderr, "bali: parse args: \x1b[31m%v\x1b[0m\n", err)
-		os.Exit(1)
-	}
-	if be.cleanup {
-		if err := os.RemoveAll(be.out); err != nil {
-			fmt.Fprintf(os.Stderr, "bali: cleanup %s: \x1b[31m%v\x1b[0m\n", be.out, err)
-			os.Exit(1)
-		}
-		fmt.Fprintf(os.Stderr, "\x1b[32mbali: cleanup %s success\x1b[0m\n", be.out)
-		os.Exit(0)
-	}
-	if err := be.Initialize(); err != nil {
-		fmt.Fprintf(os.Stderr, "bali: initialize: \x1b[31m%v\x1b[0m\n", err)
-		os.Exit(1)
-	}
-	if err := be.Build(); err != nil {
-		fmt.Fprintf(os.Stderr, "bali: build: \x1b[31m%v\x1b[0m\n", err)
-		os.Exit(1)
-	}
-	if be.makezip {
-		if err := be.Compress(); err != nil {
-			fmt.Fprintf(os.Stderr, "bali: compress: \x1b[31m%v\x1b[0m\n", err)
-			os.Exit(1)
-		}
-	}
-	if be.makepack {
-		if err := be.Pack(); err != nil {
-			fmt.Fprintf(os.Stderr, "bali: make pack: \x1b[31m%v\x1b[0m\n", err)
-			os.Exit(1)
-		}
-	}
-}
+// func main() {
+// 	var be Executor
+// 	if err := be.ParseArgv(); err != nil {
+// 		fmt.Fprintf(os.Stderr, "bali: parse args: \x1b[31m%v\x1b[0m\n", err)
+// 		os.Exit(1)
+// 	}
+// 	if be.cleanup {
+// 		if err := os.RemoveAll(be.out); err != nil {
+// 			fmt.Fprintf(os.Stderr, "bali: cleanup %s: \x1b[31m%v\x1b[0m\n", be.out, err)
+// 			os.Exit(1)
+// 		}
+// 		fmt.Fprintf(os.Stderr, "\x1b[32mbali: cleanup %s success\x1b[0m\n", be.out)
+// 		os.Exit(0)
+// 	}
+// 	if err := be.Initialize(); err != nil {
+// 		fmt.Fprintf(os.Stderr, "bali: initialize: \x1b[31m%v\x1b[0m\n", err)
+// 		os.Exit(1)
+// 	}
+// 	if err := be.Build(); err != nil {
+// 		fmt.Fprintf(os.Stderr, "bali: build: \x1b[31m%v\x1b[0m\n", err)
+// 		os.Exit(1)
+// 	}
+// 	if be.makezip {
+// 		if err := be.Compress(); err != nil {
+// 			fmt.Fprintf(os.Stderr, "bali: compress: \x1b[31m%v\x1b[0m\n", err)
+// 			os.Exit(1)
+// 		}
+// 	}
+// 	if be.makepack {
+// 		if err := be.Pack(); err != nil {
+// 			fmt.Fprintf(os.Stderr, "bali: make pack: \x1b[31m%v\x1b[0m\n", err)
+// 			os.Exit(1)
+// 		}
+// 	}
+// }
 
 type VersionFlag bool
 
@@ -260,7 +260,7 @@ type App struct {
 	Clean  CleanCommand  `cmd:"clean" help:"Remove generated artifacts"`
 }
 
-func Main() {
+func main() {
 	app := App{}
 
 	ctx := kong.Parse(&app,

@@ -31,7 +31,7 @@ func (b *Builder) AddIcon(src string) error {
 	if !base.PathExists(src) {
 		return base.ErrorCat("icon: ", src, " not found")
 	}
-	b.vi.IconPath = src
+	//b.vi.IconPath = src
 	return nil
 }
 
@@ -40,7 +40,7 @@ func (b *Builder) AddManifest(src string) error {
 	if !base.PathExists(src) {
 		return base.ErrorCat("manifest: ", src, " not found")
 	}
-	b.vi.ManifestPath = src
+	//b.vi.ManifestPath = src
 	return nil
 }
 
@@ -49,15 +49,15 @@ func (b *Builder) FillVersion(filever, prover string) {
 	if len(b.vi.StringFileInfo.FileVersion) == 0 && len(filever) != 0 {
 		b.vi.StringFileInfo.FileVersion = filever
 	}
-	if b.vi.FixedFileInfo.FileVersion.IsZero() {
-		_ = b.vi.FixedFileInfo.FileVersion.Fillling(b.vi.StringFileInfo.FileVersion)
-	}
-	if len(b.vi.StringFileInfo.ProductVersion) == 0 && len(prover) != 0 {
-		b.vi.StringFileInfo.ProductVersion = prover
-	}
-	if b.vi.FixedFileInfo.ProductVersion.IsZero() {
-		_ = b.vi.FixedFileInfo.ProductVersion.Fillling(b.vi.StringFileInfo.ProductVersion)
-	}
+	// if b.vi.FixedFileInfo.FileVersion.IsZero() {
+	// 	_ = b.vi.FixedFileInfo.FileVersion.Overwrite(b.vi.StringFileInfo.FileVersion)
+	// }
+	// if len(b.vi.StringFileInfo.ProductVersion) == 0 && len(prover) != 0 {
+	// 	b.vi.StringFileInfo.ProductVersion = prover
+	// }
+	// if b.vi.FixedFileInfo.ProductVersion.IsZero() {
+	// 	_ = b.vi.FixedFileInfo.ProductVersion.Overwrite(b.vi.StringFileInfo.ProductVersion)
+	// }
 }
 
 // UpdateName todo
@@ -104,7 +104,7 @@ func (b *Builder) WriteSyso(fileout, arch string) error {
 	}
 	b.vi.Build()
 	b.vi.Walk()
-	if err := b.vi.WriteSyso(fileout, arch); err != nil {
+	if err := b.vi.WriteSyso("", fileout, arch); err != nil {
 		return base.ErrorCat("Error writing syso: ", err.Error())
 	}
 	return nil

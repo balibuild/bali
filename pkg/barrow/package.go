@@ -27,7 +27,7 @@ type Package struct {
 	License     string     `toml:"license,omitempty"`
 	LicenseFile string     `toml:"license-file,omitempty"`
 	Prefix      string     `toml:"prefix,omitempty"` // install prefix: rpm required
-	Crates      string     `toml:"crates,omitempty"`
+	Crates      []string   `toml:"crates,omitempty"`
 	Include     []FileItem `toml:"include,omitempty"`
 }
 

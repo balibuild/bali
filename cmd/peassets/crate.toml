@@ -1,0 +1,8 @@
+name = "peassets"
+description = "peassets - PE executable program depends on aggregation tool"
+destination = "bin"
+version = "3.0.0"
+goflags = [
+    "-ldflags",
+    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT'  -X 'main.BUILDREFNAME=$BUILD_REFNAME' -X 'main.GOVERSION=$BUILD_GOVERSION'",
+]

@@ -1,7 +1,7 @@
 package barrow
 
 import (
-	"context"
+	"os"
 	"path/filepath"
 )
 
@@ -12,6 +12,13 @@ type Crate struct {
 	GoFlags     []string `toml:"goflags,omitempty"`
 	Version     string   `toml:"version,omitempty"`
 	cwd         string   `toml:"-"`
+}
+
+func (c *Crate) baseName(target string) string {
+	if target == "windows" {
+		return c.Name + ".exe"
+	}
+	return c.Name
 }
 
 func (b *BarrowCtx) LoadCrate(location string) (*Crate, error) {
@@ -25,9 +32,19 @@ func (b *BarrowCtx) LoadCrate(location string) (*Crate, error) {
 	return &e, nil
 }
 
-func (b *BarrowCtx) MakeWinRes(ctx context.Context, e *Crate) error {
+type WinResCloser func()
+
+func (b *BarrowCtx) MakeResources(e *Crate) (WinResCloser, error) {
 	if b.Target != "windows" {
-		return nil
+		return nil, nil
 	}
-	return nil
+	saveTo := filepath.Join(e.cwd, "windows_"+b.Arch+".syso")
+	if err := b.makeResources(e, saveTo); err != nil {
+		_ = os.RemoveAll(saveTo)
+		return nil, err
+	}
+	return func() {
+		// remove
+		_ = os.RemoveAll(saveTo)
+	}, nil
 }

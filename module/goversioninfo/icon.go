@@ -58,14 +58,14 @@ type gRPICONDIRENTRY struct {
 	ID uint16
 }
 
-func addIcon(coff *coff.Coff, fname string, newID <-chan uint16) error {
-	f, err := os.Open(fname)
+func addIcon(coff *coff.Coff, iconPath string, newID <-chan uint16) error {
+	fd, err := os.Open(iconPath)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer fd.Close()
 
-	icons, err := ico.DecodeHeaders(f)
+	icons, err := ico.DecodeHeaders(fd)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func addIcon(coff *coff.Coff, fname string, newID <-chan uint16) error {
 		gid := <-newID
 		for _, icon := range icons {
 			id := <-newID
-			buff, err := bufferIcon(f, int64(icon.ImageOffset), int(icon.BytesInRes))
+			buff, err := bufferIcon(fd, int64(icon.ImageOffset), int(icon.BytesInRes))
 			if err != nil {
 				return err
 			}
@@ -89,7 +89,6 @@ func addIcon(coff *coff.Coff, fname string, newID <-chan uint16) error {
 		}
 		coff.AddResource(rtGroupIcon, gid, group)
 	}
-
 	return nil
 }
 

@@ -5,6 +5,9 @@ package goversioninfo
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 // CharsetID must use be a character-set identifier from:
@@ -26,6 +29,28 @@ const (
 	CsHebrew       = CharsetID(1255) // CsHebrew:	1255	04E7	Hebrew
 	CsArabic       = CharsetID(1256) // CsArabic:	1256	04E8	Arabic
 )
+
+// UnmarshalText converts the string to a CharsetID
+func (cs *CharsetID) UnmarshalText(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+	s := string(b)
+	switch {
+	case strings.HasPrefix(s, "\""):
+		if err := toml.Unmarshal(b, &s); err != nil {
+			return err
+		}
+	default:
+		s = strings.TrimPrefix(s, "0x")
+	}
+	u, err := strconv.ParseUint(s, 16, 16)
+	if err != nil {
+		return err
+	}
+	*cs = CharsetID(u)
+	return nil
+}
 
 // UnmarshalJSON converts the string to a CharsetID
 func (cs *CharsetID) UnmarshalJSON(p []byte) error {
@@ -55,6 +80,28 @@ func (cs *CharsetID) UnmarshalJSON(p []byte) error {
 // LangID must use be a character-set identifier from:
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa381058(v=vs.85).aspx#langID
 type LangID uint16
+
+// UnmarshalText converts the string to a LangID
+func (lng *LangID) UnmarshalText(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+	s := string(b)
+	switch {
+	case strings.HasPrefix(s, "\""):
+		if err := toml.Unmarshal(b, &s); err != nil {
+			return err
+		}
+	default:
+		s = strings.TrimPrefix(s, "0x")
+	}
+	u, err := strconv.ParseUint(s, 16, 16)
+	if err != nil {
+		return err
+	}
+	*lng = LangID(u)
+	return nil
+}
 
 // UnmarshalJSON converts the string to a LangID
 func (lng *LangID) UnmarshalJSON(p []byte) error {

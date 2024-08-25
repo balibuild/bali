@@ -18,7 +18,7 @@ if ($ps.ExitCode -ne 0) {
 
 Copy-Item -Force -Path $BALI_EXE -Destination $BALI_EXE_STAGE0
 
-$ps = Start-Process -FilePath $BALI_EXE_STAGE0 -WorkingDirectory $TopLevel -ArgumentList "-z" -PassThru -Wait -NoNewWindow
+$ps = Start-Process -FilePath $BALI_EXE_STAGE0 -WorkingDirectory $TopLevel -ArgumentList "--pack=zip" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
