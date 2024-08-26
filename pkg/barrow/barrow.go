@@ -136,9 +136,17 @@ func (b *BarrowCtx) Initialize(ctx context.Context) error {
 	if len(b.Release) == 0 {
 		b.Release = b.Getenv("BUILD_RELEASE")
 	}
-	b.extraEnv["BUIlD_TIME"] = time.Now().Format(time.RFC3339)
+	t := time.Now()
+	b.extraEnv["BUILD_TIME"] = t.Format(time.RFC3339)
+	b.extraEnv["BUILD_YEAR"] = strconv.Itoa(t.Year())
 	b.makeEnv()
 	return nil
+}
+
+func (b *BarrowCtx) debugEnv() {
+	for k, v := range b.extraEnv {
+		fmt.Fprintf(os.Stderr, "\x1b[33m * %s=%s\x1b[0m\n", k, v)
+	}
 }
 
 func (b *BarrowCtx) Run(ctx context.Context) error {
@@ -151,6 +159,10 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 	b.DbgPrint("load %s version: %s done", p.Name, p.Version)
 	b.extraEnv["BUILD_VERSION"] = p.Version
 
+	if b.Verbose {
+		b.debugEnv()
+	}
+	
 	for _, item := range p.Include {
 		if err := b.apply(item); err != nil {
 			fmt.Fprintf(os.Stderr, "apply item %s error: %v\n", item.Path, err)
