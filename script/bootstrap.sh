@@ -71,7 +71,7 @@ go build
 cp "bali" "$TOPLEVEL/bali.out"
 
 cd "${TOPLEVEL}" || exit 1
-if ! "./bali.out" -z; then
+if ! "./bali.out" --pack stgz; then
     echo "bootstrap bali failed"
     exit 1
 fi

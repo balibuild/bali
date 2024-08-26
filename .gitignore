@@ -19,4 +19,5 @@
 *.zip
 /*.sh
 cmd/bali/bali
-cmd/bali/balistub
+*.rpm
+/dest/

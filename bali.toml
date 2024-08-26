@@ -1,14 +1,29 @@
 # https://toml.io/en/
 name = "bali"
-version = "2.2.0"
-dirs = [
-    "cmd/bali",     # dirs
+summary = "Bali - Minimalist Golang build and packaging tool"
+description = "Bali - Minimalist Golang build and packaging tool"
+package-name = "bali-name"
+version = "3.0.0"
+license = "MIT"
+prefix = "/usr/local"
+crates = [
+    "cmd/bali",     # crates
     "cmd/peassets",
 ]
-destination = "Bali - Minimalist Golang build and packaging tool"
+
+
+dirs = [
+    "cmd/bali",     # targets
+    "cmd/peassets",
+]
 
 [[files]]
 path = "LICENSE"
 destination = "share"
-newname = "LICENSE.bali"
-norename = true
+rename = "BALI-COPYRIGHT.txt"
+
+[[include]]
+path = "LICENSE"
+destination = "share"
+rename = "BALI-COPYRIGHT.txt"
+permissions = "0664"

@@ -2,23 +2,23 @@
 
 Write-Host -ForegroundColor Green "Bootstrap bali"
 $TopLevel = Split-Path -Path $PSScriptRoot
-$SrcDir = Join-Path $TopLevel -ChildPath "cmd/bali"
+$SOURCE_DIR = Join-Path $TopLevel -ChildPath "cmd/bali"
 
-$BaliFile = "$SrcDir/bali"
-$BailBin = "$TopLevel/bali.stage0"
+$BALI_EXE = "$SOURCE_DIR/bali"
+$BALI_EXE_STAGE0 = "$TopLevel/bali.out"
 if ($PSEdition -eq "Desktop" -or $IsWindows) {
-    $BaliFile += ".exe"
-    $BailBin += ".exe"
+    $BALI_EXE += ".exe"
+    $BALI_EXE_STAGE0 += ".exe"
 }
 
-$ps = Start-Process -FilePath "go" -WorkingDirectory $SrcDir -ArgumentList "build" -PassThru -Wait -NoNewWindow
+$ps = Start-Process -FilePath "go" -WorkingDirectory $SOURCE_DIR -ArgumentList "build" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
 
-Copy-Item -Force -Path $BaliFile -Destination $BailBin
+Copy-Item -Force -Path $BALI_EXE -Destination $BALI_EXE_STAGE0
 
-$ps = Start-Process -FilePath $BailBin -WorkingDirectory $TopLevel -ArgumentList "-z" -PassThru -Wait -NoNewWindow
+$ps = Start-Process -FilePath $BALI_EXE_STAGE0 -WorkingDirectory $TopLevel -ArgumentList "--pack=zip" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
