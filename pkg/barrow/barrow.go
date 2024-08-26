@@ -145,8 +145,13 @@ func (b *BarrowCtx) Initialize(ctx context.Context) error {
 }
 
 func (b *BarrowCtx) debugEnv() {
+	lines := make([]string, 0, len(b.extraEnv))
 	for k, v := range b.extraEnv {
-		fmt.Fprintf(os.Stderr, "\x1b[33m* env: %s=%s\x1b[0m\n", k, v)
+		lines = append(lines, k+"="+v)
+	}
+	slices.Sort(lines)
+	for _, line := range lines {
+		fmt.Fprintf(os.Stderr, "\x1b[33m* env: %s\x1b[0m\n", line)
 	}
 }
 
@@ -156,7 +161,7 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 		fmt.Fprintf(os.Stderr, "parse package metadata error: %v\n", err)
 		return err
 	}
-	b.DbgPrint("Building %s version: %s target: %s arch: %s",p.Name,p.Version, b.Target, b.Arch)
+	b.DbgPrint("Building %s version: %s target: %s arch: %s", p.Name, p.Version, b.Target, b.Arch)
 	b.extraEnv["BUILD_VERSION"] = p.Version
 
 	if b.Verbose {
