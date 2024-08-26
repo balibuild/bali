@@ -237,7 +237,7 @@ CharsetID = "04B0"
 ```
 
 
-Bali integrates [`goversioninfo`](https://github.com/josephspurrier/goversioninfo). When the target is Windows, it can embed version information into the executable program. The `versioninfo` field is similar to the `goversioninfo` project. But more loosely, some specific values, such as version, description will be filled with the value of `bali.toml/balisrc.toml`, and `icon`/`manifest` will override `versioninfo.json`.
+Bali integrates [`goversioninfo`](https://github.com/josephspurrier/goversioninfo). When the target is Windows, it can embed version information (`winres.toml`) into the executable program.
 
 The benefits of adding a reference program manifest are self-evident. For example, Windows UAC privilege escalation, Windows 10 long path support (ie path support> 260 characters), Windows Vista style controls, TaskDialog, DPI settings, etc. all need to modify the application manifest.
 
