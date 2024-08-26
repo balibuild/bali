@@ -14,7 +14,6 @@ import (
 	"unicode"
 )
 
-
 type BarrowCtx struct {
 	CWD            string
 	Out            string
@@ -147,24 +146,23 @@ func (b *BarrowCtx) Initialize(ctx context.Context) error {
 
 func (b *BarrowCtx) debugEnv() {
 	for k, v := range b.extraEnv {
-		fmt.Fprintf(os.Stderr, "\x1b[33m * %s=%s\x1b[0m\n", k, v)
+		fmt.Fprintf(os.Stderr, "\x1b[33m* env: %s=%s\x1b[0m\n", k, v)
 	}
 }
 
 func (b *BarrowCtx) Run(ctx context.Context) error {
-	b.DbgPrint("target: %s arch: %s", b.Target, b.Arch)
 	p, err := b.LoadPackage(b.CWD)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "parse package metadata error: %v\n", err)
 		return err
 	}
-	b.DbgPrint("load %s version: %s done", p.Name, p.Version)
+	b.DbgPrint("Building %s version: %s target: %s arch: %s",p.Name,p.Version, b.Target, b.Arch)
 	b.extraEnv["BUILD_VERSION"] = p.Version
 
 	if b.Verbose {
 		b.debugEnv()
 	}
-	
+
 	for _, item := range p.Include {
 		if err := b.apply(item); err != nil {
 			fmt.Fprintf(os.Stderr, "apply item %s error: %v\n", item.Path, err)
