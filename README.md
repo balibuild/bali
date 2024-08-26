@@ -5,95 +5,142 @@
 
 [简体中文](./README.zh-CN.md)
 
-Bali is a *minimal Golang build and packaging tool* developed using Golang. [Bali(old)](https://github.com/fcharlie/bali) was originally written in PowerShell and used to solve packaging and configuration issues during the project build process.
-
-[Bali(old)](https://github.com/fcharlie/bali) can fill information such as time, git commit, etc. into the built binary file at build time, which is of some use when tracing application defects.
-
-However, Bali developed based on PowerShell does not support the creation of `STGZ` installation package. The `STGZ` installation package essentially merges the `Shell Script` header with `tar.gz` and distributes it. When the user installs, the `Shell Script` calls the decompression command to decompress to complete the installation. In the shell script, you can also set up a script such as `post_install` to perform related operations after decompression. `STGZ` is small and powerful. In the past two years of development, most of the Linux platform projects that I have developed have realized the function of creating STGZ installation packages.
-
-In fact, Bali can fully achieve this function, considering that Golang has built-in `archive/tar`, `archive/zip`, `compress/gzip`. In fact, if you use Golang to re-implement Bali, you will get greater benefits. This is [Baligo](https://github.com/fcharlie/baligo) (Gitee: [Baligo](https://gitee.com/ipvb/baligo)). But I still think that Baligo still lacks, such as the Windows platform does not support embedded `icons`, `version information`, `manifest files`, so this is where the new **Bali** was born.
+Bali is a *minimal Golang build and packaging tool* developed using Golang.
 
 ## Feature
 
 Bali has some functions that I think are useful:
 
 + Build parameters support derivation of environment variables
-+ Package, create compressed package, create zip when target is Windows, and create tar.gz when target is other.
++ Package, create compressed package, support `rpm`, `tar`, `zip`, `sh`.
 + The Windows platform supports embedded version information, icons, and application manifest.
-+ UNIX platform supports STGZ packaging
+
+rpm supported compression:
++ gzip
++ zstd
++ lzma
++ xz
+
+tar supported compression:
++ none   --> pure tar
++ gzip   --> tar.gz
++ zstd   --> tar.zst
++ xz     --> tar.xz
++ bzip2  --> tar.bz2
++ brotli --> tar.br
+
+sh supported compression:
++ none   --> pure tar
++ gzip   --> tar.gz
++ zstd   --> tar.zst
++ xz     --> tar.xz
++ bzip2  --> tar.bz2
+
+zip supported compression:
++ deflate
++ zstd
++ bzip2
++ xz
 
 
 Bali's command line help information is as follows:
 
-```shell
-Bali -  Minimalist Golang build and packaging tool
-usage: ./build/bin/bali <option> args ...
-  -h|--help        Show usage text and quit
-  -v|--version     Show version number and quit
-  -V|--verbose     Make the operation more talkative
-  -F|--force       Turn on force mode. eg: Overwrite configuration file
-  -w|--workdir     Specify bali running directory. (Position 0, default $PWD)
-  -a|--arch        Build arch: amd64 386 arm arm64
-  -t|--target      Build target: windows linux darwin ...
-  -o|--out         Specify build output directory. default '$PWD/build'
-  -d|--dest        Specify the path to save the package
-  -z|--zip         Create archive file (UNIX: .tar.gz, Windows: .zip)
-  -p|--pack        Create installation package (UNIX: STGZ, Windows: none)
-  --cleanup        Cleanup build directory
-  --no-rename      Disable file renaming (STGZ installation package, default: OFF)
+```txt
+Usage: bali <command> [flags]
+
+Bali - Minimalist Golang build and packaging tool
+
+Flags:
+  -h, --help             Show context-sensitive help.
+  -M, --module="."       Explicitly specify a module directory
+  -B, --build="build"    Explicitly specify a build directory
+  -V, --verbose          Make the operation more talkative
+  -v, --version          Print version information and quit
+
+Commands:
+  build     Compile the current module (default)
+  update    Update dependencies as recorded in the go.mod
+  clean     Remove generated artifacts
+
+Run "bali <command> --help" for more information on a command.
+
 
 ```
+
+bali build command:
+
+```txt
+Usage: bali build [flags]
+
+Compile the current module (default)
+
+Flags:
+  -h, --help                  Show context-sensitive help.
+  -M, --module="."            Explicitly specify a module directory
+  -B, --build="build"         Explicitly specify a build directory
+  -V, --verbose               Make the operation more talkative
+  -v, --version               Print version information and quit
+
+  -T, --target="windows"      Target OS for which the code is compiled
+  -A, --arch="amd64"          Target architecture for which the code is compiled
+      --release=STRING        Specifies the rpm package tag version
+      --pack=STRING           Pack in the specified format after the build is
+                              complete
+  -D, --destination="dest"    Specify the package save destination
+      --compression=STRING    Specifies the compression method
+```
+
 
 ## Instructions
 
 Common build:
 
 ```shell
-bali /path/to/project
+cd /path/to/project
+bali
 ```
 
 Create `Tar.gz` compressed package:
 
 ```shell
-bali /path/to/project -z
+bali --pack=tar
 ```
 
 Create `STGZ` installation package, mainly used on Linux/macOS platform:
 
 ```shell
-bali /path/to/project -p
+bali --pack=sh --target=linux --arch=amd64
 ```
 
 Output the installation package to the specified directory:
 
 ```shell
-bali /path/to/project -p -d /tmp/output
-# # bali /path/to/project -p -d/tmp/output
-# bali /path/to/project -p -d=/tmp/output
-# bali /path/to/project -p --dist=/tmp/output
-# bali /path/to/project -p --dist /tmp/output
+bali --pack=rpm --target=linux --arch=amd64 --dest=/tmp/output
 ```
 
 ## Bali build file format
-
-You can choose to write project files in json or toml format.. There are two types of Bali build files. One is the project file `bali.toml`, which is usually in the root directory of the project. It can also be used to create this file in other directories. When running the build, use `bali -w` or `bali /path/to/buildroot` specifies the directory where `bali.toml` is located, you can also run `bali` in that directory; another build file is the `balisrc.toml` file under the specific program source code directory, `balisrc.toml` There should be a `main` package in the directory where bali resolves `balisrc.toml` by parsing `dirs` of `bali.toml`, similar to the `add_subdirectory` instruction of `cmake`. Examples of both are as follows:
-
 
 Project file `bali.toml`:
 
 ```toml
 # https://toml.io/en/
 name = "bali"
+summary = "Bali - Minimalist Golang build and packaging tool"
+description = "Bali - Minimalist Golang build and packaging tool"
+package-name = "bali-dev"
 version = "3.0.0"
-dirs = [
-    "cmd/bali", # dirs
+license = "MIT"
+prefix = "/usr/local"
+crates = [
+    "cmd/bali",     # crates
+    "cmd/peassets",
 ]
 
-[[files]]
+[[include]]
 path = "LICENSE"
 destination = "share"
-newname = "LICENSE.bali"
-norename = true
+rename = "BALI-COPYRIGHT.txt"
+permissions = "0664"
 
 ```
 
@@ -107,69 +154,88 @@ Built-in environment variables:
 
 Other environment variables can be used in goflags.
 
-Program build file `balisrc.toml`:
+Program build file `crate.toml`:
 
 ```toml
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
 version = "3.0.0"
-versioninfo = "res/versioninfo.json"
-icon = "res/bali.ico"
-manifest = "res/bali.manifest"
-links = ["bin/baligo"]
 goflags = [
     "-ldflags",
-    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILDTIME=$BUILD_TIME' -X 'main.BUILDBRANCH=$BUILD_BRANCH' -X 'main.BUILDCOMMIT=$BUILD_COMMIT' -X 'main.GOVERSION=$BUILD_GOVERSION'",
+    "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILD_TIME=$BUILD_TIME' -X 'main.BUILD_BRANCH=$BUILD_BRANCH' -X 'main.BUILD_COMMIT=$BUILD_COMMIT'  -X 'main.BUILD_REFNAME=$BUILD_REFNAME' -X 'main.BUILD_GOVERSION=$BUILD_GOVERSION'",
 ]
 
 ```
 
-`versioninfo.json:`
+Windows-related manifest files (crate.toml sibling)：`winres.toml:`
 
-```json
-{
-	"FixedFileInfo": {
-		"FileVersion": {
-			"Major": 0,
-			"Minor": 0,
-			"Patch": 0,
-			"Build": 0
-		},
-		"ProductVersion": {
-			"Major": 0,
-			"Minor": 0,
-			"Patch": 0,
-			"Build": 0
-		},
-		"FileFlagsMask": "3f",
-		"FileFlags": "00",
-		"FileOS": "40004",
-		"FileType": "01",
-		"FileSubType": "00"
-	},
-	"StringFileInfo": {
-		"Comments": "",
-		"CompanyName": "Bali Team",
-		"FileDescription": "Bali - Minimalist Golang build and packaging tool",
-		"FileVersion": "",
-		"InternalName": "bali.exe",
-		"LegalCopyright": "Copyright \u00A9 2024. Bali contributors",
-		"LegalTrademarks": "",
-		"OriginalFilename": "bali.exe",
-		"PrivateBuild": "",
-		"ProductName": "Bali",
-		"ProductVersion": "1.0",
-		"SpecialBuild": ""
-	},
-	"VarFileInfo": {
-		"Translation": {
-			"LangID": "0409",
-			"CharsetID": "04B0"
-		}
-	}
-}
+```toml
+icon = "res/bali.ico" # data:base64-content
+manifest = """data:<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
+  <description>Bali</description>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges>
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+    </application>
+  </compatibility>
+  <asmv3:application>
+    <asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+    </asmv3:windowsSettings>
+  </asmv3:application>
+</assembly>
+"""
+
+[FixedFileInfo]
+FileFlagsMask = "3f"
+FileFlags = "00"
+FileOS = "40004"
+FileType = "01"
+FileSubType = "00"
+
+[FixedFileInfo.FileVersion]
+Major = 0
+Minor = 0
+Patch = 0
+Build = 0
+
+[FixedFileInfo.ProductVersion]
+Major = 0
+Minor = 0
+Patch = 0
+Build = 0
+
+[StringFileInfo]
+Comments = ""
+CompanyName = "Bali Team"
+FileDescription = "Bali - Minimalist Golang build and packaging tool"
+FileVersion = ""
+InternalName = "bali.exe"
+LegalCopyright = "Copyright © 2024. Bali contributors"
+LegalTrademarks = ""
+OriginalFilename = "bali.exe"
+PrivateBuild = ""
+ProductName = "Bali"
+ProductVersion = ""
+SpecialBuild = ""
+
+[VarFileInfo]
+[VarFileInfo.Translation]
+LangID = "0409"
+CharsetID = "04B0"
+
 ```
+
 
 Bali integrates [`goversioninfo`](https://github.com/josephspurrier/goversioninfo). When the target is Windows, it can embed version information into the executable program. The `versioninfo` field is similar to the `goversioninfo` project. But more loosely, some specific values, such as version, description will be filled with the value of `bali.toml/balisrc.toml`, and `icon`/`manifest` will override `versioninfo.json`.
 

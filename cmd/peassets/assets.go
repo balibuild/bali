@@ -49,7 +49,6 @@ func (a *Assets) parse(filename, location string) error {
 	defer func() {
 		a.depth--
 	}()
-	DbgPrint("current parse: %s", filepath.Base(filename))
 	fd, err := pe.Open(filename)
 	if err != nil {
 		return err
@@ -60,7 +59,6 @@ func (a *Assets) parse(filename, location string) error {
 		return err
 	}
 	for d := range tables.Imports {
-		DbgPrint("find imports: %s", d)
 		fixedLib := strings.ToLower(d)
 		if !a.unrecorded(fixedLib) {
 			continue // dll recorded
@@ -78,7 +76,6 @@ func (a *Assets) parse(filename, location string) error {
 		a.depends[fixedLib] = p
 	}
 	for d := range tables.Delay {
-		DbgPrint("find delay imports: %s", d)
 		fixedLib := strings.ToLower(d)
 		if !a.unrecorded(fixedLib) {
 			continue // dll recorded

@@ -68,10 +68,10 @@ echo -e "build root \\x1b[32m${TOPLEVEL}\\x1b[0m"
 OLDPWD=$(pwd)
 cd "$SRCDIR" || exit 1
 go build
-cp "bali" "$TOPLEVEL/bali.out"
+cp "bali" "$TOPLEVEL/bali"
 
 cd "${TOPLEVEL}" || exit 1
-if ! "./bali.out" --pack stgz; then
+if ! "${TOPLEVEL}/bali" --pack=tgz; then
     echo "bootstrap bali failed"
     exit 1
 fi

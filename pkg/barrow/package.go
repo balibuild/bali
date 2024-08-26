@@ -26,7 +26,7 @@ type Package struct {
 	Version     string      `toml:"version,omitempty"`
 	Authors     []string    `toml:"authors,omitempty"`
 	Vendor      string      `toml:"vendor,omitempty"`
-	URL         string      `toml:"url,omitempty"`
+	Homepage    string      `toml:"homepage,omitempty"`
 	Packager    string      `toml:"packager,omitempty"` // BALI_RPM_PACKAGER
 	Group       string      `toml:"group,omitempty"`
 	License     string      `toml:"license,omitempty"`

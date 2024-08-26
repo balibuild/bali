@@ -2,7 +2,7 @@
 name = "bali"
 summary = "Bali - Minimalist Golang build and packaging tool"
 description = "Bali - Minimalist Golang build and packaging tool"
-package-name = "bali-name"
+package-name = "bali-dev"
 version = "3.0.0"
 license = "MIT"
 prefix = "/usr/local"
@@ -10,17 +10,6 @@ crates = [
     "cmd/bali",     # crates
     "cmd/peassets",
 ]
-
-
-dirs = [
-    "cmd/bali",     # targets
-    "cmd/peassets",
-]
-
-[[files]]
-path = "LICENSE"
-destination = "share"
-rename = "BALI-COPYRIGHT.txt"
 
 [[include]]
 path = "LICENSE"

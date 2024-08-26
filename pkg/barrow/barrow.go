@@ -16,17 +16,17 @@ import (
 )
 
 type BarrowCtx struct {
-	CWD            string
-	Out            string
-	Target         string
-	Arch           string
-	Release        string
-	Pack           string // pack: zip, tgz, stgz,rpm
-	Destination    string
-	CompressMethod string
-	Verbose        bool
-	extraEnv       map[string]string
-	environ        []string
+	CWD         string
+	Out         string
+	Target      string
+	Arch        string
+	Release     string
+	Pack        string // pack: zip, tgz, stgz,rpm
+	Destination string
+	Compression string
+	Verbose     bool
+	extraEnv    map[string]string
+	environ     []string
 	// TODO signature
 }
 
@@ -198,14 +198,14 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 			fmt.Fprintf(os.Stderr, "bali create rpm package error: %v\n", err)
 			return err
 		}
-	case "sh", "stgz":
-		if err := b.stgz(ctx, p, crates); err != nil {
-			fmt.Fprintf(os.Stderr, "bali create stgz package error: %v\n", err)
+	case "sh":
+		if err := b.sh(ctx, p, crates); err != nil {
+			fmt.Fprintf(os.Stderr, "bali create sh package error: %v\n", err)
 			return err
 		}
-	case "tar.gz", "tgz":
-		if err := b.tgz(ctx, p, crates); err != nil {
-			fmt.Fprintf(os.Stderr, "bali create tgz package error: %v\n", err)
+	case "tar":
+		if err := b.tar(ctx, p, crates); err != nil {
+			fmt.Fprintf(os.Stderr, "bali create tar package error: %v\n", err)
 			return err
 		}
 	default:
