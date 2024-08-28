@@ -53,7 +53,7 @@ Flags:
   -T, --target="windows"      Target OS for which the code is compiled
   -A, --arch="amd64"          Target architecture for which the code is compiled
       --release=STRING        Specifies the rpm package tag version
-      --pack=STRING           Pack in the specified format after the build is
+      --pack=PACK,...         Pack in the specified format after the build is
                               complete
   -D, --destination="dest"    Specify the package save destination
       --compression=STRING    Specifies the compression method
@@ -112,6 +112,12 @@ bali --pack=sh --target=linux --arch=amd64
 
 ```shell
 bali --pack=rpm --target=linux --arch=amd64 --dest=/tmp/output
+```
+
+一次性创建多种包：
+
+```shell
+bali --target=linux --arch=arm64 '--pack=sh,rpm,tar' 
 ```
 
 ## Bali 构建文件格式

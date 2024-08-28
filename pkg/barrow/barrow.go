@@ -21,7 +21,7 @@ type BarrowCtx struct {
 	Target      string
 	Arch        string
 	Release     string
-	Pack        string // pack: zip, tgz, stgz,rpm
+	Pack        []string // pack: zip, tgz, stgz,rpm
 	Destination string
 	Compression string
 	Verbose     bool
@@ -187,30 +187,32 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 	if len(b.Pack) == 0 {
 		return nil
 	}
-	switch strings.ToLower(b.Pack) {
-	case "zip":
-		if err := b.zip(ctx, p, crates); err != nil {
-			fmt.Fprintf(os.Stderr, "bali create zip package error: %v\n", err)
-			return err
+	for _, pack := range b.Pack {
+		switch strings.ToLower(pack) {
+		case "zip":
+			if err := b.zip(ctx, p, crates); err != nil {
+				fmt.Fprintf(os.Stderr, "bali create zip package error: %v\n", err)
+				return err
+			}
+		case "rpm":
+			if err := b.rpm(ctx, p, crates); err != nil {
+				fmt.Fprintf(os.Stderr, "bali create rpm package error: %v\n", err)
+				return err
+			}
+		case "sh":
+			if err := b.sh(ctx, p, crates); err != nil {
+				fmt.Fprintf(os.Stderr, "bali create sh package error: %v\n", err)
+				return err
+			}
+		case "tar":
+			if err := b.tar(ctx, p, crates); err != nil {
+				fmt.Fprintf(os.Stderr, "bali create tar package error: %v\n", err)
+				return err
+			}
+		default:
+			fmt.Fprintf(os.Stderr, "unsupported pack format '%s'\n", b.Pack)
+			return fmt.Errorf("unsupported pack format '%s'", b.Pack)
 		}
-	case "rpm":
-		if err := b.rpm(ctx, p, crates); err != nil {
-			fmt.Fprintf(os.Stderr, "bali create rpm package error: %v\n", err)
-			return err
-		}
-	case "sh":
-		if err := b.sh(ctx, p, crates); err != nil {
-			fmt.Fprintf(os.Stderr, "bali create sh package error: %v\n", err)
-			return err
-		}
-	case "tar":
-		if err := b.tar(ctx, p, crates); err != nil {
-			fmt.Fprintf(os.Stderr, "bali create tar package error: %v\n", err)
-			return err
-		}
-	default:
-		fmt.Fprintf(os.Stderr, "unsupported pack format '%s'\n", b.Pack)
-		return fmt.Errorf("unsupported pack format '%s'", b.Pack)
 	}
 	return nil
 }
