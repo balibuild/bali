@@ -21,8 +21,8 @@ type BarrowCtx struct {
 	Target      string
 	Arch        string
 	Release     string
-	Pack        []string // pack: zip, tgz, stgz,rpm
 	Destination string
+	Pack        []string // supported: zip, tar, sh, rpm
 	Compression string
 	Verbose     bool
 	extraEnv    map[string]string

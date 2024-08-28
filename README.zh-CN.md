@@ -53,9 +53,9 @@ Flags:
   -T, --target="windows"      Target OS for which the code is compiled
   -A, --arch="amd64"          Target architecture for which the code is compiled
       --release=STRING        Specifies the rpm package tag version
-      --pack=PACK,...         Pack in the specified format after the build is
-                              complete
   -D, --destination="dest"    Specify the package save destination
+      --pack=PACK,...         Packaged in a specific format. supported: zip,
+                              tar, sh, rpm
       --compression=STRING    Specifies the compression method
 ```
 
