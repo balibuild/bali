@@ -21,16 +21,10 @@ jobs:
         include:
           - platform: ubuntu-latest
             bootstrap_script: ./script/bootstrap.sh
-            bali_args: ./bali -p
-            bali_suffix: tar.gz
           - platform: macos-latest
             bootstrap_script: ./script/bootstrap.sh
-            bali_args: ./bali -p
-            bali_suffix: tar.gz
           - platform: windows-latest
             bootstrap_script: script/bootstrap.bat
-            bali_args: ./bali.exe -z
-            bali_suffix: zip
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +41,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           file_glob: true
-          file: bali-*.${{ matrix.bali_suffix }}
+          file: dest/*
           tag: ${{ github.ref }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           overwrite: true

@@ -19,8 +19,68 @@ go build
 cp "bali${SUFFIX}" "$SOURCE_DIR/bali${SUFFIX}"
 
 cd "${SOURCE_DIR}" || exit 1
-if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=tar; then
-    echo "bootstrap bali failed"
-    exit 1
-fi
+
+case "$OSTYPE" in
+solaris*)
+    echo "solaris unsupported"
+    ;;
+darwin*)
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=tar --target=darwin --arch=amd64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=tar --target=darwin --arch=arm64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=sh --target=darwin --arch=amd64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=sh --target=darwin --arch=arm64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    ;;
+linux*)
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=tar --target=linux --arch=amd64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=tar --target=linux --arch=arm64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=sh --target=linux --arch=amd64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=sh --target=linux --arch=arm64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=rpm --target=linux --arch=amd64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=rpm --target=linux --arch=arm64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    ;;
+bsd*)
+    echo "bsd unsupported"
+    ;;
+msys*)
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=zip --target=windows --arch=amd64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    if ! "${SOURCE_DIR}/bali${SUFFIX}" --pack=zip --target=windows --arch=arm64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
+    ;;
+esac
+
 echo -e "\\x1b[32mbootstrap bali success\\x1b[0m"
