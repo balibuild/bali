@@ -15,7 +15,7 @@ fix_slashes() {
     echo "$1" | sed 's/\\/\//g'
 }
 
-if ARGS=$(getopt -a -o p:hv --long prefix:,version,help -- "$@"); then
+if ARGS=$(getopt -a -o p:hv --long prefix:,version,help -- "$@" 2 >/dev/null); then
     eval set -- "${ARGS}"
     while :; do
         case $1 in
