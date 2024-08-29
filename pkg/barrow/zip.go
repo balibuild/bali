@@ -102,7 +102,6 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 		return nil
 	}
 
-	hdr.SetMode(mode)
 	hdr.Method = method
 	hdr.Modified = si.ModTime()
 	w, err := z.CreateHeader(hdr)
