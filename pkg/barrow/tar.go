@@ -47,7 +47,7 @@ func (b *BarrowCtx) addItem2Tar(z *tar.Writer, item *FileItem, prefix string) er
 			hdr.Mode = m
 		}
 	}
-	hdr.Name = filepath.ToSlash(nameInArchive)
+	hdr.Name = AsExplicitRelativePath(nameInArchive)
 	if err = z.WriteHeader(hdr); err != nil {
 		return fmt.Errorf("write tar header error: %w", err)
 	}
@@ -80,7 +80,7 @@ func (b *BarrowCtx) addCrate2Tar(z *tar.Writer, crate *Crate, prefix string) err
 	if err != nil {
 		return err
 	}
-	hdr.Name = filepath.ToSlash(nameInArchive)
+	hdr.Name = AsExplicitRelativePath(nameInArchive)
 	hdr.Mode = 0755
 	if err = z.WriteHeader(hdr); err != nil {
 		return fmt.Errorf("write tar header error: %w", err)

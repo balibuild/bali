@@ -76,14 +76,14 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 	}
 
 	if si.IsDir() {
-		hdr.Name = filepath.ToSlash(nameInArchive) + "/"
+		hdr.Name = AsExplicitRelativePath(nameInArchive) + "/"
 		hdr.Method = zip.Store
 		if _, err = z.CreateHeader(hdr); err != nil {
 			return err
 		}
 		return nil
 	}
-	hdr.Name = filepath.ToSlash(nameInArchive)
+	hdr.Name = AsExplicitRelativePath(nameInArchive)
 	if isSymlink(si) {
 		hdr.SetMode(si.Mode().Perm())
 		hdr.Method = Store
@@ -96,7 +96,7 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 		if err != nil {
 			return fmt.Errorf("add %s to zip error: %w", nameInArchive, err)
 		}
-		if _, err := w.Write([]byte(filepath.ToSlash(linkTarget))); err != nil {
+		if _, err := w.Write([]byte(AsExplicitRelativePath(linkTarget))); err != nil {
 			return fmt.Errorf("write %s to zip error: %w", linkTarget, err)
 		}
 		return nil
@@ -131,7 +131,7 @@ func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, pre
 		return err
 	}
 	nameInArchive := filepath.Join(prefix, crate.Destination, baseName)
-	hdr.Name = filepath.ToSlash(nameInArchive)
+	hdr.Name = AsExplicitRelativePath(nameInArchive)
 	hdr.SetMode(0755)
 	hdr.Method = method
 	hdr.Modified = si.ModTime()

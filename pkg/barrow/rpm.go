@@ -42,8 +42,8 @@ func (b *BarrowCtx) addItem2RPM(r *rpmpack.RPM, item *FileItem, prefix string) e
 			return fmt.Errorf("add %s to zip error: %w", nameInArchive, err)
 		}
 		r.AddFile(rpmpack.RPMFile{
-			Name:  filepath.ToSlash(nameInArchive),
-			Body:  []byte(filepath.ToSlash(linkTarget)),
+			Name:  ToNixPath(nameInArchive),
+			Body:  []byte(ToNixPath(linkTarget)),
 			Mode:  tagLink,
 			Group: "root",
 			Owner: "root",
@@ -67,7 +67,7 @@ func (b *BarrowCtx) addItem2RPM(r *rpmpack.RPM, item *FileItem, prefix string) e
 		return err
 	}
 	r.AddFile(rpmpack.RPMFile{
-		Name:  filepath.ToSlash(nameInArchive),
+		Name:  ToNixPath(nameInArchive),
 		Body:  payload,
 		Mode:  uint(mode),
 		Group: "root",
@@ -95,7 +95,7 @@ func (b *BarrowCtx) addCrate2RPM(r *rpmpack.RPM, crate *Crate, prefix string) er
 	}
 	nameInArchive := filepath.Join(prefix, crate.Destination, baseName)
 	r.AddFile(rpmpack.RPMFile{
-		Name:  filepath.ToSlash(nameInArchive),
+		Name:  ToNixPath(nameInArchive),
 		Body:  payload,
 		Mode:  0755,
 		Group: "root",
