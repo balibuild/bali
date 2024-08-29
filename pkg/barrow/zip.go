@@ -68,6 +68,13 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 	if err != nil {
 		return err
 	}
+
+	if len(item.Permissions) != 0 {
+		if m, err := strconv.ParseInt(item.Permissions, 8, 64); err == nil {
+			hdr.SetMode(fs.FileMode(m))
+		}
+	}
+
 	if si.IsDir() {
 		hdr.Name = filepath.ToSlash(nameInArchive) + "/"
 		hdr.Method = zip.Store
@@ -94,12 +101,7 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 		}
 		return nil
 	}
-	mode := si.Mode().Perm()
-	if len(item.Permissions) != 0 {
-		if m, err := strconv.ParseInt(item.Permissions, 8, 64); err == nil {
-			mode = fs.FileMode(m)
-		}
-	}
+
 	hdr.SetMode(mode)
 	hdr.Method = method
 	hdr.Modified = si.ModTime()
