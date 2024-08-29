@@ -43,14 +43,12 @@ func (b *BarrowCtx) addItem2Tar(z *tar.Writer, item *FileItem, prefix string) er
 	if err != nil {
 		return err
 	}
-	mode := si.Mode().Perm()
 	if len(item.Permissions) != 0 {
 		if m, err := strconv.ParseInt(item.Permissions, 8, 64); err == nil {
-			mode = fs.FileMode(m)
+			hdr.Mode = m
 		}
 	}
 	hdr.Name = filepath.ToSlash(nameInArchive)
-	hdr.Mode = int64(mode)
 	if err = z.WriteHeader(hdr); err != nil {
 		return fmt.Errorf("write tar header error: %w", err)
 	}
