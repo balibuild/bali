@@ -1,124 +1,143 @@
-/* 
-Copyright (c) 2013 Blake Smith <blakesmith0@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 package ar
 
 import (
-	"errors"
+	"fmt"
 	"io"
+	"os"
 	"strconv"
+	"strings"
 )
 
-var (
-	ErrWriteTooLong    = errors.New("ar: write too long")
-)
+// Writer allows for sequential writing of an ar file by consecutively writing
+// each file's header using WriteHeader and body using one or more calls to
+// Write. Remember to call Close after finishing the last entry.
+type Writer interface {
+	// WriteHeader writes the file entry header and if necessary the global ar
+	// header. By setting Header.Size == UnknownSize, the file size will be
+	// auto-corrected. File names longer than 16 characters will be written
+	// using BSD file name extension.
+	WriteHeader(*Header) error
 
-// Writer provides sequential writing of an ar archive.
-// An ar archive is sequence of header file pairs
-// Call WriteHeader to begin writing a new file, then call Write to supply the file's data
-//
-// Example:
-// archive := ar.NewWriter(writer)
-// archive.WriteGlobalHeader()
-// header := new(ar.Header)
-// header.Size = 15 // bytes
-// if err := archive.WriteHeader(header); err != nil {
-// 	return err
-// }
-// io.Copy(archive, data)
-type Writer struct {
-	w io.Writer
-	nb int64 // number of unwritten bytes for the current file entry
+	// Write writes the actual file content corresponding the file header that
+	// was previously written using WriteHeader. An ar file can be written in
+	// multiple consecutive Write calls.
+	Write([]byte) (int, error)
+
+	// Close ensures that the complete ar content is flushed.
+	Close() error
 }
 
-// Create a new ar writer that writes to w
-func NewWriter(w io.Writer) *Writer { return &Writer{w: w} }
-
-func (aw *Writer) numeric(b []byte, x int64) {
-	s := strconv.FormatInt(x, 10)
-	for len(s) < len(b) {
-		s = s + " "
+// NewWriter creates a new ar Writer that supports optional automatic file size
+// correction (see Header.Size). If the provided writer is not an *os.File (or
+// does not implement Seek, Write and WriteAt), auto-correcting the file size
+// requires Writer to buffer the file content in memory.
+func NewWriter(w io.Writer) Writer {
+	f, ok := w.(*os.File)
+	if ok {
+		return &fileWriter{f: f}
 	}
-	copy(b, []byte(s))
+
+	return &defaultWriter{w: w}
 }
 
-func (aw *Writer) octal(b []byte, x int64) {
-	s := "100" + strconv.FormatInt(x, 8)
-	for len(s) < len(b) {
-		s = s + " "
-	}
-	copy(b, []byte(s))
-}
+func writeGlobalHeader(w io.Writer) error {
+	_, err := w.Write([]byte(GlobalHeader))
 
-func (aw *Writer) string(b []byte, str string) {
-	s := str
-	for len(s) < len(b) {
-		s = s + " "
-	}
-	copy(b, []byte(s))
-}
-
-// Writes to the current entry in the ar archive
-// Returns ErrWriteTooLong if more than header.Size
-// bytes are written after a call to WriteHeader
-func (aw *Writer) Write(b []byte) (n int, err error) {
-	if int64(len(b)) > aw.nb {
-		b = b[0:aw.nb]
-		err = ErrWriteTooLong
-	}
-	n, werr := aw.w.Write(b)
-	aw.nb -= int64(n)
-	if werr != nil {
-		return n, werr
-	}
-
-	if len(b)%2 == 1 { // data size must be aligned to an even byte
-		n2, _ := aw.w.Write([]byte{'\n'})
-		return n+n2, err
-	}
-
-	return
-}
-
-func (aw *Writer) WriteGlobalHeader() error {
-	_, err := aw.w.Write([]byte(GLOBAL_HEADER))
 	return err
 }
 
-// Writes the header to the underlying writer and prepares
-// to receive the file payload
-func (aw *Writer) WriteHeader(hdr *Header) error {
-	aw.nb = int64(hdr.Size)
-	header := make([]byte, HEADER_BYTE_SIZE)
-	s := slicer(header)
+func writeHeader(w io.Writer, hdr *Header) error {
+	isExtendedName := hdr.hasExtendedName()
 
-	aw.string(s.next(16), hdr.Name)
-	aw.numeric(s.next(12), hdr.ModTime.Unix())
-	aw.numeric(s.next(6), int64(hdr.Uid))
-	aw.numeric(s.next(6), int64(hdr.Gid))
-	aw.octal(s.next(8), hdr.Mode)
-	aw.numeric(s.next(10), hdr.Size)
-	aw.string(s.next(2), "`\n")
+	name := hdr.Name
+	if isExtendedName {
+		// write BSD style placeholder for extended name
+		name = bsdExtendedFormatPrefix + strconv.Itoa(
+			hdr.extendedNameSize())
+	}
 
-	_, err := aw.w.Write(header)
+	err := packString(w, name, nameFieldSize)
+	if err != nil {
+		return fmt.Errorf("write file name: %w", err)
+	}
+
+	err = packUint64(w, hdr.ModTime.Unix(), modTimeFieldSize)
+	if err != nil {
+		return fmt.Errorf("write mod time: %w", err)
+	}
+
+	err = packUint64(w, hdr.UID, uidFieldSize)
+	if err != nil {
+		return fmt.Errorf("write UID: %w", err)
+	}
+
+	err = packUint64(w, hdr.GID, gidFieldSize)
+	if err != nil {
+		return fmt.Errorf("write GID: %w", err)
+	}
+
+	err = packOctal(w, hdr.Mode, modeFiledSize)
+	if err != nil {
+		return fmt.Errorf("write file mode: %w", err)
+	}
+
+	// write a valid size placeholder value in auto-correct mode
+	size := hdr.Size
+	if size == UnknownSize {
+		// extended file size will be accounted for in finalizeEntry
+		size = maxSize
+	} else if isExtendedName {
+		size += int64(hdr.extendedNameSize())
+	}
+
+	err = packUint64(w, size, sizeFieldSize)
+	if err != nil {
+		return fmt.Errorf("write file size placeholder: %w", err)
+	}
+
+	err = packString(w, HeaderTerminator, len(HeaderTerminator))
+	if err != nil {
+		return fmt.Errorf("finishing header: %w", err)
+	}
+
+	if isExtendedName {
+		// add extended name at the beginning of the content
+		_, err = w.Write(hdr.extendedNameBytes())
+		if err != nil {
+			return fmt.Errorf("write BSD extended file name: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func packUint64(w io.Writer, value int64, fieldWidth int) error {
+	return packString(w, strconv.FormatInt(value, 10), fieldWidth)
+}
+
+func packOctal(w io.Writer, value uint32, fieldWidth int) error {
+	return packString(w, "100"+strconv.FormatUint(uint64(value), 8), fieldWidth)
+}
+
+func packString(w io.Writer, s string, fieldWidth int) error {
+	data, err := expandToByteField(s, fieldWidth)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(data)
 
 	return err
+}
+
+func expandToByteField(s string, fieldWidth int) ([]byte, error) {
+	switch {
+	case len(s) < fieldWidth:
+		return []byte(s + strings.Repeat(" ", fieldWidth-len(s))), nil
+	case len(s) == fieldWidth:
+		return []byte(s), nil
+	default:
+		return nil, fmt.Errorf("%d byte value %q is too large for %d byte field",
+			len(s), s, fieldWidth)
+	}
 }

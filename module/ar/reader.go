@@ -1,153 +1,292 @@
-/*
-Copyright (c) 2013 Blake Smith <blakesmith0@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 package ar
 
 import (
+	"bytes"
+	"fmt"
 	"io"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
-// Provides read access to an ar archive.
-// Call next to skip files
-//
-// Example:
-//	reader := NewReader(f)
-//	var buf bytes.Buffer
-//	for {
-//		_, err := reader.Next()
-//		if err == io.EOF {
-//			break
-//		}
-//		if err != nil {
-//			t.Errorf(err.Error())
-//		}
-//		io.Copy(&buf, reader)
-//	}
-
+// Reader allows to sequentially read ar files by first reading an entry's
+// header using Next and then reading the full file content using Read.
 type Reader struct {
-	r   io.Reader
-	nb  int64
-	pad int64
+	// DisableBSDExtensions disables parsing the BSD file format extensions. If
+	// this is disabled, the file names and data of ar files written with BSD's
+	// or macOS's ar program will be corrupt if a file name is longer than 16
+	// characters.
+	DisableBSDExtensions bool
+
+	// DisableGnuExtensions disables parsing the System V/Gnu file format. If
+	// this is disabled, the file names and data of ar files written with the
+	// Gnu/binutils ar program will be corrupt if a file name is longer than 16
+	// characters.
+	DisableGnuExtensions bool
+
+	r             io.Reader
+	remainingSize int64
+	expectPadding bool
+	headerBuffer  []byte
+	gnuNameBuffer []byte
 }
 
-// Copies read data to r. Strips the global ar header.
-func NewReader(r io.Reader) *Reader {
-	io.CopyN(io.Discard, r, 8) // Discard global header
+// NewReader creates a new ar file Reader.
+func NewReader(r io.Reader) (*Reader, error) {
+	// consume and check the global header
+	globalHeaderBuffer := make([]byte, len(GlobalHeader))
 
-	return &Reader{r: r}
-}
-
-func (rd *Reader) string(b []byte) string {
-	i := len(b) - 1
-	for i > 0 && b[i] == 32 {
-		i--
+	_, err := io.ReadFull(r, globalHeaderBuffer)
+	if err != nil {
+		return nil, fmt.Errorf("read global header: %w", err)
 	}
 
-	return string(b[0 : i+1])
-}
-
-func (rd *Reader) numeric(b []byte) int64 {
-	i := len(b) - 1
-	for i > 0 && b[i] == 32 {
-		i--
+	if !bytes.Equal(globalHeaderBuffer, []byte(GlobalHeader)) {
+		return nil, fmt.Errorf("ar file starts with %q instead of %q: %w",
+			string(globalHeaderBuffer), GlobalHeader, ErrInvalidGlobalHeader)
 	}
 
-	n, _ := strconv.ParseInt(string(b[0:i+1]), 10, 64)
-
-	return n
+	return &Reader{r: r, headerBuffer: make([]byte, HeaderSize)}, nil
 }
 
-func (rd *Reader) octal(b []byte) int64 {
-	i := len(b) - 1
-	for i > 0 && b[i] == 32 {
-		i--
+// Next returns the header of the next file entry in the ar file and enables
+// reading the corresponding body in subsequent Read calls. If Next is called
+// before the previous file is completely read, the remaining bytes of the
+// previous file will be skipped automatically.
+func (r *Reader) Next() (*Header, error) {
+	// skip unread bytes of previous entry and padding if necessary
+	if r.expectPadding || r.remainingSize > 0 {
+		_, err := io.CopyN(io.Discard,
+			r.r, r.remainingSize+boolToInt64(r.expectPadding))
+		if err != nil {
+			return nil, fmt.Errorf("skip to next header: %w", err)
+		}
 	}
 
-	n, _ := strconv.ParseInt(string(b[3:i+1]), 8, 64)
+	var hdr Header
 
-	return n
+	err := r.parseHeader(&hdr)
+	if err != nil {
+		return nil, fmt.Errorf("parse header: %w", err)
+	}
+
+	r.remainingSize = hdr.Size
+
+	// anounce padding
+	if hdr.Size%2 != 0 {
+		r.expectPadding = true
+	}
+
+	return &hdr, nil
 }
 
-func (rd *Reader) skipUnread() error {
-	skip := rd.nb + rd.pad
-	rd.nb, rd.pad = 0, 0
-	if seeker, ok := rd.r.(io.Seeker); ok {
-		_, err := seeker.Seek(skip, io.SeekCurrent)
+// Read reads the file content of the entry whose header was previously read using Next.
+func (r *Reader) Read(buffer []byte) (n int, err error) {
+	if r.remainingSize == 0 {
+		return 0, io.EOF
+	}
+
+	if int64(len(buffer)) > r.remainingSize {
+		buffer = buffer[:r.remainingSize]
+	}
+
+	n, err = r.r.Read(buffer)
+	if err != nil {
+		return n, err
+	}
+
+	r.remainingSize -= int64(n)
+
+	return n, err
+}
+
+var (
+	bsdExtendedNameRE = regexp.MustCompile(`^#1\/(\d+)$`)
+	gnuExtendedNameRE = regexp.MustCompile(`^\/(\d+)$`)
+)
+
+func (r *Reader) parseHeader(hdr *Header) error {
+	_, err := io.ReadFull(r.r, r.headerBuffer)
+	if err != nil {
+		return fmt.Errorf("read header: %w", err)
+	}
+
+	err = parseTraditionalHeader(hdr, r.headerBuffer)
+	if err != nil {
 		return err
 	}
 
-	_, err := io.CopyN(io.Discard, rd.r, skip)
-	return err
-}
-
-func (rd *Reader) readHeader() (*Header, error) {
-	headerBuf := make([]byte, HEADER_BYTE_SIZE)
-	if _, err := io.ReadFull(rd.r, headerBuf); err != nil {
-		return nil, err
+	if r.DisableBSDExtensions && r.DisableGnuExtensions {
+		return nil
 	}
 
-	header := new(Header)
-	s := slicer(headerBuf)
+	bsdExtendedNameSize := bsdExtendedNameRE.FindStringSubmatch(hdr.Name)
+	gnuExtendedNameOffset := gnuExtendedNameRE.FindStringSubmatch(hdr.Name)
 
-	header.Name = rd.string(s.next(16))
-	header.ModTime = time.Unix(rd.numeric(s.next(12)), 0)
-	header.Uid = int(rd.numeric(s.next(6)))
-	header.Gid = int(rd.numeric(s.next(6)))
-	header.Mode = rd.octal(s.next(8))
-	header.Size = rd.numeric(s.next(10))
+	switch {
+	case hdr.Name == gnuExtendedFormatNameTable && !r.DisableGnuExtensions:
+		// read the Gnu file name lookup table of
+		r.gnuNameBuffer = make([]byte, hdr.Size)
 
-	rd.nb = int64(header.Size)
-	if header.Size%2 == 1 {
-		rd.pad = 1
-	} else {
-		rd.pad = 0
+		_, err := r.r.Read(r.gnuNameBuffer)
+		if err != nil {
+			return fmt.Errorf("read GNU name table")
+		}
+
+		nextHeader, err := r.Next()
+		if err != nil {
+			return err
+		}
+
+		// present the next header to the caller
+		*hdr = *nextHeader
+
+		return nil
+	case len(gnuExtendedNameOffset) == 2 && !r.DisableGnuExtensions:
+		// lookup actual file name from the Gnu file name lookup table
+		if r.gnuNameBuffer == nil {
+			return fmt.Errorf("encountered name reference without prior name table declaration")
+		}
+
+		nameOffset, err := strconv.Atoi(gnuExtendedNameOffset[1])
+		if err != nil {
+			return fmt.Errorf("parse BSD extended name offset: %w", err)
+		}
+
+		if nameOffset < 0 {
+			return fmt.Errorf("invalid Gnu name table offset: %w", err)
+		}
+
+		if nameOffset >= len(r.gnuNameBuffer) {
+			return fmt.Errorf( //nolint:stylecheck
+				"Gnu name table offset %d out of bounds for table of size %d",
+				nameOffset, len(r.gnuNameBuffer))
+		}
+
+		// determine end of file name
+		terminatorIndex := bytes.Index(r.gnuNameBuffer[nameOffset:], []byte{'\n'})
+		if terminatorIndex < 0 {
+			terminatorIndex = len(r.gnuNameBuffer) - nameOffset
+		}
+
+		hdr.Name = string(r.gnuNameBuffer[nameOffset : nameOffset+terminatorIndex])
+	case len(bsdExtendedNameSize) == 2 && !r.DisableBSDExtensions:
+		// read actual file name from the beginning of the data section in BSD style
+		actualNameSize, err := strconv.Atoi(bsdExtendedNameSize[1])
+		if err != nil {
+			return fmt.Errorf("parse BSD extended name size: %w", err)
+		}
+
+		nameBuffer := make([]byte, actualNameSize)
+
+		_, err = r.r.Read(nameBuffer)
+		if err != nil {
+			return fmt.Errorf("read BSD extended name: %w", err)
+		}
+
+		hdr.Size -= int64(actualNameSize) // correct file size
+		hdr.Name = strings.TrimRight(string(nameBuffer), "\x00")
 	}
 
-	return header, nil
+	if !r.DisableGnuExtensions {
+		hdr.Name = strings.TrimSuffix(hdr.Name, "/")
+	}
+
+	return nil
 }
 
-// Call Next() to skip to the next file in the archive file.
-// Returns a Header which contains the metadata about the
-// file in the archive.
-func (rd *Reader) Next() (*Header, error) {
-	err := rd.skipUnread()
+func parseTraditionalHeader(hdr *Header, rawHeader []byte) (err error) {
+	if len(rawHeader) != HeaderSize {
+		return fmt.Errorf("parsing header requires %d bytes instead of %d",
+			HeaderSize, len(rawHeader))
+	}
+
+	// check if header ends with the correct byte sequence
+	if !bytes.Equal(rawHeader[HeaderSize-len(HeaderTerminator):], []byte(HeaderTerminator)) {
+		return fmt.Errorf("unexpected header terminator: %q",
+			string(rawHeader[HeaderSize-len(HeaderTerminator):]))
+	}
+
+	offset := 0
+
+	hdr.Name = unpackString(rawHeader[offset : offset+nameFieldSize])
+	offset += nameFieldSize
+
+	rawModTime, err := unpackUint64(rawHeader[offset : offset+modTimeFieldSize])
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("parse mod time: %w", err)
 	}
 
-	return rd.readHeader()
+	hdr.ModTime = time.Unix(rawModTime, 0)
+	offset += modTimeFieldSize
+
+	uid, err := unpackUint64(rawHeader[offset : offset+uidFieldSize])
+	if err != nil {
+		return fmt.Errorf("parse uid: %w", err)
+	}
+
+	hdr.UID = uid
+	offset += uidFieldSize
+
+	gid, err := unpackUint64(rawHeader[offset : offset+gidFieldSize])
+	if err != nil {
+		return fmt.Errorf("parse uid: %w", err)
+	}
+
+	hdr.GID = gid
+	offset += gidFieldSize
+
+	hdr.Mode, err = unpackOctal(rawHeader[offset : offset+modeFiledSize])
+	if err != nil {
+		return fmt.Errorf("parse mode: %w", err)
+	}
+
+	offset += modeFiledSize
+
+	hdr.Size, err = unpackUint64(rawHeader[offset : offset+sizeFieldSize])
+	if err != nil {
+		return fmt.Errorf("parse file size: %w", err)
+	}
+
+	return nil
 }
 
-// Read data from the current entry in the archive.
-func (rd *Reader) Read(b []byte) (n int, err error) {
-	if rd.nb == 0 {
-		return 0, io.EOF
+func unpackUint64(field []byte) (int64, error) {
+	fieldString := extractFromByteField(field)
+	if fieldString == "" {
+		return 0, nil // Gnu file name lookup tables leave the field empty
 	}
-	if int64(len(b)) > rd.nb {
-		b = b[0:rd.nb]
-	}
-	n, err = rd.r.Read(b)
-	rd.nb -= int64(n)
 
-	return
+	return strconv.ParseInt(fieldString, 10, 64)
+}
+
+func unpackOctal(field []byte) (uint32, error) {
+	octalStr := strings.TrimPrefix(extractFromByteField(field), "100")
+	if octalStr == "" {
+		return 0, nil // Gnu file name lookup tables leave the field empty
+	}
+
+	i, err := strconv.ParseUint(octalStr, 8, 32)
+	if err != nil {
+		return 0, fmt.Errorf("parse int: %w", err)
+	}
+
+	return uint32(i), nil
+}
+
+func unpackString(field []byte) string {
+	return extractFromByteField(field)
+}
+
+func extractFromByteField(field []byte) string {
+	return strings.TrimRight(string(field), " ")
+}
+
+func boolToInt64(b bool) int64 {
+	if b {
+		return 1
+	}
+
+	return 0
 }
