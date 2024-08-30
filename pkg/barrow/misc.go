@@ -1,6 +1,7 @@
 package barrow
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,14 @@ func isSymlink(fi os.FileInfo) bool {
 	return fi.Mode()&os.ModeSymlink != 0
 }
 
+// nopCloser wrap io.Writer --> io.WriteCloser
+type nopCloser struct {
+	io.Writer
+}
+
+func (w nopCloser) Close() error {
+	return nil
+}
 
 // ToNixPath, AsExplicitRelativePath, AsRelativePath (MIT License)
 // Thanks: https://github.com/goreleaser/nfpm/blob/main/files/files.go

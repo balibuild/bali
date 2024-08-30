@@ -1,6 +1,12 @@
 package barrow
 
-import "context"
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/balibuild/bali/v3/module/ar"
+)
 
 var (
 	debianArchList = map[string]string{
@@ -21,6 +27,20 @@ func debianArchName(arch string) string {
 		return a
 	}
 	return arch
+}
+
+func addArFile(w ar.Writer, name string, body []byte, date time.Time) error {
+	header := &ar.Header{
+		Name:    ToNixPath(name),
+		Size:    int64(len(body)),
+		Mode:    0o644,
+		ModTime: date,
+	}
+	if err := w.WriteHeader(header); err != nil {
+		return fmt.Errorf("cannot write file header: %w", err)
+	}
+	_, err := w.Write(body)
+	return err
 }
 
 func (b *BarrowCtx) deb(ctx context.Context, p *Package, crates []*Crate) error {

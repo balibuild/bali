@@ -169,14 +169,6 @@ func (b *BarrowCtx) sh(ctx context.Context, p *Package, crates []*Crate) error {
 	return nil
 }
 
-type noWriteCloser struct {
-	io.Writer
-}
-
-func (w noWriteCloser) Close() error {
-	return nil
-}
-
 type FnCompressor func(w io.Writer) (io.WriteCloser, error)
 
 func tarCompressor(method string) (FnCompressor, string, error) {
@@ -203,10 +195,10 @@ func tarCompressor(method string) (FnCompressor, string, error) {
 		}, ".tar.gz", nil
 	case "none":
 		return func(w io.Writer) (io.WriteCloser, error) {
-			return &noWriteCloser{Writer: w}, nil
+			return &nopCloser{Writer: w}, nil
 		}, ".tar", nil
 	default:
-		return nil, "", fmt.Errorf("unsupported zip compress method '%s'", method)
+		return nil, "", fmt.Errorf("unsupported tar compress method '%s'", method)
 	}
 }
 
