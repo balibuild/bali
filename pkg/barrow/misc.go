@@ -17,6 +17,10 @@ func isSymlink(fi os.FileInfo) bool {
 	return fi.Mode()&os.ModeSymlink != 0
 }
 
+
+// ToNixPath, AsExplicitRelativePath, AsRelativePath (MIT License)
+// Thanks: https://github.com/goreleaser/nfpm/blob/main/files/files.go
+
 // ToNixPath converts the given path to a nix-style path.
 //
 // Windows-style path separators are considered escape
