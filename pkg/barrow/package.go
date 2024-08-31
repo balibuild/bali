@@ -134,9 +134,9 @@ func (b *BarrowCtx) apply(item *FileItem) error {
 		return err
 	}
 	if len(item.Rename) != 0 {
-		fmt.Fprintf(os.Stderr, "install \x1b[32m%s\x1b[0m --> \x1b[32m%s\x1b[0m done\n", item.Path, filepath.Join(item.Destination, item.Rename))
+		stage("install", "\x1b[38;02;39;199;173m%s\x1b[0m --> \x1b[38;02;39;199;173m%s\x1b[0m done", item.Path, filepath.Join(item.Destination, item.Rename))
 		return nil
 	}
-	fmt.Fprintf(os.Stderr, "install \x1b[32m%s\x1b[0m done\n", filepath.Join(item.Destination, filepath.Base(item.Path)))
+	stage("install", "\x1b[38;02;39;199;173m%s\x1b[0m --> \x1b[38;02;39;199;173m%s\x1b[0m done", item.Path, filepath.Base(item.Path))
 	return nil
 }

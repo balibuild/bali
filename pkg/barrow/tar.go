@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"embed"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -165,7 +164,7 @@ func (b *BarrowCtx) sh(ctx context.Context, p *Package, crates []*Crate) error {
 		_ = os.RemoveAll(tarPath)
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "\x1b[01;36m%s  %s\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), tarFileName)
+	hashPrint(h, tarFileName)
 	return nil
 }
 
@@ -244,6 +243,6 @@ func (b *BarrowCtx) tar(ctx context.Context, p *Package, crates []*Crate) error 
 		_ = os.RemoveAll(tarPath)
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "\x1b[01;36m%s  %s\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), tarFileName)
+	hashPrint(h, tarFileName)
 	return nil
 }

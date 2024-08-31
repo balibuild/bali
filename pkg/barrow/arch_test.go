@@ -1,17 +1,33 @@
-package barrow
+package barrow_test
 
-// ArchLinux use pacman. msys2 also
+import (
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+)
+
+func mapValidChar(r rune) rune {
+	if r >= 'a' && r <= 'z' ||
+		r >= 'A' && r <= 'Z' ||
+		r >= '0' && r <= '9' ||
+		isOneOf(r, '.', '_', '+', '-') {
+		return r
+	}
+	return -1
+}
+
+// isOneOf checks whether a rune is one of the runes in rr
+func isOneOf(r rune, rr ...rune) bool {
+	for _, char := range rr {
+		if r == char {
+			return true
+		}
+	}
+	return false
+}
 
 var (
-	archToArchLinux = map[string]string{
-		"all":   "any",
-		"amd64": "x86_64",
-		"386":   "i686",
-		"arm64": "aarch64",
-		"arm7":  "armv7h",
-		"arm6":  "armv6h",
-		"arm5":  "arm",
-	}
 	validCharMap = []int{
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -32,21 +48,22 @@ var (
 	}
 )
 
-func archLinuxNameIsValid(s string) bool {
-	if len(s) == 0 {
-		return false
-	}
-	for _, c := range []byte(s) {
-		if validCharMap[c] == -1 {
-			return false
+func TestGen(t *testing.T) {
+	var b strings.Builder
+	for i := 0; i < 255; i++ {
+		if i%16 == 0 {
+			b.WriteString("\n")
 		}
+		if r := mapValidChar(rune(i)); r != -1 {
+			fmt.Fprintf(&b, "'%c',", r)
+			continue
+		}
+		fmt.Fprintf(&b, "-1,")
+
 	}
-	return true
+	fmt.Fprintf(os.Stderr, "%s\n", b.String())
 }
 
-func archLinuxArchGuard(arch string) string {
-	if a, ok := archToDebain[arch]; ok {
-		return a
-	}
-	return arch
+func TestRune(t *testing.T) {
+	fmt.Fprintf(os.Stderr, "%c %d %d\n", validCharMap['c'], validCharMap['\n'], '\n')
 }

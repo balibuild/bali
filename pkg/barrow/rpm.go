@@ -3,7 +3,6 @@ package barrow
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"io/fs"
@@ -193,6 +192,6 @@ func (b *BarrowCtx) rpm(ctx context.Context, p *Package, crates []*Crate) error 
 	if err := r.Write(w); err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "\x1b[01;36m%s  %s\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), rpmPackageName)
+	hashPrint(h, rpmPackageName)
 	return nil
 }

@@ -38,7 +38,7 @@ func (b *BarrowCtx) DbgPrint(format string, a ...any) {
 	message = strings.TrimRightFunc(message, unicode.IsSpace)
 	lines := strings.Split(message, "\n")
 	for _, line := range lines {
-		fmt.Fprintf(os.Stderr, "\x1b[33m* %s\x1b[0m\n", line)
+		fmt.Fprintf(os.Stderr, "\x1b[38;2;255;215;0m* %s\x1b[0m\n", line)
 	}
 }
 
@@ -152,7 +152,7 @@ func (b *BarrowCtx) debugEnv() {
 	}
 	slices.Sort(lines)
 	for _, line := range lines {
-		fmt.Fprintf(os.Stderr, "\x1b[33m* env: %s\x1b[0m\n", line)
+		fmt.Fprintf(os.Stderr, "\x1b[38;2;255;215;0m* env: %s\x1b[0m\n", line)
 	}
 }
 
@@ -247,8 +247,8 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Env = b.environ
-	fmt.Fprintf(os.Stderr, "go compile \x1b[32m%s\x1b[0m version: \x1b[32m%s\x1b[0m\n", crate.Name, crate.Version)
-	fmt.Fprintf(os.Stderr, "\x1b[34m%s\x1b[0m\n", cmd.String())
+	stage("compile", "crate: %s version: %s", crate.Name, crate.Version)
+	status("%s", cmdStringsArgs(cmd))
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "compile %s error \x1b[31m%s\x1b[0m\n", crate.Name, err)
 		return nil, err

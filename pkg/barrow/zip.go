@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"context"
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"hash"
 	"io"
@@ -197,6 +196,6 @@ func (b *BarrowCtx) zip(ctx context.Context, p *Package, crates []*Crate) error 
 		_ = os.RemoveAll(zipPath)
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "\x1b[01;36m%s  %s.zip\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), zipPrefix)
+	hashPrint(h, zipPrefix+".zip")
 	return nil
 }
