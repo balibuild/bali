@@ -273,12 +273,6 @@ script/bootstrap.bat
 go install github.com/balibuild/bali/v3/cmd/bali@latest
 ```
 
-peassets: 
-
-```
-go install github.com/balibuild/bali/v3/cmd/peassets@latest
-```
-
 ## Thanks
 
 Bali's ability to automatically add version information to PE files is inseparable from the contribution of open source projects. Thank you very much [akavel/rsrc](https://github.com/akavel/rsrc) and [josephspurrier/goversioninfo](https://github.com/josephspurrier/goversioninfo) Developer and maintainer of two projects.
