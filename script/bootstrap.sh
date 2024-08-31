@@ -12,13 +12,13 @@ if [[ "$OSTYPE" == "msys" ]]; then
     SUFFIX=".exe"
 fi
 
-echo -e "build root \x1b[32m${SOURCE_DIR}\x1b[0m"
+echo -e "build root \x1b[32m${TOPLEVEL_SOURCE_DIR}\x1b[0m"
 
 cd "$BALI_SOURCE_DIR" || exit 1
 go build
-cp "bali${SUFFIX}" "$SOURCE_DIR/bali.exe"
+cp "bali${SUFFIX}" "$TOPLEVEL_SOURCE_DIR/bali.exe"
 
-cd "${SOURCE_DIR}" || exit 1
+cd "${TOPLEVEL_SOURCE_DIR}" || exit 1
 
 case "$OSTYPE" in
 solaris*)
