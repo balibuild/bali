@@ -54,3 +54,14 @@ func AsRelativePath(path string) string {
 	}
 	return cleanedPath
 }
+
+// NormalizeAbsoluteFilePath returns an absolute cleaned path separated by
+// slashes.
+func NormalizeAbsoluteFilePath(src string) string {
+	return ToNixPath(filepath.Join("/", src))
+}
+
+// normalizeFirPath is linke NormalizeAbsoluteFilePath with a trailing slash.
+func NormalizeAbsoluteDirPath(path string) string {
+	return NormalizeAbsoluteFilePath(strings.TrimRight(path, "/")) + "/"
+}

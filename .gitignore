@@ -19,6 +19,5 @@
 *.zip
 /*.sh
 cmd/bali/bali
-/bali
 *.rpm
-/dest/
+/out/

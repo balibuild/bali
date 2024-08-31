@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	debianArchList = map[string]string{
+	archToDebain = map[string]string{
 		"386":      "i386",
 		"arm64":    "arm64",
 		"arm5":     "armel",
@@ -22,8 +22,8 @@ var (
 	}
 )
 
-func debianArchName(arch string) string {
-	if a, ok := debianArchList[arch]; ok {
+func debianArchGuard(arch string) string {
+	if a, ok := archToDebain[arch]; ok {
 		return a
 	}
 	return arch

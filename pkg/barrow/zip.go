@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zstd"
@@ -76,14 +75,14 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 	}
 
 	if si.IsDir() {
-		hdr.Name = AsExplicitRelativePath(nameInArchive) + "/"
+		hdr.Name = ToNixPath(nameInArchive) + "/"
 		hdr.Method = zip.Store
 		if _, err = z.CreateHeader(hdr); err != nil {
 			return err
 		}
 		return nil
 	}
-	hdr.Name = AsExplicitRelativePath(nameInArchive)
+	hdr.Name = ToNixPath(nameInArchive)
 	if isSymlink(si) {
 		hdr.SetMode(si.Mode().Perm())
 		hdr.Method = Store
@@ -96,7 +95,7 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 		if err != nil {
 			return fmt.Errorf("add %s to zip error: %w", nameInArchive, err)
 		}
-		if _, err := w.Write([]byte(AsExplicitRelativePath(linkTarget))); err != nil {
+		if _, err := w.Write([]byte(ToNixPath(linkTarget))); err != nil {
 			return fmt.Errorf("write %s to zip error: %w", linkTarget, err)
 		}
 		return nil
@@ -131,7 +130,7 @@ func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, pre
 		return err
 	}
 	nameInArchive := filepath.Join(prefix, crate.Destination, baseName)
-	hdr.Name = AsExplicitRelativePath(nameInArchive)
+	hdr.Name = ToNixPath(nameInArchive)
 	hdr.SetMode(0755)
 	hdr.Method = method
 	hdr.Modified = si.ModTime()
@@ -150,7 +149,7 @@ func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, pre
 	return nil
 }
 
-func (b *BarrowCtx) zipInternal(ctx context.Context, p *Package, crates []*Crate, zipPath string, h hash.Hash) error {
+func (b *BarrowCtx) zipInternal(ctx context.Context, p *Package, crates []*Crate, zipPrefix, zipPath string, h hash.Hash) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -167,7 +166,6 @@ func (b *BarrowCtx) zipInternal(ctx context.Context, p *Package, crates []*Crate
 	if err != nil {
 		return err
 	}
-	zipPrefix := strings.TrimSuffix(filepath.Base(zipPath), ".zip")
 	_ = z.SetComment(p.Summary)
 	for _, item := range p.Include {
 		if err := b.addItem2Zip(z, item, method, zipPrefix); err != nil {
@@ -186,19 +184,19 @@ func (b *BarrowCtx) zipInternal(ctx context.Context, p *Package, crates []*Crate
 
 func (b *BarrowCtx) zip(ctx context.Context, p *Package, crates []*Crate) error {
 	h := sha256.New()
-	zipFileName := fmt.Sprintf("%s-%s-%s-%s.zip", p.Name, p.Version, b.Target, b.Arch)
+	zipPrefix := fmt.Sprintf("%s-%s-%s-%s", p.Name, p.Version, b.Target, b.Arch)
 	var zipPath string
 	if filepath.IsAbs(b.Destination) {
-		zipPath = filepath.Join(b.Destination, zipFileName)
+		zipPath = filepath.Join(b.Destination, zipPrefix+".zip")
 	} else {
-		zipPath = filepath.Join(b.CWD, b.Destination, zipFileName)
+		zipPath = filepath.Join(b.CWD, b.Destination, zipPrefix+".zip")
 	}
 	_ = os.MkdirAll(filepath.Dir(zipPath), 0755)
-	if err := b.zipInternal(ctx, p, crates, zipPath, h); err != nil {
+	if err := b.zipInternal(ctx, p, crates, zipPrefix, zipPath, h); err != nil {
 		fmt.Fprintf(os.Stderr, "zip errpr: %d\n", err)
 		_ = os.RemoveAll(zipPath)
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "\x1b[01;36m%s  %s\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), zipFileName)
+	fmt.Fprintf(os.Stderr, "\x1b[01;36m%s  %s.zip\x1b[0m\n", hex.EncodeToString(h.Sum(nil)), zipPrefix)
 	return nil
 }

@@ -25,4 +25,4 @@ if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
 
-Write-Host -ForegroundColor Green "bali: bootstrap done"
+Write-Host -ForegroundColor Green "bali: bootstrap success"

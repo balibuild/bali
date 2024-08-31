@@ -115,7 +115,7 @@ var (
 	}
 	// https://docs.fedoraproject.org/ro/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch01s03.html
 	// nolint: gochecknoglobals
-	rpmArchList = map[string]string{
+	archToRPM = map[string]string{
 		"all":      "noarch",
 		"amd64":    "x86_64",
 		"386":      "i386",
@@ -130,8 +130,8 @@ var (
 	}
 )
 
-func rpmArchName(arch string) string {
-	if a, ok := rpmArchList[arch]; ok {
+func rpmArchGuard(arch string) string {
+	if a, ok := archToRPM[arch]; ok {
 		return a
 	}
 	return arch
@@ -152,7 +152,7 @@ func (b *BarrowCtx) rpm(ctx context.Context, p *Package, crates []*Crate) error 
 		Description: p.Description,
 		Version:     p.Version,
 		Release:     nonEmpty(b.Release, "1"),
-		Arch:        rpmArchName(b.Arch),
+		Arch:        rpmArchGuard(b.Arch),
 		Vendor:      p.Vendor,
 		URL:         p.Homepage,
 		Packager:    p.Packager,

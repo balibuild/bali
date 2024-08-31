@@ -11,7 +11,7 @@ type BuildCommand struct {
 	Target      string   `name:"target" short:"T" help:"Target OS for which the code is compiled" default:"${target}"`       // windows/darwin
 	Arch        string   `name:"arch" short:"A" help:"Target architecture for which the code is compiled" default:"${arch}"` // amd64/arm64 ...
 	Release     string   `name:"release" help:"Specifies the rpm package tag version"`                                       // --release $TASK_ID
-	Destination string   `name:"destination" short:"D" help:"Specify the package save destination" default:"dest"`
+	Destination string   `name:"destination" short:"D" help:"Specify the package save destination" default:"out"`
 	Pack        []string `name:"pack" help:"Packaged in a specific format. supported: zip, tar, sh, rpm"`
 	Compression string   `name:"compression" help:"Specifies the compression method"`
 }

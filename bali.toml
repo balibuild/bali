@@ -7,8 +7,7 @@ version = "3.0.0"
 license = "MIT"
 prefix = "/usr/local"
 crates = [
-    "cmd/bali",     # crates
-    "cmd/peassets",
+    "cmd/bali", # crates
 ]
 
 [[include]]

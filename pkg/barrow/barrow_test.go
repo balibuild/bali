@@ -13,7 +13,7 @@ func TestParsePerm(t *testing.T) {
 	if err != nil {
 		return
 	}
-	fmt.Fprintf(os.Stderr, "%d %d\n", i, 0755)
+	fmt.Fprintf(os.Stderr, "%d %d %d\n", i, 0755, 0o755)
 }
 
 func TestNameInArchive(t *testing.T) {
@@ -21,5 +21,5 @@ func TestNameInArchive(t *testing.T) {
 	dest := "bin"
 	baseName := "bali"
 	nameInArchive := filepath.Join(prefix, dest, baseName)
-	fmt.Fprintf(os.Stderr, "%s %s\n", nameInArchive, filepath.ToSlash(nameInArchive))
+	fmt.Fprintf(os.Stderr, "%s %s\n", nameInArchive, ToNixPath(nameInArchive))
 }

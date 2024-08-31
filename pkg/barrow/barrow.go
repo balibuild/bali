@@ -261,3 +261,25 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 	}
 	return crate, nil
 }
+
+func (b *BarrowCtx) Cleanup(force bool) error {
+	p, err := b.LoadPackage(b.CWD)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "parse package metadata error: %v\n", err)
+		return err
+	}
+	for _, item := range p.Include {
+		if err := b.cleanupItem(item, force); err != nil {
+			fmt.Fprintf(os.Stderr, "\x1b[31mcleanup %s error: %v\x1b[0m\n", item.Path, err)
+		}
+	}
+	for _, location := range p.Crates {
+		if err := b.cleanupCrate(location); err != nil {
+			fmt.Fprintf(os.Stderr, "\x1b[31mcleanup %s error: %v\x1b[0m\n", location, err)
+		}
+	}
+	if err := b.cleanupPackages(); err != nil {
+		fmt.Fprintf(os.Stderr, "\x1b[31mcleanup packages error: %v\x1b[0m\n", err)
+	}
+	return nil
+}

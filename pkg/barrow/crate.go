@@ -50,11 +50,21 @@ func (b *BarrowCtx) MakeResources(e *Crate) (WinResCloser, error) {
 	}
 	saveTo := filepath.Join(e.cwd, "windows_"+b.Arch+".syso")
 	if err := b.makeResources(e, saveTo); err != nil {
-		_ = os.RemoveAll(saveTo)
+		_ = os.Remove(saveTo)
 		return nil, err
 	}
 	return func() {
-		// remove
-		_ = os.RemoveAll(saveTo)
+		_ = os.Remove(saveTo)
 	}, nil
+}
+
+func (b *BarrowCtx) cleanupResources(e *Crate) {
+	files, err := filepath.Glob(filepath.Join(e.cwd, "*.syso"))
+	if err != nil {
+		return
+	}
+	for _, item := range files {
+		fmt.Fprintf(os.Stderr, "rm: \x1b[33m%s\x1b[0m\n", item)
+		_ = os.Remove(item)
+	}
 }
