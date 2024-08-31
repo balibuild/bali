@@ -247,7 +247,7 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Env = b.environ
-	stage("compile", "crate: %s version: %s", crate.Name, crate.Version)
+	stage("compile", "crate: %s version: %s for %s/%s", crate.Name, crate.Version, b.Target, b.Arch)
 	status("%s", cmdStringsArgs(cmd))
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "compile %s error \x1b[31m%s\x1b[0m\n", crate.Name, err)
