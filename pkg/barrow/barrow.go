@@ -214,6 +214,16 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 				fmt.Fprintf(os.Stderr, "bali create deb package error: %v\n", err)
 				return err
 			}
+		case "apk":
+			if err := b.apk(ctx, p, crates); err != nil {
+				fmt.Fprintf(os.Stderr, "bali create deb package error: %v\n", err)
+				return err
+			}
+		case "arch":
+			if err := b.archLinux(ctx, p, crates); err != nil {
+				fmt.Fprintf(os.Stderr, "bali create deb package error: %v\n", err)
+				return err
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "unsupported pack format '%s'\n", b.Pack)
 			return fmt.Errorf("unsupported pack format '%s'", b.Pack)

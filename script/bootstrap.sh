@@ -38,12 +38,12 @@ darwin*)
     ;;
 linux*)
     echo -e "bootstarp for \x1b[32mlinux/amd64\x1b[0m"
-    if ! "${TOPLEVEL_SOURCE_DIR}/bali.exe" --pack='rpm,tar,sh' --target=linux --arch=amd64; then
+    if ! "${TOPLEVEL_SOURCE_DIR}/bali.exe" --pack='rpm,deb,tar,sh' --target=linux --arch=amd64; then
         echo "bootstrap bali failed"
         exit 1
     fi
     echo -e "bootstarp for \x1b[32mlinux/arm64\x1b[0m"
-    if ! "${TOPLEVEL_SOURCE_DIR}/bali.exe" --pack='rpm,tar,sh' --target=linux --arch=arm64; then
+    if ! "${TOPLEVEL_SOURCE_DIR}/bali.exe" --pack='rpm,deb,tar,sh' --target=linux --arch=arm64; then
         echo "bootstrap bali failed"
         exit 1
     fi
