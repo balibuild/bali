@@ -79,7 +79,7 @@ func stage(s string, format string, a ...any) {
 }
 
 func status(format string, a ...any) {
-	fmt.Fprintf(os.Stderr, "$ \x1b[38;02;245;202;100m%s\x1b[0m\n", fmt.Sprintf(format, a...))
+	fmt.Fprintf(os.Stderr, "$> \x1b[38;02;245;202;100m%s\x1b[0m\n", fmt.Sprintf(format, a...))
 }
 
 // func status(format string, a ...any) {
