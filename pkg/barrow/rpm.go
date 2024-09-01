@@ -77,7 +77,7 @@ func (b *BarrowCtx) addItem2RPM(r *rpmpack.RPM, item *FileItem, prefix string) e
 }
 
 func (b *BarrowCtx) addCrate2RPM(r *rpmpack.RPM, crate *Crate, prefix string) error {
-	baseName := crate.baseName(b.Target)
+	baseName := b.binaryName(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	fd, err := os.Open(out)
 	if err != nil {

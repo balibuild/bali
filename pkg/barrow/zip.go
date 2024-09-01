@@ -50,7 +50,7 @@ func (b *BarrowCtx) registerCompressor(zw *zip.Writer) (uint16, error) {
 
 func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, prefix string) error {
 	itemPath := filepath.Join(b.CWD, item.Path)
-	si, err := os.Lstat(itemPath)
+	si, err := os.Stat(itemPath)
 	if err != nil {
 		return err
 	}
@@ -61,18 +61,15 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 	default:
 		nameInArchive = filepath.Join(prefix, item.Destination, filepath.Base(item.Path))
 	}
-
 	hdr, err := zip.FileInfoHeader(si)
 	if err != nil {
 		return err
 	}
-
 	if len(item.Permissions) != 0 {
 		if m, err := strconv.ParseInt(item.Permissions, 8, 64); err == nil {
 			hdr.SetMode(fs.FileMode(m))
 		}
 	}
-
 	if si.IsDir() {
 		hdr.Name = ToNixPath(nameInArchive) + "/"
 		hdr.Method = zip.Store
@@ -82,24 +79,6 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 		return nil
 	}
 	hdr.Name = ToNixPath(nameInArchive)
-	if isSymlink(si) {
-		hdr.SetMode(si.Mode().Perm())
-		hdr.Method = Store
-		hdr.Modified = si.ModTime()
-		w, err := z.CreateHeader(hdr)
-		if err != nil {
-			return fmt.Errorf("create zip header error: %w", err)
-		}
-		linkTarget, err := os.Readlink(itemPath)
-		if err != nil {
-			return fmt.Errorf("add %s to zip error: %w", nameInArchive, err)
-		}
-		if _, err := w.Write([]byte(ToNixPath(linkTarget))); err != nil {
-			return fmt.Errorf("write %s to zip error: %w", linkTarget, err)
-		}
-		return nil
-	}
-
 	hdr.Method = method
 	hdr.Modified = si.ModTime()
 	w, err := z.CreateHeader(hdr)
@@ -118,7 +97,7 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 }
 
 func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, prefix string) error {
-	baseName := crate.baseName(b.Target)
+	baseName := b.binaryName(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	si, err := os.Lstat(out)
 	if err != nil {
@@ -144,6 +123,29 @@ func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, pre
 	defer fd.Close()
 	if _, err := io.Copy(w, fd); err != nil {
 		return err
+	}
+	for _, a := range crate.Alias {
+		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.binaryName(a)))
+		aliasPath, err := filepath.Rel(filepath.Dir(aliasExpend), filepath.Dir(nameInArchive))
+		if err != nil {
+			return err
+		}
+		aliasLink := filepath.Join(aliasPath, filepath.Base(nameInArchive))
+		aliasLink = ToNixPath(aliasLink)
+		ah := &zip.FileHeader{
+			Name:               ToNixPath(aliasExpend),
+			Method:             zip.Store,
+			UncompressedSize64: uint64(len(aliasLink)),
+			Modified:           si.ModTime(),
+		}
+		ah.SetMode(fs.ModeSymlink)
+		aw, err := z.CreateHeader(ah)
+		if err != nil {
+			return err
+		}
+		if _, err := io.WriteString(aw, aliasLink); err != nil {
+			return err
+		}
 	}
 	return nil
 }

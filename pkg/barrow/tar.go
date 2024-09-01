@@ -20,7 +20,7 @@ import (
 
 func (b *BarrowCtx) addItem2Tar(z *tar.Writer, item *FileItem, prefix string) error {
 	itemPath := filepath.Join(b.CWD, item.Path)
-	si, err := os.Lstat(itemPath)
+	si, err := os.Stat(itemPath)
 	if err != nil {
 		return err
 	}
@@ -31,13 +31,7 @@ func (b *BarrowCtx) addItem2Tar(z *tar.Writer, item *FileItem, prefix string) er
 	default:
 		nameInArchive = filepath.Join(prefix, item.Destination, filepath.Base(item.Path))
 	}
-	var linkTarget string
-	if isSymlink(si) {
-		if linkTarget, err = os.Readlink(itemPath); err != nil {
-			return err
-		}
-	}
-	hdr, err := tar.FileInfoHeader(si, linkTarget)
+	hdr, err := tar.FileInfoHeader(si, "")
 	if err != nil {
 		return err
 	}
@@ -68,7 +62,7 @@ func (b *BarrowCtx) addItem2Tar(z *tar.Writer, item *FileItem, prefix string) er
 }
 
 func (b *BarrowCtx) addCrate2Tar(z *tar.Writer, crate *Crate, prefix string) error {
-	baseName := crate.baseName(b.Target)
+	baseName := b.binaryName(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	si, err := os.Lstat(out)
 	if err != nil {
@@ -91,6 +85,24 @@ func (b *BarrowCtx) addCrate2Tar(z *tar.Writer, crate *Crate, prefix string) err
 	defer fd.Close()
 	if _, err := io.Copy(z, fd); err != nil {
 		return err
+	}
+	for _, a := range crate.Alias {
+		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.binaryName(a)))
+		aliasPath, err := filepath.Rel(filepath.Dir(aliasExpend), filepath.Dir(nameInArchive))
+		if err != nil {
+			return err
+		}
+		aliasLink := filepath.Join(aliasPath, filepath.Base(nameInArchive))
+		ah := &tar.Header{
+			Name:     AsExplicitRelativePath(aliasExpend),
+			Linkname: AsExplicitRelativePath(aliasLink),
+			Typeflag: tar.TypeSymlink,
+			Format:   tar.FormatGNU,
+			ModTime:  si.ModTime(),
+		}
+		if err = z.WriteHeader(ah); err != nil {
+			return fmt.Errorf("write tar header error: %w", err)
+		}
 	}
 	return nil
 }

@@ -25,23 +25,9 @@ func (b *BarrowCtx) addItem2Nfpm(info *nfpm.Info, item *FileItem, prefix string)
 	default:
 		nameInArchive = filepath.Join(prefix, item.Destination, filepath.Base(item.Path))
 	}
-	si, err := os.Lstat(itemPath)
+	si, err := os.Stat(itemPath)
 	if err != nil {
 		return err
-	}
-	if isSymlink(si) {
-		// FIXME: nfpm not write symlink content ?
-		info.Overridables.Contents = append(info.Overridables.Contents, &files.Content{
-			Type:        files.TypeSymlink,
-			Source:      itemPath,
-			Destination: nameInArchive,
-			FileInfo: &files.ContentFileInfo{
-				Mode:  si.Mode(),
-				MTime: si.ModTime(),
-				Size:  si.Size(),
-			},
-		})
-		return nil
 	}
 	mode := si.Mode().Perm()
 	if len(item.Permissions) != 0 {
@@ -64,7 +50,7 @@ func (b *BarrowCtx) addItem2Nfpm(info *nfpm.Info, item *FileItem, prefix string)
 }
 
 func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) error {
-	baseName := crate.baseName(b.Target)
+	baseName := b.binaryName(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	si, err := os.Lstat(out)
 	if err != nil {
@@ -73,7 +59,7 @@ func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) 
 	nameInArchive := filepath.Join(prefix, crate.Destination, baseName)
 	info.Overridables.Contents = append(info.Overridables.Contents, &files.Content{
 		Source:      out,
-		Destination: nameInArchive,
+		Destination: AsExplicitRelativePath(nameInArchive),
 		FileInfo: &files.ContentFileInfo{
 			Owner: "root",
 			Group: "root",
@@ -82,6 +68,19 @@ func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) 
 			Size:  si.Size(),
 		},
 	})
+	for _, a := range crate.Alias {
+		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.binaryName(a)))
+		aliasPath, err := filepath.Rel(filepath.Dir(aliasExpend), filepath.Dir(nameInArchive))
+		if err != nil {
+			return err
+		}
+		aliasLink := filepath.Join(aliasPath, filepath.Base(nameInArchive))
+		info.Overridables.Contents = append(info.Overridables.Contents, &files.Content{
+			Source:      AsExplicitRelativePath(aliasLink),
+			Destination: AsExplicitRelativePath(aliasExpend),
+			Type:        files.TypeSymlink,
+		})
+	}
 	return nil
 }
 

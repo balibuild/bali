@@ -118,6 +118,13 @@ func (b *BarrowCtx) makeEnv() {
 	}
 }
 
+func (b *BarrowCtx) binaryName(name string) string {
+	if b.Target == "windows" {
+		return name + ".exe"
+	}
+	return name
+}
+
 func (b *BarrowCtx) Initialize(ctx context.Context) error {
 	version, host := resolveGoVersion(ctx)
 	if !isDistSupported(ctx, b.Target, b.Arch) {
@@ -129,6 +136,8 @@ func (b *BarrowCtx) Initialize(ctx context.Context) error {
 	b.extraEnv["BUILD_HOST"] = host
 	b.extraEnv["GOOS"] = b.Target
 	b.extraEnv["GOARCH"] = b.Arch
+	b.extraEnv["BUILD_TARGET"] = b.Target
+	b.extraEnv["BUILD_ARCH"] = b.Arch
 	if err := b.resolveGit(ctx); err != nil {
 		return err
 	}
@@ -232,6 +241,20 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 	return nil
 }
 
+func (b *BarrowCtx) makeAlias(from, to string) error {
+	if !filepath.IsAbs(to) {
+		to = filepath.Join(b.Out, to)
+	}
+	if _, err := os.Lstat(to); err == nil {
+		_ = os.Remove(to)
+	}
+	if err := os.Symlink(from, to); err != nil {
+		fmt.Fprintf(os.Stderr, "create symlink error: %v\n", err)
+		return err
+	}
+	return nil
+}
+
 func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error) {
 	crate, err := b.LoadCrate(location)
 	if err != nil {
@@ -246,7 +269,7 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 		defer releaseFn() // remove it
 	}
 	b.DbgPrint("crate: %s\n", crate.Name)
-	baseName := crate.baseName(b.Target)
+	baseName := b.binaryName(crate.Name)
 	psArgs := make([]string, 0, 8)
 	psArgs = append(psArgs, "build", "-o", baseName)
 	for _, flag := range crate.GoFlags {
@@ -263,11 +286,19 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 		fmt.Fprintf(os.Stderr, "compile %s error \x1b[31m%s\x1b[0m\n", crate.Name, err)
 		return nil, err
 	}
-	destTo := filepath.Join(b.Out, crate.Destination, baseName)
-	_ = os.MkdirAll(filepath.Dir(destTo), 0755)
-	if err := os.Rename(filepath.Join(crate.cwd, baseName), destTo); err != nil {
+	crateDestination := filepath.Join(crate.Destination, baseName)
+	crateFullPath := filepath.Join(b.Out, crateDestination)
+	_ = os.MkdirAll(filepath.Dir(crateFullPath), 0755)
+	if err := os.Rename(filepath.Join(crate.cwd, baseName), crateFullPath); err != nil {
 		fmt.Fprintf(os.Stderr, "move out to dest error: %v\n", err)
 		return nil, err
+	}
+	for _, a := range crate.Alias {
+		aliasExpend := b.ExpandEnv(b.binaryName(a))
+		stage("compile", "Link \x1b[38;02;39;199;173m%s\x1b[0m --> \x1b[38;02;39;199;173m%s\x1b[0m ", filepath.ToSlash(crateDestination), filepath.ToSlash(aliasExpend))
+		if err := b.makeAlias(crateFullPath, aliasExpend); err != nil {
+			return nil, err
+		}
 	}
 	return crate, nil
 }

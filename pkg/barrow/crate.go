@@ -12,14 +12,8 @@ type Crate struct {
 	Destination string   `toml:"destination,omitempty"`
 	GoFlags     []string `toml:"goflags,omitempty"`
 	Version     string   `toml:"version,omitempty"`
+	Alias       []string `toml:"alias,omitempty"` // with out suffix
 	cwd         string   `toml:"-"`
-}
-
-func (c *Crate) baseName(target string) string {
-	if target == "windows" {
-		return c.Name + ".exe"
-	}
-	return c.Name
 }
 
 func (b *BarrowCtx) LoadCrate(location string) (*Crate, error) {

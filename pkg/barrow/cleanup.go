@@ -34,8 +34,8 @@ func (b *BarrowCtx) cleanupItem(item *FileItem, force bool) error {
 	default:
 		destTo = filepath.Join(saveDir, filepath.Base(item.Path))
 	}
-	if si, err := os.Stat(destTo); err == nil {
-		o, err := os.Stat(source)
+	if si, err := os.Lstat(destTo); err == nil {
+		o, err := os.Lstat(source)
 		if err != nil {
 			return err
 		}

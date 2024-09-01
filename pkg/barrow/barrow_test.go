@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 func TestParsePerm(t *testing.T) {
@@ -22,4 +24,23 @@ func TestNameInArchive(t *testing.T) {
 	baseName := "bali"
 	nameInArchive := filepath.Join(prefix, dest, baseName)
 	fmt.Fprintf(os.Stderr, "%s %s\n", nameInArchive, ToNixPath(nameInArchive))
+}
+
+func TestEncodePackage(t *testing.T) {
+	p := &Package{
+		Name: "jack",
+		Include: []*FileItem{
+			{
+				Path:        "LICENSE",
+				Destination: "share",
+			},
+			{
+				Path:        "README.md",
+				Destination: "/usr/share",
+			},
+		},
+	}
+	if err := toml.NewEncoder(os.Stderr).Encode(p); err != nil {
+		fmt.Fprintf(os.Stderr, "encode error: %v\n", err)
+	}
 }
