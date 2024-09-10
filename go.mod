@@ -7,17 +7,17 @@ require (
 	github.com/andybalholm/brotli v1.1.0
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.6.1-0.20240329070804-c2247cbb881a
-	github.com/goreleaser/nfpm/v2 v2.39.0
+	github.com/goreleaser/nfpm/v2 v2.40.0
 	github.com/klauspost/compress v1.17.9
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/ulikunitz/xz v0.5.12
 )
 
 require (
-	dario.cat/mergo v1.0.0 // indirect
+	dario.cat/mergo v1.0.1 // indirect
 	github.com/AlekSi/pointer v1.2.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.2.1 // indirect
+	github.com/Masterminds/semver/v3 v3.3.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
