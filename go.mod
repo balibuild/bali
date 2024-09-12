@@ -3,7 +3,7 @@ module github.com/balibuild/bali/v3
 go 1.22
 
 require (
-	github.com/alecthomas/kong v1.2.0
+	github.com/alecthomas/kong v1.2.1
 	github.com/andybalholm/brotli v1.1.0
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.6.1-0.20240329070804-c2247cbb881a
