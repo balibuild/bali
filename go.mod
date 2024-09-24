@@ -8,7 +8,7 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.6.1-0.20240329070804-c2247cbb881a
 	github.com/goreleaser/nfpm/v2 v2.40.0
-	github.com/klauspost/compress v1.17.9
+	github.com/klauspost/compress v1.17.10
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/ulikunitz/xz v0.5.12
 )
