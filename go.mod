@@ -6,21 +6,21 @@ require (
 	github.com/alecthomas/kong v1.10.0
 	github.com/andybalholm/brotli v1.1.1
 	github.com/dsnet/compress v0.0.1
-	github.com/google/rpmpack v0.6.1-0.20240329070804-c2247cbb881a
-	github.com/goreleaser/nfpm/v2 v2.42.0
+	github.com/google/rpmpack v0.6.1-0.20250405124433-758cc6896cbc
+	github.com/goreleaser/nfpm/v2 v2.42.1
 	github.com/klauspost/compress v1.18.0
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/ulikunitz/xz v0.5.12
 )
 
 require (
-	dario.cat/mergo v1.0.1 // indirect
+	dario.cat/mergo v1.0.2 // indirect
 	github.com/AlekSi/pointer v1.2.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/ProtonMail/go-crypto v1.1.6 // indirect
+	github.com/ProtonMail/go-crypto v1.2.0 // indirect
 	github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb // indirect
 	github.com/cavaliergopher/cpio v1.0.1 // indirect
 	github.com/cloudflare/circl v1.6.0 // indirect
