@@ -158,7 +158,7 @@ func buildStringTable(vi *VersionInfo) VSStringTable {
 	st.WType = 0x01
 
 	// Language identifier and Code page
-	st.SzKey = padString(vi.VarFileInfo.Translation.getTranslationString(), 0)
+	st.SzKey = padString(vi.VarFileInfo.getTranslationString(), 0)
 
 	// Align to 32-bit boundary
 	soFar := 2
@@ -229,7 +229,7 @@ func buildVar(vfi VarFileInfo) VSVar {
 	soFar += len(vs.SzKey)
 
 	// Create value
-	vs.Value = str2Uint32(vfi.Translation.getTranslation())
+	vs.Value = str2Uint32(vfi.getTranslation())
 
 	// Length of text in bytes
 	vs.WValueLength = 4

@@ -27,7 +27,7 @@ func Write(coff *coff.Coff, fnameout string) error {
 		vv, ok := v.Interface().(binutil.SizedReader)
 		if ok {
 			w.WriteFromSized(vv)
-			return binutil.WALK_SKIP
+			return binutil.ErrWalkSkip
 		}
 		return nil
 	})

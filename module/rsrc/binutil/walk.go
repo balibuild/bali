@@ -8,21 +8,21 @@ import (
 )
 
 var (
-	WALK_SKIP = errors.New("")
+	ErrWalkSkip = errors.New("walk skip")
 )
 
 type Walker func(v reflect.Value, path string) error
 
 func Walk(value interface{}, walker Walker) error {
 	err := walk(reflect.ValueOf(value), "/", walker)
-	if err == WALK_SKIP {
+	if err == ErrWalkSkip {
 		err = nil
 	}
 	return err
 }
 
 func stopping(err error) bool {
-	return err != nil && err != WALK_SKIP
+	return err != nil && err != ErrWalkSkip
 }
 
 func walk(v reflect.Value, spath string, walker Walker) error {
@@ -33,7 +33,7 @@ func walk(v reflect.Value, spath string, walker Walker) error {
 	v = reflect.Indirect(v)
 	switch v.Kind() {
 	case reflect.Slice, reflect.Array:
-		for i := 0; i < v.Len(); i++ {
+		for i := range v.Len() {
 			err = walk(v.Index(i), spath+fmt.Sprintf("[%d]", i), walker)
 			if stopping(err) {
 				return err
@@ -46,7 +46,7 @@ func walk(v reflect.Value, spath string, walker Walker) error {
 		}
 	case reflect.Struct:
 		//t := v.Type()
-		for i := 0; i < v.NumField(); i++ {
+		for i := range v.NumField() {
 			//f := t.Field(i) //TODO: handle unexported fields
 			vv := v.Field(i)
 			err = walk(vv, path.Join(spath, v.Type().Field(i).Name), walker)

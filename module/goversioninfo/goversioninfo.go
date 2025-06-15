@@ -105,7 +105,7 @@ type SizedReader struct {
 
 // Size returns the length of the buffer.
 func (s SizedReader) Size() int64 {
-	return int64(s.Buffer.Len())
+	return int64(s.Len())
 }
 
 func str2Uint32(s string) uint32 {
@@ -276,7 +276,7 @@ func writeCoffTo(w io.WriteCloser, coff *coff.Coff) error {
 		vv, ok := v.Interface().(binutil.SizedReader)
 		if ok {
 			bw.WriteFromSized(vv)
-			return binutil.WALK_SKIP
+			return binutil.ErrWalkSkip
 		}
 		return nil
 	})

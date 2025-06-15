@@ -35,7 +35,7 @@ func (b *BarrowCtx) addItem2Nfpm(info *nfpm.Info, item *FileItem, prefix string)
 			mode = fs.FileMode(m)
 		}
 	}
-	info.Overridables.Contents = append(info.Overridables.Contents, &files.Content{
+	info.Contents = append(info.Contents, &files.Content{
 		Source:      itemPath,
 		Destination: nameInArchive,
 		FileInfo: &files.ContentFileInfo{
@@ -57,7 +57,7 @@ func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) 
 		return err
 	}
 	nameInArchive := filepath.Join(prefix, crate.Destination, baseName)
-	info.Overridables.Contents = append(info.Overridables.Contents, &files.Content{
+	info.Contents = append(info.Contents, &files.Content{
 		Source:      out,
 		Destination: AsExplicitRelativePath(nameInArchive),
 		FileInfo: &files.ContentFileInfo{
@@ -75,7 +75,7 @@ func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) 
 			return err
 		}
 		aliasLink := filepath.Join(aliasPath, filepath.Base(nameInArchive))
-		info.Overridables.Contents = append(info.Overridables.Contents, &files.Content{
+		info.Contents = append(info.Contents, &files.Content{
 			Source:      AsExplicitRelativePath(aliasLink),
 			Destination: AsExplicitRelativePath(aliasExpend),
 			Type:        files.TypeSymlink,

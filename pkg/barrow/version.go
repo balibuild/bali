@@ -45,11 +45,11 @@ func (b *BarrowCtx) makeResources(e *Crate, saveTo string) error {
 	if len(vi.FixedFileInfo.FileSubType) == 0 {
 		vi.FixedFileInfo.FileSubType = "00"
 	}
-	if vi.VarFileInfo.Translation.LangID == 0 {
-		vi.VarFileInfo.Translation.LangID = goversioninfo.LngUSEnglish
+	if vi.VarFileInfo.LangID == 0 {
+		vi.VarFileInfo.LangID = goversioninfo.LngUSEnglish
 	}
-	if vi.VarFileInfo.Translation.CharsetID == 0 {
-		vi.VarFileInfo.Translation.CharsetID = goversioninfo.CsUnicode
+	if vi.VarFileInfo.CharsetID == 0 {
+		vi.VarFileInfo.CharsetID = goversioninfo.CsUnicode
 	}
 	vi.Build()
 	vi.Walk()

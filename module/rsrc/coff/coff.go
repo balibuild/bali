@@ -140,17 +140,17 @@ func (coff *Coff) Arch(arch string) error {
 	return nil
 }
 
-// addSymbol appends a symbol to Coff.Symbols and to Coff.Strings.
+// AddSymbol appends a symbol to Coff.Symbols and to Coff.Strings.
 // NOTE: symbol s must be probably >8 characters long
 // NOTE: symbol s should not contain embedded zeroes
-func (coff *Coff) addSymbol(s string) {
-	coff.FileHeader.NumberOfSymbols++
+func (coff *Coff) AddSymbol(s string) {
+	coff.NumberOfSymbols++
 
 	buf := strings.NewReader(s + "\000") // ASCIIZ
 	r := io.NewSectionReader(buf, 0, int64(len(s)+1))
 	coff.Strings = append(coff.Strings, r)
 
-	coff.StringsHeader.Length += uint32(r.Size())
+	coff.Length += uint32(r.Size())
 
 	coff.Symbols = append(coff.Symbols, Symbol{
 		//Name: // will be filled in Freeze
@@ -223,11 +223,11 @@ func (coff *Coff) AddResource(kind uint32, id uint16, data Sizer) {
 		re.Type = _IMAGE_REL_ARM64_ADDR32NB
 	}
 	coff.Relocations = append(coff.Relocations, re)
-	coff.SectionHeader32.NumberOfRelocations++
+	coff.NumberOfRelocations++
 
 	// find top level entry, inserting new if necessary at correct sorted position
-	entries0 := coff.Dir.DirEntries
-	dirs0 := coff.Dir.Dirs
+	entries0 := coff.DirEntries
+	dirs0 := coff.Dirs
 	i0 := sort.Search(len(entries0), func(i int) bool {
 		return entries0[i].NameOrId >= kind
 	})
@@ -235,10 +235,10 @@ func (coff *Coff) AddResource(kind uint32, id uint16, data Sizer) {
 		// inserting new entry & dir
 		entries0 = append(entries0[:i0], append([]DirEntry{{NameOrId: kind}}, entries0[i0:]...)...)
 		dirs0 = append(dirs0[:i0], append([]Dir{{}}, dirs0[i0:]...)...)
-		coff.Dir.NumberOfIdEntries++
+		coff.NumberOfIdEntries++
 	}
-	coff.Dir.DirEntries = entries0
-	coff.Dir.Dirs = dirs0
+	coff.DirEntries = entries0
+	coff.Dirs = dirs0
 
 	// for second level, assume ID is always increasing, so we don't have to sort
 	dirs0[i0].DirEntries = append(dirs0[i0].DirEntries, DirEntry{NameOrId: uint32(id)})
@@ -269,7 +269,7 @@ func pad(data Sizer) PaddedData {
 
 // Freeze fills in some important offsets in resulting file.
 func (coff *Coff) Freeze() {
-	switch coff.SectionHeader32.Name {
+	switch coff.Name {
 	case STRING_RSRC:
 		coff.freezeRSRC()
 	}
@@ -278,13 +278,13 @@ func (coff *Coff) Freeze() {
 func (coff *Coff) freezeCommon1(path string, offset, diroff uint32) (newdiroff uint32) {
 	switch path {
 	case "/Dir":
-		coff.SectionHeader32.PointerToRawData = offset
+		coff.PointerToRawData = offset
 		diroff = offset
 	case "/Relocations":
-		coff.SectionHeader32.PointerToRelocations = offset
-		coff.SectionHeader32.SizeOfRawData = offset - diroff
+		coff.PointerToRelocations = offset
+		coff.SizeOfRawData = offset - diroff
 	case "/Symbols":
-		coff.FileHeader.PointerToSymbolTable = offset
+		coff.PointerToSymbolTable = offset
 	}
 	return diroff
 }
@@ -297,7 +297,7 @@ func freezeCommon2(v reflect.Value, offset *uint32) error {
 	vv, ok := v.Interface().(Sizer)
 	if ok {
 		*offset += uint32(vv.Size())
-		return binutil.WALK_SKIP
+		return binutil.ErrWalkSkip
 	}
 	return nil
 }
@@ -305,7 +305,7 @@ func freezeCommon2(v reflect.Value, offset *uint32) error {
 func (coff *Coff) freezeRSRC() {
 	leafwalker := make(chan *DirEntry)
 	go func() {
-		for _, dir1 := range coff.Dir.Dirs { // resource type
+		for _, dir1 := range coff.Dirs { // resource type
 			for _, dir2 := range dir1.Dirs { // resource ID
 				for i := range dir2.DirEntries { // resource lang
 					leafwalker <- &dir2.DirEntries[i]

@@ -102,7 +102,7 @@ func DecodeHeaders(r io.Reader) ([]ICONDIRENTRY, error) {
 	}
 
 	entries := make([]ICONDIRENTRY, hdr.Count)
-	for i := 0; i < len(entries); i++ {
+	for i := range entries {
 		err = binary.Read(r, binary.LittleEndian, &entries[i])
 		if err != nil {
 			return nil, err
@@ -123,7 +123,7 @@ func unused_decodeAll(r io.Reader) ([]*ICO, error) {
 	}
 
 	raws := make([]rawico, hdr.Count)
-	for i := 0; i < len(raws); i++ {
+	for i := range raws {
 		err = binary.Read(r, binary.LittleEndian, &raws[i].icoinfo)
 		if err != nil {
 			return nil, err
@@ -134,7 +134,7 @@ func unused_decodeAll(r io.Reader) ([]*ICO, error) {
 	sort.Sort(byOffsets(raws))
 
 	offset := uint32(binary.Size(&hdr) + len(raws)*binary.Size(ICONDIRENTRY{}))
-	for i := 0; i < len(raws); i++ {
+	for i := range raws {
 		err = skip(r, int64(raws[i].icoinfo.ImageOffset-offset))
 		if err != nil {
 			return nil, err
@@ -193,7 +193,7 @@ func decode(info *BITMAPINFOHEADER, icoinfo *ICONDIRENTRY, data []byte) (*ICO, e
 		}
 
 		pal := make(color.Palette, ncol)
-		for i := 0; i < ncol; i++ {
+		for i := range ncol {
 			var rgb RGBQUAD
 			err := binary.Read(r, binary.LittleEndian, &rgb)
 			if err != nil {
