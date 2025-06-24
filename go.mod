@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/alecthomas/kong v1.11.0
-	github.com/andybalholm/brotli v1.1.1
+	github.com/andybalholm/brotli v1.2.0
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.0
 	github.com/goreleaser/nfpm/v2 v2.43.0
