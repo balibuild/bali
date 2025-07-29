@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v1.12.1
 	github.com/andybalholm/brotli v1.2.0
 	github.com/dsnet/compress v0.0.1
-	github.com/google/rpmpack v0.7.0
+	github.com/google/rpmpack v0.7.1
 	github.com/goreleaser/nfpm/v2 v2.43.0
 	github.com/klauspost/compress v1.18.0
 	github.com/pelletier/go-toml/v2 v2.2.4
