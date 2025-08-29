@@ -10,7 +10,7 @@ require (
 	github.com/goreleaser/nfpm/v2 v2.43.0
 	github.com/klauspost/compress v1.18.0
 	github.com/pelletier/go-toml/v2 v2.2.4
-	github.com/ulikunitz/xz v0.5.14
+	github.com/ulikunitz/xz v0.5.15
 )
 
 require (
