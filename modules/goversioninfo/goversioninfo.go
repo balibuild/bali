@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/balibuild/bali/v3/module/rsrc/binutil"
-	"github.com/balibuild/bali/v3/module/rsrc/coff"
+	"github.com/balibuild/bali/v3/modules/rsrc/binutil"
+	"github.com/balibuild/bali/v3/modules/rsrc/coff"
 )
 
 // VersionInfo data container

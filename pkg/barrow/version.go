@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/balibuild/bali/v3/module/goversioninfo"
+	"github.com/balibuild/bali/v3/modules/goversioninfo"
 )
 
 func (b *BarrowCtx) makeResources(e *Crate, saveTo string) error {

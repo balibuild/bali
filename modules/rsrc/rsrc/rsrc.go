@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/balibuild/bali/v3/module/rsrc/binutil"
-	"github.com/balibuild/bali/v3/module/rsrc/coff"
-	"github.com/balibuild/bali/v3/module/rsrc/ico"
-	"github.com/balibuild/bali/v3/module/rsrc/internal"
+	"github.com/balibuild/bali/v3/modules/rsrc/binutil"
+	"github.com/balibuild/bali/v3/modules/rsrc/coff"
+	"github.com/balibuild/bali/v3/modules/rsrc/ico"
+	"github.com/balibuild/bali/v3/modules/rsrc/internal"
 )
 
 // on storing icons, see: http://blogs.msdn.com/b/oldnewthing/archive/2012/07/20/10331787.aspx

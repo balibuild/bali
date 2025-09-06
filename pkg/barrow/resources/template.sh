@@ -67,7 +67,7 @@ fi
 
 echo "This is a self-extracting archive."
 prefix=$(pwd)
-if [[ "x${install_prefix}" != "x" ]]; then
+if [[ "${install_prefix}" != "" ]]; then
     prefix="${install_prefix}"
 fi
 package=$(basename "$0")

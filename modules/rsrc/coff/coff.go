@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/balibuild/bali/v3/module/rsrc/binutil"
+	"github.com/balibuild/bali/v3/modules/rsrc/binutil"
 )
 
 type Dir struct { // struct IMAGE_RESOURCE_DIRECTORY

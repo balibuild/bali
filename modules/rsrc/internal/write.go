@@ -5,8 +5,8 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/balibuild/bali/v3/module/rsrc/binutil"
-	"github.com/balibuild/bali/v3/module/rsrc/coff"
+	"github.com/balibuild/bali/v3/modules/rsrc/binutil"
+	"github.com/balibuild/bali/v3/modules/rsrc/coff"
 )
 
 // TODO(akavel): maybe promote this to coff.Coff.WriteTo(io.Writer) (int64, error)

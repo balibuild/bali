@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"os"
 
-	"github.com/balibuild/bali/v3/module/rsrc/coff"
-	"github.com/balibuild/bali/v3/module/rsrc/ico"
+	"github.com/balibuild/bali/v3/modules/rsrc/coff"
+	"github.com/balibuild/bali/v3/modules/rsrc/ico"
 )
 
 // *****************************************************************************

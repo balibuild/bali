@@ -5,14 +5,14 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"unicode"
 
 	"github.com/alecthomas/kong"
+	"github.com/balibuild/bali/v3/modules/trace"
 )
 
 // version info
 var (
-	VERSION                = "3.1.1"
+	VERSION                = "3.1.2"
 	BUILD_TIME      string = "NONE"
 	BUILD_COMMIT    string = "NONE"
 	BUILD_BRANCH    string = "NONE"
@@ -67,18 +67,6 @@ type Globals struct {
 	Version VersionFlag `name:"version" short:"v" help:"Print version information and quit"`
 }
 
-func (g *Globals) DbgPrint(format string, a ...any) {
-	if !g.Verbose {
-		return
-	}
-	message := fmt.Sprintf(format, a...)
-	message = strings.TrimRightFunc(message, unicode.IsSpace)
-	lines := strings.Split(message, "\n")
-	for _, line := range lines {
-		fmt.Fprintf(os.Stderr, "\x1b[33m* %s\x1b[0m\n", line)
-	}
-}
-
 type App struct {
 	Globals
 	Build  BuildCommand  `cmd:"build" help:"Compile the current module (default)" default:"withargs"`
@@ -100,6 +88,9 @@ func main() {
 			"target": runtime.GOOS,
 			"arch":   runtime.GOARCH,
 		})
+	if app.Verbose {
+		trace.EnableDebugMode()
+	}
 	err := ctx.Run(&app.Globals)
 	if err != nil {
 		os.Exit(1)

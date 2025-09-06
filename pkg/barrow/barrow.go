@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/balibuild/bali/v3/modules/trace"
 )
 
 type BarrowCtx struct {
@@ -28,18 +30,6 @@ type BarrowCtx struct {
 	extraEnv    map[string]string
 	environ     []string
 	// TODO signature
-}
-
-func (b *BarrowCtx) DbgPrint(format string, a ...any) {
-	if !b.Verbose {
-		return
-	}
-	message := fmt.Sprintf(format, a...)
-	message = strings.TrimRightFunc(message, unicode.IsSpace)
-	lines := strings.Split(message, "\n")
-	for _, line := range lines {
-		fmt.Fprintf(os.Stderr, "\x1b[38;2;255;215;0m* %s\x1b[0m\n", line)
-	}
 }
 
 func (b *BarrowCtx) Getenv(key string) string {
@@ -171,7 +161,7 @@ func (b *BarrowCtx) Run(ctx context.Context) error {
 		fmt.Fprintf(os.Stderr, "parse package metadata error: %v\n", err)
 		return err
 	}
-	b.DbgPrint("Building %s version: %s target: %s arch: %s", p.Name, p.Version, b.Target, b.Arch)
+	trace.DbgPrint("Building %s version: %s target: %s arch: %s", p.Name, p.Version, b.Target, b.Arch)
 	b.extraEnv["BUILD_VERSION"] = p.Version
 
 	if b.Verbose {
@@ -268,7 +258,7 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 	if releaseFn != nil {
 		defer releaseFn() // remove it
 	}
-	b.DbgPrint("crate: %s\n", crate.Name)
+	trace.DbgPrint("crate: %s\n", crate.Name)
 	baseName := b.binaryName(crate.Name)
 	psArgs := make([]string, 0, 8)
 	psArgs = append(psArgs, "build", "-o", baseName)

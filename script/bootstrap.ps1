@@ -20,15 +20,17 @@ Copy-Item -Force -Path $BALI_EXE -Destination $BALI_STAGE0_EXE
 
 Write-Host -ForegroundColor Green "bali: create zip package ..."
 
+$ps = Start-Process -FilePath $BALI_STAGE0_EXE -WorkingDirectory $SOURCE_DIR -ArgumentList "--target=windows --arch=arm64 --pack=zip" -PassThru -Wait -NoNewWindow
+if ($ps.ExitCode -ne 0) {
+    Exit $ps.ExitCode
+}
+
 $ps = Start-Process -FilePath $BALI_STAGE0_EXE -WorkingDirectory $SOURCE_DIR -ArgumentList "--target=windows --arch=amd64 --pack=zip" -PassThru -Wait -NoNewWindow
 if ($ps.ExitCode -ne 0) {
     Exit $ps.ExitCode
 }
 
-$ps = Start-Process -FilePath $BALI_STAGE0_EXE -WorkingDirectory $SOURCE_DIR -ArgumentList "--target=windows --arch=arm64 --pack=zip" -PassThru -Wait -NoNewWindow
-if ($ps.ExitCode -ne 0) {
-    Exit $ps.ExitCode
-}
+
 
 
 Write-Host -ForegroundColor Green "bali: bootstrap success"
