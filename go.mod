@@ -11,7 +11,7 @@ require (
 	github.com/klauspost/compress v1.18.0
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/ulikunitz/xz v0.5.15
-	golang.org/x/sys v0.35.0
+	golang.org/x/sys v0.36.0
 	golang.org/x/term v0.34.0
 )
 
