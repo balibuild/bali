@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.1
-	github.com/goreleaser/nfpm/v2 v2.43.1
+	github.com/goreleaser/nfpm/v2 v2.43.2
 	github.com/klauspost/compress v1.18.0
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/ulikunitz/xz v0.5.15
@@ -35,7 +35,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/goreleaser/chglog v0.7.3 // indirect
-	github.com/goreleaser/fileglob v1.3.0 // indirect
+	github.com/goreleaser/fileglob v1.4.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.4.0 // indirect
