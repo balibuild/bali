@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.1
-	github.com/goreleaser/nfpm/v2 v2.44.1
+	github.com/goreleaser/nfpm/v2 v2.44.2
 	github.com/klauspost/compress v1.18.3
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/ulikunitz/xz v0.5.15
