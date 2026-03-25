@@ -9,7 +9,7 @@ require (
 	github.com/google/rpmpack v0.7.1
 	github.com/goreleaser/nfpm/v2 v2.45.2
 	github.com/klauspost/compress v1.18.5
-	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/pelletier/go-toml/v2 v2.3.0
 	github.com/ulikunitz/xz v0.5.15
 	golang.org/x/sys v0.42.0
 	golang.org/x/term v0.41.0
