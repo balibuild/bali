@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/alecthomas/kong v1.14.0
-	github.com/andybalholm/brotli v1.2.0
+	github.com/andybalholm/brotli v1.2.1
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.1
 	github.com/goreleaser/nfpm/v2 v2.46.0
