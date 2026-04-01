@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.1
-	github.com/goreleaser/nfpm/v2 v2.45.2
+	github.com/goreleaser/nfpm/v2 v2.46.0
 	github.com/klauspost/compress v1.18.5
 	github.com/pelletier/go-toml/v2 v2.3.0
 	github.com/ulikunitz/xz v0.5.15
@@ -22,7 +22,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/ProtonMail/go-crypto v1.4.0 // indirect
+	github.com/ProtonMail/go-crypto v1.4.1 // indirect
 	github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb // indirect
 	github.com/cavaliergopher/cpio v1.0.1 // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
