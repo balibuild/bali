@@ -20,9 +20,9 @@ import (
 type VersionInfo struct {
 	Icon           string         `toml:"icon,omitempty" json:"icon,omitempty"`
 	Manifest       string         `toml:"manifest,omitempty" json:"manifest,omitempty"` // path or content
-	FixedFileInfo  FixedFileInfo  `toml:"FixedFileInfo,omitempty" json:"FixedFileInfo,omitempty"`
-	StringFileInfo StringFileInfo `toml:"StringFileInfo,omitempty" json:"StringFileInfo,omitempty"`
-	VarFileInfo    VarFileInfo    `toml:"VarFileInfo,omitempty" json:"VarFileInfo,omitempty"`
+	FixedFileInfo  FixedFileInfo  `toml:"FixedFileInfo,omitempty" json:"FixedFileInfo"`
+	StringFileInfo StringFileInfo `toml:"StringFileInfo,omitempty" json:"StringFileInfo"`
+	VarFileInfo    VarFileInfo    `toml:"VarFileInfo,omitempty" json:"VarFileInfo"`
 	Timestamp      bool           `toml:"Timestamp,omitempty" json:"Timestamp,omitempty"`
 	structure      VSVersionInfo
 	buffer         bytes.Buffer
@@ -64,8 +64,8 @@ func (fv *FileVersion) Overwrite(ver string) error {
 
 // FixedFileInfo contains file characteristics - leave most of them at the defaults.
 type FixedFileInfo struct {
-	FileVersion    FileVersion `toml:"FileVersion,omitempty" json:"FileVersion,omitempty"`
-	ProductVersion FileVersion `toml:"ProductVersion,omitempty" json:"ProductVersion,omitempty"`
+	FileVersion    FileVersion `toml:"FileVersion,omitempty" json:"FileVersion"`
+	ProductVersion FileVersion `toml:"ProductVersion,omitempty" json:"ProductVersion"`
 	FileFlagsMask  string      `toml:"FileFlagsMask,omitempty" json:"FileFlagsMask,omitempty"`
 	FileFlags      string      `toml:"FileFlags,omitempty" json:"FileFlags,omitempty"`
 	FileOS         string      `toml:"FileOS,omitempty" json:"FileOS,omitempty"`
@@ -75,7 +75,7 @@ type FixedFileInfo struct {
 
 // VarFileInfo is the translation container.
 type VarFileInfo struct {
-	Translation `toml:"Translation,omitempty" json:"Translation,omitempty"`
+	Translation `toml:"Translation,omitempty" json:"Translation"`
 }
 
 // StringFileInfo is what you want to change.
@@ -135,7 +135,7 @@ func padString(s string, zeros int) []byte {
 		}
 	}
 
-	for i := 0; i < zeros; i++ {
+	for range zeros {
 		b = append(b, 0x00)
 	}
 

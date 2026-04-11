@@ -108,11 +108,34 @@ func (b *BarrowCtx) makeEnv() {
 	}
 }
 
-func (b *BarrowCtx) binaryName(name string) string {
+// exe basename
+func (b *BarrowCtx) basename(name string) string {
 	if b.Target == "windows" {
 		return name + ".exe"
 	}
 	return name
+}
+
+var (
+	releaseEnv = []string{
+		"BUILD_RELEASE", "GITHUB_RUN_NUMBER", "GITHUB_RUN_ID",
+	}
+)
+
+func (b *BarrowCtx) prepareReleaseEnv() {
+	if b.Release != "" {
+		b.extraEnv["BUILD_RELEASE"] = b.Release
+		return
+	}
+	for _, k := range releaseEnv {
+		if v, ok := os.LookupEnv(k); ok {
+			b.Release = v
+			b.extraEnv["BUILD_RELEASE"] = v
+			return
+		}
+	}
+	b.Release = "1"
+	b.extraEnv["BUILD_RELEASE"] = "1"
 }
 
 func (b *BarrowCtx) Initialize(ctx context.Context) error {
@@ -131,12 +154,7 @@ func (b *BarrowCtx) Initialize(ctx context.Context) error {
 	if err := b.resolveGit(ctx); err != nil {
 		return err
 	}
-	if runID, ok := os.LookupEnv("GITHUB_RUN_ID"); ok {
-		b.extraEnv["BUILD_RELEASE"] = runID
-	}
-	if len(b.Release) == 0 {
-		b.Release = b.Getenv("BUILD_RELEASE")
-	}
+	b.prepareReleaseEnv()
 	t := time.Now()
 	b.extraEnv["BUILD_TIME"] = t.Format(time.RFC3339)
 	b.extraEnv["BUILD_YEAR"] = strconv.Itoa(t.Year())
@@ -259,9 +277,9 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 		defer releaseFn() // remove it
 	}
 	trace.DbgPrint("crate: %s\n", crate.Name)
-	baseName := b.binaryName(crate.Name)
+	name := b.basename(crate.Name)
 	psArgs := make([]string, 0, 8)
-	psArgs = append(psArgs, "build", "-o", baseName)
+	psArgs = append(psArgs, "build", "-o", name)
 	for _, flag := range crate.GoFlags {
 		psArgs = append(psArgs, b.ExpandEnv(flag))
 	}
@@ -276,15 +294,15 @@ func (b *BarrowCtx) compile(ctx context.Context, location string) (*Crate, error
 		fmt.Fprintf(os.Stderr, "compile %s error \x1b[31m%s\x1b[0m\n", crate.Name, err)
 		return nil, err
 	}
-	crateDestination := filepath.Join(crate.Destination, baseName)
+	crateDestination := filepath.Join(crate.Destination, name)
 	crateFullPath := filepath.Join(b.Out, crateDestination)
 	_ = os.MkdirAll(filepath.Dir(crateFullPath), 0755)
-	if err := os.Rename(filepath.Join(crate.cwd, baseName), crateFullPath); err != nil {
+	if err := os.Rename(filepath.Join(crate.cwd, name), crateFullPath); err != nil {
 		fmt.Fprintf(os.Stderr, "move out to dest error: %v\n", err)
 		return nil, err
 	}
 	for _, a := range crate.Alias {
-		aliasExpend := b.ExpandEnv(b.binaryName(a))
+		aliasExpend := b.ExpandEnv(b.basename(a))
 		stage("compile", "Link \x1b[38;02;39;199;173m%s\x1b[0m --> \x1b[38;02;39;199;173m%s\x1b[0m ", filepath.ToSlash(crateDestination), filepath.ToSlash(aliasExpend))
 		if err := b.makeAlias(crateFullPath, aliasExpend); err != nil {
 			return nil, err

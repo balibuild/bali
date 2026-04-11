@@ -13,7 +13,7 @@ var (
 
 type Walker func(v reflect.Value, path string) error
 
-func Walk(value interface{}, walker Walker) error {
+func Walk(value any, walker Walker) error {
 	err := walk(reflect.ValueOf(value), "/", walker)
 	if err == ErrWalkSkip {
 		err = nil

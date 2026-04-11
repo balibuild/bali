@@ -159,7 +159,7 @@ func unused_decodeAll(r io.Reader) ([]*ICO, error) {
 	}
 
 	icos := make([]*ICO, len(raws))
-	for i := 0; i < len(raws); i++ {
+	for i := range raws {
 		fmt.Println(i)
 		icos[raws[i].idx], err = decode(raws[i].bmpinfo, &raws[i].icoinfo, raws[i].data)
 		if err != nil {

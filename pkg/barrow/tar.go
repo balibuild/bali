@@ -62,7 +62,7 @@ func (b *BarrowCtx) addItem2Tar(z *tar.Writer, item *FileItem, prefix string) er
 }
 
 func (b *BarrowCtx) addCrate2Tar(z *tar.Writer, crate *Crate, prefix string) error {
-	baseName := b.binaryName(crate.Name)
+	baseName := b.basename(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	si, err := os.Lstat(out)
 	if err != nil {
@@ -87,7 +87,7 @@ func (b *BarrowCtx) addCrate2Tar(z *tar.Writer, crate *Crate, prefix string) err
 		return err
 	}
 	for _, a := range crate.Alias {
-		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.binaryName(a)))
+		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.basename(a)))
 		aliasPath, err := filepath.Rel(filepath.Dir(aliasExpend), filepath.Dir(nameInArchive))
 		if err != nil {
 			return err

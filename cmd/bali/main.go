@@ -12,7 +12,7 @@ import (
 
 // version info
 var (
-	VERSION                = "3.1.3"
+	VERSION                = "3.2.0"
 	BUILD_TIME      string = "NONE"
 	BUILD_COMMIT    string = "NONE"
 	BUILD_BRANCH    string = "NONE"

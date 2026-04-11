@@ -12,7 +12,7 @@ type Writer struct {
 	Err    error
 }
 
-func (w *Writer) WriteLE(v interface{}) {
+func (w *Writer) WriteLE(v any) {
 	if w.Err != nil {
 		return
 	}

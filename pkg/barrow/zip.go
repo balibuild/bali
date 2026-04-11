@@ -97,7 +97,7 @@ func (b *BarrowCtx) addItem2Zip(z *zip.Writer, item *FileItem, method uint16, pr
 }
 
 func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, prefix string) error {
-	baseName := b.binaryName(crate.Name)
+	baseName := b.basename(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	si, err := os.Lstat(out)
 	if err != nil {
@@ -125,7 +125,7 @@ func (b *BarrowCtx) addCrate2Zip(z *zip.Writer, crate *Crate, method uint16, pre
 		return err
 	}
 	for _, a := range crate.Alias {
-		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.binaryName(a)))
+		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.basename(a)))
 		aliasPath, err := filepath.Rel(filepath.Dir(aliasExpend), filepath.Dir(nameInArchive))
 		if err != nil {
 			return err

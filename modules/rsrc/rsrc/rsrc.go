@@ -54,7 +54,7 @@ func Embed(fnameout, arch, fnamein, fnameico string) error {
 		// fmt.Println("Manifest ID: ", id)
 	}
 	if fnameico != "" {
-		for _, fnameicosingle := range strings.Split(fnameico, ",") {
+		for fnameicosingle := range strings.SplitSeq(fnameico, ",") {
 			f, err := addIcon(out, fnameicosingle, newid)
 			if err != nil {
 				return err

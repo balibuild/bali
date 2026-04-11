@@ -24,7 +24,7 @@ func (b *BarrowCtx) makeResources(e *Crate, saveTo string) error {
 		vi.StringFileInfo.ProductName = e.Name
 	}
 	if len(vi.StringFileInfo.InternalName) == 0 {
-		vi.StringFileInfo.InternalName = b.binaryName(e.Name)
+		vi.StringFileInfo.InternalName = b.basename(e.Name)
 	}
 	if len(vi.StringFileInfo.FileDescription) == 0 {
 		vi.StringFileInfo.FileDescription = e.Description

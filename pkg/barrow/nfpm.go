@@ -50,7 +50,7 @@ func (b *BarrowCtx) addItem2Nfpm(info *nfpm.Info, item *FileItem, prefix string)
 }
 
 func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) error {
-	baseName := b.binaryName(crate.Name)
+	baseName := b.basename(crate.Name)
 	out := filepath.Join(b.Out, crate.Destination, baseName)
 	si, err := os.Lstat(out)
 	if err != nil {
@@ -69,7 +69,7 @@ func (b *BarrowCtx) addCrate2Nfpm(info *nfpm.Info, crate *Crate, prefix string) 
 		},
 	})
 	for _, a := range crate.Alias {
-		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.binaryName(a)))
+		aliasExpend := filepath.Join(prefix, b.ExpandEnv(b.basename(a)))
 		aliasPath, err := filepath.Rel(filepath.Dir(aliasExpend), filepath.Dir(nameInArchive))
 		if err != nil {
 			return err
