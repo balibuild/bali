@@ -134,7 +134,7 @@ name = "bali"
 summary = "Bali - Minimalist Golang build and packaging tool"
 description = "Bali - Minimalist Golang build and packaging tool"
 package-name = "bali-dev"
-version = "3.1.2"
+version = "3.1.3"
 license = "MIT"
 prefix = "/usr/local"
 crates = [
@@ -166,7 +166,7 @@ Program build file `crate.toml`:
 name = "bali"
 description = "Bali - Minimalist Golang build and packaging tool"
 destination = "bin"
-version = "3.1.2"
+version = "3.1.3"
 goflags = [
     "-ldflags",
     "-X 'main.VERSION=$BUILD_VERSION' -X 'main.BUILD_TIME=$BUILD_TIME' -X 'main.BUILD_BRANCH=$BUILD_BRANCH' -X 'main.BUILD_COMMIT=$BUILD_COMMIT'  -X 'main.BUILD_REFNAME=$BUILD_REFNAME' -X 'main.BUILD_GOVERSION=$BUILD_GOVERSION'",
@@ -227,7 +227,7 @@ CompanyName = "Bali Team"
 FileDescription = "Bali - Minimalist Golang build and packaging tool"
 FileVersion = ""
 InternalName = "bali.exe"
-LegalCopyright = "Copyright © 2025. Bali contributors"
+LegalCopyright = "Copyright © 2026. Bali contributors"
 LegalTrademarks = ""
 OriginalFilename = "bali.exe"
 PrivateBuild = ""

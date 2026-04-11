@@ -47,6 +47,11 @@ linux*)
         echo "bootstrap bali failed"
         exit 1
     fi
+    echo -e "bootstarp for \x1b[32mlinux/loogarch64\x1b[0m"
+    if ! "${TOPLEVEL_SOURCE_DIR}/bali.exe" --pack='rpm,deb,tar,sh' --target=linux --arch=loogarch64; then
+        echo "bootstrap bali failed"
+        exit 1
+    fi
     ;;
 bsd*)
     echo "bsd unsupported"
