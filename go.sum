@@ -83,8 +83,8 @@ github.com/goreleaser/chglog v0.7.4 h1:3pnNt/XCrUcAOq+KC91Azlgp5CRv4GHo1nl8Aws7O
 github.com/goreleaser/chglog v0.7.4/go.mod h1:dTVoZZagTz7hHdWaZ9OshHntKiF44HbWIHWxYJQ/h0Y=
 github.com/goreleaser/fileglob v1.4.0 h1:Y7zcUnzQjT1gbntacGAkIIfLv+OwojxTXBFxjSFoBBs=
 github.com/goreleaser/fileglob v1.4.0/go.mod h1:1pbHx7hhmJIxNZvm6fi6WVrnP0tndq6p3ayWdLn1Yf8=
-github.com/goreleaser/nfpm/v2 v2.46.1 h1:VObAFc002Ez41dbTPQR0qksTDfWe41OIiTOGVmFSEOw=
-github.com/goreleaser/nfpm/v2 v2.46.1/go.mod h1:A4DesiyEHGqJ2QQR83mtTU9qFO0m+IRIAZ9jtOBxsrI=
+github.com/goreleaser/nfpm/v2 v2.46.3 h1:sMNcGjbVnABe33avsFo++WwKubY8msP5j9ieulX09VI=
+github.com/goreleaser/nfpm/v2 v2.46.3/go.mod h1:wYKICOnvMALZcoGM20TcP9QuIV+Fb9fmLH364HyTvDQ=
 github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUqJM=
 github.com/hexops/gotextdiff v1.0.3/go.mod h1:pSWU5MAI3yDq+fZBTazCSJysOMbxWL1BSow5/V2vxeg=
 github.com/huandu/xstrings v1.5.0 h1:2ag3IFq9ZDANvthTwTiqSSZLjDc+BedvHPAp5tJy2TI=
