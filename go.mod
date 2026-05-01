@@ -11,7 +11,7 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.1
 	github.com/goreleaser/nfpm/v2 v2.46.3
-	github.com/klauspost/compress v1.18.5
+	github.com/klauspost/compress v1.18.6
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.23 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.0
