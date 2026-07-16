@@ -3,7 +3,7 @@ module github.com/balibuild/bali/v3
 go 1.26.4
 
 require (
-	github.com/alecthomas/kong v1.15.0
+	github.com/alecthomas/kong v1.16.0
 	github.com/andybalholm/brotli v1.2.2
 	github.com/charmbracelet/x/ansi v0.11.7
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
