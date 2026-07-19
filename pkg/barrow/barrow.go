@@ -87,6 +87,7 @@ func isDistSupported(ctx context.Context, target, arch string) bool {
 			return true
 		}
 	}
+	_ = br.Err() // ignore
 	return false
 }
 
