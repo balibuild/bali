@@ -5,7 +5,7 @@ go 1.26.4
 require (
 	github.com/alecthomas/kong v1.16.1
 	github.com/andybalholm/brotli v1.2.2
-	github.com/charmbracelet/x/ansi v0.11.7
+	github.com/charmbracelet/x/ansi v0.11.8
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/dsnet/compress v0.0.1
@@ -13,7 +13,7 @@ require (
 	github.com/goreleaser/nfpm/v2 v2.47.0
 	github.com/klauspost/compress v1.19.2
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
-	github.com/mattn/go-runewidth v0.0.23 // indirect
+	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/ulikunitz/xz v0.5.16
 	golang.org/x/sys v0.47.0
