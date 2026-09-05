@@ -72,11 +72,10 @@ func addIcon(coff *coff.Coff, iconPath string, newID <-chan uint16) error {
 
 	if len(icons) > 0 {
 		// RT_ICONs
-		group := gRPICONDIR{ICONDIR: ico.ICONDIR{
+		group := gRPICONDIR{
 			Reserved: 0, // magic num.
 			Type:     1, // magic num.
-			Count:    uint16(len(icons)),
-		}}
+			Count:    uint16(len(icons))}
 		gid := <-newID
 		for _, icon := range icons {
 			id := <-newID

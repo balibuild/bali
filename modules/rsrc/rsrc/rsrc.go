@@ -82,11 +82,10 @@ func addIcon(out *coff.Coff, fname string, newid func() uint16) (io.Closer, erro
 
 	if len(icons) > 0 {
 		// RT_ICONs
-		group := _GRPICONDIR{ICONDIR: ico.ICONDIR{
+		group := _GRPICONDIR{
 			Reserved: 0, // magic num.
 			Type:     1, // magic num.
-			Count:    uint16(len(icons)),
-		}}
+			Count:    uint16(len(icons))}
 		gid := newid()
 		for _, icon := range icons {
 			id := newid()
