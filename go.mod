@@ -11,7 +11,7 @@ require (
 	github.com/goreleaser/nfpm/v2 v2.47.0
 	github.com/klauspost/compress v1.20.0
 	github.com/pelletier/go-toml/v2 v2.4.3
-	github.com/ulikunitz/xz v0.5.16
+	github.com/ulikunitz/xz v0.5.17
 	golang.org/x/sys v0.48.0
 	golang.org/x/term v0.46.0
 )
