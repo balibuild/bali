@@ -3,7 +3,7 @@ module github.com/balibuild/bali/v3
 go 1.27
 
 require (
-	github.com/alecthomas/kong v1.16.1
+	github.com/alecthomas/kong v1.17.0
 	github.com/andybalholm/brotli v1.2.7
 	github.com/charmbracelet/x/ansi v0.11.9
 	github.com/dsnet/compress v0.0.1
