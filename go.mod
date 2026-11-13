@@ -4,7 +4,7 @@ go 1.27
 
 require (
 	github.com/alecthomas/kong v1.17.0
-	github.com/andybalholm/brotli v1.2.8
+	github.com/andybalholm/brotli v1.3.0
 	github.com/charmbracelet/x/ansi v0.11.9
 	github.com/dsnet/compress v0.0.1
 	github.com/google/rpmpack v0.7.1
